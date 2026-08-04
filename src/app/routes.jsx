@@ -6,7 +6,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 |--------------------------------------------------------------------------
 */
 
-import ProtectedRoute from "../routes/ProtectedRoutes.jsx";
+import ProtectedRoutes from "../routes/ProtectedRoutes.jsx";
 import PublicRoute from "../routes/PublicRoute.jsx";
 
 /*
@@ -68,7 +68,7 @@ export default function AppRoutes() {
              * ============================================================
              */}
 
-            <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedRoutes />}>
 
                 <Route element={<MainLayout />}>
 

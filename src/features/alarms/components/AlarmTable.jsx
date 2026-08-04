@@ -264,7 +264,7 @@ export default function AlarmTable() {
 
                             size="small"
 
-                            onClick={() => viewAlarm(row)}
+                            onClick={() => viewAlarm(row.id)}
 
                         >
 

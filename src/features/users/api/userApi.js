@@ -159,3 +159,15 @@ export async function getRoles() {
     return data;
 
 }
+
+export async function getSites() {
+
+    const { data } = await apiClient.get(
+
+        "/users/sites"
+
+    );
+
+    return data;
+
+}

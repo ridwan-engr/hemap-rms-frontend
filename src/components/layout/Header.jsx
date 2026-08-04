@@ -16,7 +16,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 
 import { useDispatch } from "react-redux";
 
-import { refreshDashboard } from "../../store/slices/dashboardSlice";
+import { refreshDashboard } from "../../store/slices/dashboardSlice.js";
 
 export default function Header({
 

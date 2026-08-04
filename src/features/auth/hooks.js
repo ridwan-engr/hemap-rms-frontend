@@ -7,7 +7,7 @@ import {
     loginFailure,
     logout
 
-} from "./authSlice";
+} from "./authSlice.js";
 
 import * as api from "./api";
 

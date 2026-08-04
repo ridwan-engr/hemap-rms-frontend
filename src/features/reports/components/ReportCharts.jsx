@@ -30,7 +30,7 @@ import {
 
 } from "recharts";
 
-import useReports from "../hooks/useReports";
+import useReports from "../hooks/useReports.js";
 
 /*
 |--------------------------------------------------------------------------

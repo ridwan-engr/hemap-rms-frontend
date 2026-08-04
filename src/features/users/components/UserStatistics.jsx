@@ -114,9 +114,13 @@ export default function UserStatistics() {
 
                         />
 
-                        <XAxis
+                        <XAxis dataKey="role" />
 
-                            dataKey="role"
+                        <Bar
+
+                            dataKey="total"
+
+                            name="Users"
 
                         />
 

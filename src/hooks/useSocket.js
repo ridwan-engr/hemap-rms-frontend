@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import socketService from "../socket/socketService.js";
+
 import SOCKET_EVENTS from "../socket/socketEvents.js";
 
 import {
@@ -22,7 +23,7 @@ import {
 
 import {
     updateReliabilityRealtime
-} from "../store/slices/reliabilitySlice";
+} from "../store/slices/reliabilitySlice.js";
 
 /**
  * ============================================================================

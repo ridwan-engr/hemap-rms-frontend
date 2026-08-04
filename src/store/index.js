@@ -6,15 +6,15 @@ import { configureStore } from "@reduxjs/toolkit";
 |--------------------------------------------------------------------------
 */
 
-import authReducer from "./slices/authSlice";
-import dashboardReducer from "./slices/dashboardSlice";
-import analyticsReducer from "./slices/analyticsSlice";
-import alarmReducer from "./slices/alarmSlice";
-import siteReducer from "./slices/siteSlice";
-import deviceReducer from "./slices/deviceSlice";
-import userReducer from "./slices/userSlice";
-import optimizationReducer from "./slices/optimizationSlice";
-import reliabilityReducer from "./slices/reliabilitySlice";
+import authReducer from "./slices/authSlice.js";
+import dashboardReducer from "./slices/dashboardSlice.js";
+import analyticsReducer from "./slices/analyticsSlice.js";
+import alarmReducer from "./slices/alarmSlice.js";
+import siteReducer from "./slices/siteSlice.js";
+import deviceReducer from "./slices/deviceSlice.js";
+import userReducer from "./slices/userSlice.js";
+import optimizationReducer from "./slices/optimizationSlice.js";
+import reliabilityReducer from "./slices/reliabilitySlice.js";
 
 /*
 |--------------------------------------------------------------------------

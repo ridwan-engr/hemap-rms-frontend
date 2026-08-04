@@ -17,9 +17,9 @@ import {
 
 } from "@mui/material";
 
-import useReports from "../hooks/useReports";
+import useReports from "../hooks/useReports.js";
 
-import useSites from "../../sites/hooks/useSites";
+import useSites from "../../sites/hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------

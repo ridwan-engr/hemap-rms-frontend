@@ -1,19 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    currentRun: null,
 
-    history: [],
+    ens: 0,
 
-    recommendations: [],
+    saidi: 0,
 
-    progress: 0,
+    saifi: 0,
 
-    solver: null,
+    lolp: 0,
 
-    objectives: null,
+    availability: 0,
 
-    dispatch: [],
+    interruptionFrequency: 0,
+
+    interruptionDuration: 0,
 
     status: "idle",
 
@@ -22,88 +23,82 @@ const initialState = {
     error: null,
 
     lastUpdated: null
+
 };
 
-const optimizationSlice = createSlice({
+const reliabilitySlice = createSlice({
 
-    name: "optimization",
+    name: "reliability",
 
     initialState,
 
     reducers: {
 
-        startOptimization(state) {
+        setReliability(state, action) {
 
-            state.loading = true;
-
-            state.status = "running";
-
-            state.error = null;
-
-        },
-
-        optimizationSucceeded(state, action) {
-
-            state.loading = false;
-
-            state.status = "completed";
-
-            state.currentRun = action.payload;
+            Object.assign(state, action.payload);
 
             state.lastUpdated = new Date().toISOString();
 
         },
 
-        optimizationFailed(state, action) {
-
-            state.loading = false;
-
-            state.status = "failed";
-
-            state.error = action.payload;
-
-        },
-
-        setOptimizationHistory(state, action) {
-
-            state.history = action.payload;
-
-        },
-
-        clearOptimization(state) {
+        clearReliability(state) {
 
             Object.assign(state, initialState);
 
         },
 
-        updateOptimizationRealtime(state, action) {
+        reliabilityLoading(state) {
+
+            state.loading = true;
+
+        },
+
+        reliabilityLoaded(state) {
+
+            state.loading = false;
+
+        },
+
+        reliabilityFailed(state, action) {
+
+            state.loading = false;
+
+            state.error = action.payload;
+
+        },
+
+        updateReliabilityRealtime(state, action) {
 
             const payload = action.payload;
 
             if (!payload) return;
 
-            if (payload.progress !== undefined)
-                state.progress = payload.progress;
+            if (payload.ens !== undefined)
+                state.ens = payload.ens;
 
-            if (payload.status)
-                state.status = payload.status;
+            if (payload.saidi !== undefined)
+                state.saidi = payload.saidi;
 
-            if (payload.dispatch)
-                state.dispatch = payload.dispatch;
+            if (payload.saifi !== undefined)
+                state.saifi = payload.saifi;
 
-            if (payload.objectives)
-                state.objectives = payload.objectives;
+            if (payload.lolp !== undefined)
+                state.lolp = payload.lolp;
 
-            if (payload.solver)
-                state.solver = payload.solver;
+            if (payload.availability !== undefined)
+                state.availability = payload.availability;
 
-            if (payload.recommendations)
-                state.recommendations = payload.recommendations;
+            if (payload.interruptionFrequency !== undefined)
+                state.interruptionFrequency =
+                    payload.interruptionFrequency;
 
-            if (payload.currentRun)
-                state.currentRun = payload.currentRun;
+            if (payload.interruptionDuration !== undefined)
+                state.interruptionDuration =
+                    payload.interruptionDuration;
 
             state.lastUpdated = new Date().toISOString();
+
         }
 
     }
@@ -112,18 +107,18 @@ const optimizationSlice = createSlice({
 
 export const {
 
-    startOptimization,
+    setReliability,
 
-    optimizationSucceeded,
+    clearReliability,
 
-    optimizationFailed,
+    reliabilityLoading,
 
-    setOptimizationHistory,
+    reliabilityLoaded,
 
-    clearOptimization,
+    reliabilityFailed,
 
-    updateOptimizationRealtime
+    updateReliabilityRealtime
 
-} = optimizationSlice.actions;
+} = reliabilitySlice.actions;
 
-export default optimizationSlice.reducer;
+export default reliabilitySlice.reducer;

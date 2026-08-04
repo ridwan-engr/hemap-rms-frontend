@@ -20,7 +20,7 @@ import TimerIcon from "@mui/icons-material/Timer";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import ShieldIcon from "@mui/icons-material/Shield";
 
-import useReports from "../hooks/useReports";
+import useReports from "../hooks/useReports.js";
 
 /*
 |--------------------------------------------------------------------------

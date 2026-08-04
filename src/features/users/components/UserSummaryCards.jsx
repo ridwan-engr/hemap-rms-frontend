@@ -309,7 +309,7 @@ export default function UserSummaryCards() {
 
                 <SummaryCard
 
-                    title="Disabled Users"
+                    title="Inactive Users"
 
                     value={
 

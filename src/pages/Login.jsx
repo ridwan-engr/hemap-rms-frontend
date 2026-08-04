@@ -1,19 +1,40 @@
-import { useEffect, useState } from "react";
 import {
-    Alert,
-    Box,
-    Button,
-    CircularProgress,
+
+    useState,
+    useEffect
+
+} from "react";
+
+import {
+
     Paper,
     Stack,
     TextField,
-    Typography
+    Typography,
+    Button,
+    CircularProgress,
+    Alert
+
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import {
 
-import { login } from "../store/slices/authSlice";
+    useDispatch,
+    useSelector
+
+} from "react-redux";
+
+import {
+
+    login
+
+} from "../store/slices/authSlice";
+
+import {
+
+    useNavigate
+
+} from "react-router-dom";
 
 export default function Login() {
 
@@ -23,11 +44,9 @@ export default function Login() {
 
     const {
 
-        isauthenticated,
-
         loading,
-
-        error
+        error,
+        isAuthenticated
 
     } = useSelector(
 
@@ -51,7 +70,7 @@ export default function Login() {
 
     useEffect(() => {
 
-        if (isauthenticated) {
+        if (isAuthenticated) {
 
             navigate(
 
@@ -69,7 +88,7 @@ export default function Login() {
 
     }, [
 
-        isauthenticated,
+        isAuthenticated,
 
         navigate
 
@@ -81,9 +100,7 @@ export default function Login() {
 
             ...credentials,
 
-            [event.target.name]:
-
-                event.target.value
+            [event.target.name]: event.target.value
 
         });
 
@@ -93,11 +110,13 @@ export default function Login() {
 
         event.preventDefault();
 
-        await dispatch(
+        const result = await dispatch(
 
             login(credentials)
 
         );
+
+        console.log(result);
 
     }
 
@@ -109,25 +128,25 @@ export default function Login() {
 
             sx={{
 
-                width: 420,
+                width:420,
 
-                p: 5,
+                p:5,
 
-                borderRadius: 3
+                mx:"auto",
+
+                mt:10
 
             }}
 
         >
 
-            <Stack spacing={3}>
+            <form onSubmit={handleSubmit}>
 
-                <Box>
+                <Stack spacing={3}>
 
                     <Typography
 
                         variant="h4"
-
-                        fontWeight={700}
 
                     >
 
@@ -135,22 +154,9 @@ export default function Login() {
 
                     </Typography>
 
-                    <Typography
+                    {
 
-                        color="text.secondary"
-
-                    >
-
-                        Hybrid Energy Monitoring &
-                        Analytics Platform
-
-                    </Typography>
-
-                </Box>
-
-                {
-
-                    error && (
+                        error &&
 
                         <Alert severity="error">
 
@@ -158,75 +164,47 @@ export default function Login() {
 
                         </Alert>
 
-                    )
+                    }
 
-                }
+                    <TextField
 
-                <TextField
+                        label="Email"
 
-                    
-                    label="Email"
+                        name="email"
 
-                    name="email"
+                        value={credentials.email}
 
-                    type="email"
+                        onChange={handleChange}
 
-                    autoComplete="email"
+                    />
 
-                    fullWidth
+                    <TextField
 
-                    value={credentials.email}
+                        label="Password"
 
-                    onChange={handleChange}
+                        name="password"
 
-                />
+                        type="password"
 
-                <TextField
+                        value={credentials.password}
 
-                    label="Password"
+                        onChange={handleChange}
 
-                    name="password"
+                    />
 
-                    type="password"
+                    <Button
 
-                    autoComplete="current-password"
+                        type="submit"
 
-                    fullWidth
+                        variant="contained"
 
-                    value={credentials.password}
+                        disabled={loading}
 
-                    onChange={handleChange}
-
-                />
-
-                <Button
-
-                    fullWidth
-
-                    variant="contained"
-
-                    size="large"
-
-                    disabled={loading}
-
-                    onClick={handleSubmit}
-
-                >
-
-                    <Box
-                        component="form"
-                        onSubmit={handleSubmit}
                     >
 
-                        <Button
-                            type="submit"
-                        ></Button>
+                        {
 
-                    </Box>
-
-                    {
-
-                        loading
+                            loading
 
                             ?
 
@@ -242,14 +220,16 @@ export default function Login() {
 
                             "Sign In"
 
-                    }
+                        }
 
-                </Button>
+                    </Button>
 
-            </Stack>
+                </Stack>
+
+            </form>
 
         </Paper>
 
     );
 
-}
+} 

@@ -1,141 +1,39 @@
 import axios from "axios";
 
-/*
-|--------------------------------------------------------------------------
-| API Configuration
-|--------------------------------------------------------------------------
-|
-| All HTTP requests in the application use this Axios instance.
-| Base URL and timeout are configured here.
-|
-*/
-
 const apiClient = axios.create({
-
-    baseURL:
-
-        import.meta.env.VITE_API_BASE_URL ||
-
-        "http://localhost:3101/api",
-
-    timeout: 30000,
-
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:3101/api/v1",
     headers: {
-
         "Content-Type": "application/json"
-
     }
-
 });
 
-/*
-|--------------------------------------------------------------------------
-| Request Interceptor
-|--------------------------------------------------------------------------
-*/
+apiClient.interceptors.request.use((config) => {
 
-apiClient.interceptors.request.use(
+    const token = localStorage.getItem("accessToken");
 
-    config => {
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
 
-        const token =
-
-            localStorage.getItem("accessToken");
-
-        if (token) {
-
-            config.headers.Authorization =
-
-                `Bearer ${token}`;
-
-        }
-
-        return config;
+    return config;
 
     },
-
-    error => Promise.reject(error)
-
+    (error) => Promise.reject(error)
 );
 
-/*
-|--------------------------------------------------------------------------
-| Response Interceptor
-|--------------------------------------------------------------------------
-*/
+
 
 apiClient.interceptors.response.use(
 
-    response => response,
+    (response) => response,
 
-    error => {
+    (error) => {
 
-        /*
-        --------------------------------------------------------------
-        | Authentication
-        --------------------------------------------------------------
-        */
+        if (error.response?.status === 401) {
 
-        if (
+            localStorage.clear();
 
-            error.response?.status === 401
-
-        ) {
-
-            console.warn(
-
-                "Unauthorized request."
-
-            );
-
-            /*
-             * Future enhancement:
-             *
-             * Refresh access token automatically.
-             * Redirect to login when refresh fails.
-             */
-
-        }
-
-        /*
-        --------------------------------------------------------------
-        | Forbidden
-        --------------------------------------------------------------
-        */
-
-        if (
-
-            error.response?.status === 403
-
-        ) {
-
-            console.warn(
-
-                "Access denied."
-
-            );
-
-        }
-
-        /*
-        --------------------------------------------------------------
-        | Internal Server Error
-        --------------------------------------------------------------
-        */
-
-        if (
-
-            error.response?.status >= 500
-
-        ) {
-
-            console.error(
-
-                "Server error.",
-
-                error.response
-
-            );
+            window.location.href = "/login";
 
         }
 

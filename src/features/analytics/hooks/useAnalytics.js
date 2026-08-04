@@ -30,7 +30,7 @@ import {
 
     setAnalyticsFilters
 
-} from "../../../store/slices/analyticsSlice";
+} from "../../../store/slices/analyticsSlice.js";
 
 /*
 |--------------------------------------------------------------------------

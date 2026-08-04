@@ -235,6 +235,8 @@ export default function DeviceForm({
 
         }
 
+        reload();
+
         onClose();
 
     };

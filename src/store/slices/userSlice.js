@@ -16,7 +16,7 @@ import {
     deleteUser as deleteUserApi,
     refreshUsers as refreshUsersApi
 
-} from "../../features/users/api/userApi";
+} from "../../features/users/api/userApi.js";
 
 /*
 |--------------------------------------------------------------------------

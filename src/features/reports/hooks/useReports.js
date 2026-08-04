@@ -21,7 +21,7 @@ import {
     fetchReportResponse,
     clearReport
 
-} from "../../../store/slices/reportSlice";
+} from "../../../store/slices/reportSlice.js";
 
 /*
 |--------------------------------------------------------------------------

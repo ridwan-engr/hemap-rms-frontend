@@ -7,7 +7,7 @@ import {
     fetchDashboardKPIs,
     fetchDashboardMap,
     refreshDashboard
-} from "../../../store/slices/dashboardSlice";
+} from "../../../store/slices/dashboardSlice.js";
 
 /**
  * ============================================================================

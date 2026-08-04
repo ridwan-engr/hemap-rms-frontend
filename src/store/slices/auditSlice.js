@@ -15,7 +15,7 @@ import {
     getAuditSummary,
     getAuditStatistics
 
-} from "../../features/audit/api/auditApi";
+} from "../../features/audit/api/auditApi.js";
 
 /*
 |--------------------------------------------------------------------------

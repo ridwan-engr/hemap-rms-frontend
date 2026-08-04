@@ -140,31 +140,31 @@ export default function UserTable({
         },
 
         {
-    field: "assignedSites",
+            field: "assignedSites",
 
-    headerName: "Assigned Sites",
+            headerName: "Assigned Sites",
 
-    flex: 1.3,
+            flex: 1.3,
 
-    minWidth: 220,
+            minWidth: 220,
 
-    renderCell: ({ value }) => {
+            renderCell: ({ value }) => {
 
-        if (!value?.length) {
+                if (!value?.length) {
 
-            return "-";
+                    return "-";
 
-        }
+                }
 
-        return value
+                return value
 
-            .map(site => site.siteName)
+                    .map(site => site.siteName)
 
-            .join(", ");
+                    .join(", ");
 
-    }
+            }
 
-},
+        },
 
         {
 

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Grid, Stack, Alert } from "@mui/material";
+import { Alert, Grid, Stack } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 
 import DashboardHeader from "../features/dashboard/components/DashboardHeader.jsx";
@@ -12,46 +12,41 @@ import DashboardReliability from "../features/dashboard/components/DashboardReli
 import DashboardOptimization from "../features/dashboard/components/DashboardOptimization.jsx";
 import DashboardForecast from "../features/dashboard/components/DashboardForecast.jsx";
 
-import { fetchDashboard } from "../store/slices/dashboardSlice.js";
+import {
+    fetchDashboard,
+    refreshDashboard
+} from "../store/slices/dashboardSlice.js";
 
 export default function Dashboard() {
 
     const dispatch = useDispatch();
 
     const {
-
         loading,
-
         error,
-
-        dashboard
-
-    } = useSelector(
-
-        state => state.dashboard
-
-    );
+        dashboard,
+        lastUpdated
+    } = useSelector((state) => state.dashboard);
 
     useEffect(() => {
-
-        dispatch(
-
-            fetchDashboard()
-
-        );
-
+        dispatch(fetchDashboard());
     }, [dispatch]);
+
+    const handleRefresh = () => {
+        dispatch(refreshDashboard());
+    };
 
     if (error) {
 
         return (
-
             <Alert severity="error">
-
-                {error}
-
+                {
+                    typeof error === "string"
+                        ? error
+                        : error?.message ??
+                        JSON.stringify(error)
+                }
             </Alert>
-
         );
 
     }
@@ -60,38 +55,33 @@ export default function Dashboard() {
 
         <Stack spacing={3}>
 
-            <DashboardHeader />
+            <DashboardHeader
+                loading={loading}
+                lastUpdated={lastUpdated}
+                onRefresh={() => dispatch(refreshDashboard())}
+            />
 
             <DashboardKPIs
 
-                statistics={dashboard?.statistics}
+                cards={dashboard?.statistics}
 
                 loading={loading}
 
             />
 
             <DashboardStatus
-
                 statistics={dashboard?.statistics}
-
                 loading={loading}
-
             />
 
             <DashboardTelemetry
-
-                telemetry={dashboard?.statistics}
-
+                telemetry={dashboard?.telemetry}
                 loading={loading}
-
             />
 
             <DashboardEnergy
-
                 statistics={dashboard?.statistics}
-
                 loading={loading}
-
             />
 
             <Grid
@@ -107,11 +97,8 @@ export default function Dashboard() {
                 >
 
                     <DashboardAlarms
-
                         alarms={dashboard?.statistics?.alarms ?? []}
-
                         loading={loading}
-
                     />
 
                 </Grid>
@@ -124,11 +111,8 @@ export default function Dashboard() {
                 >
 
                     <DashboardReliability
-
                         reliability={dashboard?.reliability}
-
                         loading={loading}
-
                     />
 
                 </Grid>
@@ -136,19 +120,13 @@ export default function Dashboard() {
             </Grid>
 
             <DashboardOptimization
-
                 optimization={dashboard?.optimization}
-
                 loading={loading}
-
             />
 
             <DashboardForecast
-
                 forecasts={dashboard?.forecasts}
-
                 loading={loading}
-
             />
 
         </Stack>

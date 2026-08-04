@@ -8,7 +8,9 @@ const initialState = {
 
     loading: false,
 
-    connected: false
+    connected: false,
+
+    lastUpdated: null
 
 };
 
@@ -50,6 +52,18 @@ const telemetrySlice = createSlice({
 
             state.connected = false;
 
+        },
+
+        updateTelemetryRealtime(state, action) {
+
+            const payload = action.payload;
+
+            if (!payload) return;
+
+            state.latest = payload;
+
+            state.lastUpdated = new Date().toISOString();
+
         }
 
     }
@@ -66,7 +80,9 @@ export const {
 
     telemetryConnected,
 
-    telemetryDisconnected
+    telemetryDisconnected,
+
+    updateTelemetryRealtime
 
 } = telemetrySlice.actions;
 

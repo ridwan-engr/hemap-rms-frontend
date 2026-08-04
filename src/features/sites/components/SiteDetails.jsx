@@ -11,7 +11,7 @@ import {
 
 } from "@mui/material";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSite.js";
 
 /*
 |--------------------------------------------------------------------------

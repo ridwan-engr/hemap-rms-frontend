@@ -445,7 +445,7 @@ const analyticsSlice = createSlice({
 
                 state.loading = false;
 
-                state.dashboard = action.payload;
+                state.dashboard = action.payload.data;
 
                 state.lastUpdated = new Date().toISOString();
 

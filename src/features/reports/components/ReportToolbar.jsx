@@ -17,7 +17,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ClearAllIcon from "@mui/icons-material/ClearAll";
 
-import useReports from "../hooks/useReports";
+import useReports from "../hooks/useReports.js";
 
 /*
 |--------------------------------------------------------------------------

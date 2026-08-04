@@ -1,5 +1,5 @@
-import socket from "../socket/socket";
-import SOCKET_EVENTS from "../socket/socketEvents";
+import socket from "../socket/socket.js";
+import SOCKET_EVENTS from "../socket/socketEvents.js";
 
 /**
  * ============================================================================
