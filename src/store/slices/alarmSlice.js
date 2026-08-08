@@ -1,18 +1,18 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+    createSlice,
+    createAsyncThunk
+} from "@reduxjs/toolkit";
 
 import {
-
-    getAlarms,
-    getActiveSummary,
+    getActiveAlarms,
+    getAlarmHistory,
     getAlarmStatistics,
-    getSeverityDistribution,
-    getAlarmTrends,
+    getAlarmSummary,
     getAlarmById,
     acknowledgeAlarm as acknowledgeAlarmApi,
     resolveAlarm as resolveAlarmApi,
     deleteAlarm as deleteAlarmApi
-
-} from "../../features/alarms/api/alarmApi";
+} from "../../features/alarms/api/alarmApi.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -20,15 +20,21 @@ import {
 |--------------------------------------------------------------------------
 */
 
-export const fetchAlarms = createAsyncThunk(
+/*
+|--------------------------------------------------------------------------
+| Fetch Active Alarms
+|--------------------------------------------------------------------------
+*/
 
-    "alarms/fetchAlarms",
+export const fetchActiveAlarms = createAsyncThunk(
 
-    async (filters = {}, { rejectWithValue }) => {
+    "alarms/fetchActiveAlarms",
+
+    async (params = {}, { rejectWithValue }) => {
 
         try {
 
-            return await getAlarms(filters);
+            return await getActiveAlarms(params);
 
         }
 
@@ -48,15 +54,21 @@ export const fetchAlarms = createAsyncThunk(
 
 );
 
-export const fetchActiveSummary = createAsyncThunk(
+/*
+|--------------------------------------------------------------------------
+| Fetch Alarm History
+|--------------------------------------------------------------------------
+*/
 
-    "alarms/fetchActiveSummary",
+export const fetchAlarmHistory = createAsyncThunk(
 
-    async (filters = {}, { rejectWithValue }) => {
+    "alarms/fetchAlarmHistory",
+
+    async (params = {}, { rejectWithValue }) => {
 
         try {
 
-            return await getActiveSummary(filters);
+            return await getAlarmHistory(params);
 
         }
 
@@ -75,16 +87,22 @@ export const fetchActiveSummary = createAsyncThunk(
     }
 
 );
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Alarm Statistics
+|--------------------------------------------------------------------------
+*/
 
 export const fetchAlarmStatistics = createAsyncThunk(
 
-    "alarms/fetchStatistics",
+    "alarms/fetchAlarmStatistics",
 
-    async (filters = {}, { rejectWithValue }) => {
+    async (params = {}, { rejectWithValue }) => {
 
         try {
 
-            return await getAlarmStatistics(filters);
+            return await getAlarmStatistics(params);
 
         }
 
@@ -104,15 +122,21 @@ export const fetchAlarmStatistics = createAsyncThunk(
 
 );
 
-export const fetchSeverityDistribution = createAsyncThunk(
+/*
+|--------------------------------------------------------------------------
+| Fetch Alarm Summary
+|--------------------------------------------------------------------------
+*/
 
-    "alarms/fetchSeverity",
+export const fetchAlarmSummary = createAsyncThunk(
 
-    async (filters = {}, { rejectWithValue }) => {
+    "alarms/fetchAlarmSummary",
+
+    async (params = {}, { rejectWithValue }) => {
 
         try {
 
-            return await getSeverityDistribution(filters);
+            return await getAlarmSummary(params);
 
         }
 
@@ -132,15 +156,21 @@ export const fetchSeverityDistribution = createAsyncThunk(
 
 );
 
-export const fetchAlarmTrends = createAsyncThunk(
+/*
+|--------------------------------------------------------------------------
+| Fetch Alarm By ID
+|--------------------------------------------------------------------------
+*/
 
-    "alarms/fetchTrends",
+export const fetchAlarm = createAsyncThunk(
 
-    async (filters = {}, { rejectWithValue }) => {
+    "alarms/fetchAlarm",
+
+    async (alarmId, { rejectWithValue }) => {
 
         try {
 
-            return await getAlarmTrends(filters);
+            return await getAlarmById(alarmId);
 
         }
 
@@ -160,43 +190,21 @@ export const fetchAlarmTrends = createAsyncThunk(
 
 );
 
-export const fetchAlarmDetails = createAsyncThunk(
-
-    "alarms/fetchDetails",
-
-    async (id, { rejectWithValue }) => {
-
-        try {
-
-            return await getAlarmById(id);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
+/*
+|--------------------------------------------------------------------------
+| Acknowledge Alarm
+|--------------------------------------------------------------------------
+*/
 
 export const acknowledgeAlarm = createAsyncThunk(
 
-    "alarms/acknowledge",
+    "alarms/acknowledgeAlarm",
 
-    async (id, { rejectWithValue }) => {
+    async (alarmId, { rejectWithValue }) => {
 
         try {
 
-            return await acknowledgeAlarmApi(id);
+            return await acknowledgeAlarmApi(alarmId);
 
         }
 
@@ -216,17 +224,35 @@ export const acknowledgeAlarm = createAsyncThunk(
 
 );
 
+/*
+|--------------------------------------------------------------------------
+| Resolve Alarm
+|--------------------------------------------------------------------------
+*/
+
 export const resolveAlarm = createAsyncThunk(
 
-    "alarms/resolve",
+    "alarms/resolveAlarm",
 
-    async ({ id, payload }, { rejectWithValue }) => {
+    async (
+
+        {
+
+            alarmId,
+
+            payload = {}
+
+        },
+
+        { rejectWithValue }
+
+    ) => {
 
         try {
 
             return await resolveAlarmApi(
 
-                id,
+                alarmId,
 
                 payload
 
@@ -250,17 +276,23 @@ export const resolveAlarm = createAsyncThunk(
 
 );
 
+/*
+|--------------------------------------------------------------------------
+| Delete Alarm
+|--------------------------------------------------------------------------
+*/
+
 export const deleteAlarm = createAsyncThunk(
 
-    "alarms/delete",
+    "alarms/deleteAlarm",
 
-    async (id, { rejectWithValue }) => {
+    async (alarmId, { rejectWithValue }) => {
 
         try {
 
-            await deleteAlarmApi(id);
+            await deleteAlarmApi(alarmId);
 
-            return id;
+            return alarmId;
 
         }
 
@@ -288,33 +320,29 @@ export const deleteAlarm = createAsyncThunk(
 
 const initialState = {
 
-    alarms: [],
+    active: [],
 
-    total: 0,
+    history: [],
 
-    activeSummary: null,
+    statistics: {},
 
-    statistics: null,
-
-    severity: [],
-
-    trends: [],
+    summary: {},
 
     selectedAlarm: null,
 
-    filters: {},
-
-    paginationModel: {
-
-        page: 0,
-
-        pageSize: 25
-
-    },
-
     loading: false,
 
-    refreshing: false,
+    loadingActive: false,
+
+    loadingHistory: false,
+
+    loadingStatistics: false,
+
+    loadingSummary: false,
+
+    loadingAlarm: false,
+
+    processing: false,
 
     error: null,
 
@@ -336,59 +364,31 @@ const alarmSlice = createSlice({
 
     reducers: {
 
-        setFilters(state, action) {
-
-            state.filters = action.payload;
-
-        },
-
-        setPaginationModel(state, action) {
-
-            state.paginationModel = action.payload;
-
-        },
-
         clearSelectedAlarm(state) {
 
             state.selectedAlarm = null;
 
         },
 
-        socketAlarmCreated(state, action) {
+        clearAlarmError(state) {
 
-            state.alarms.unshift(action.payload);
-
-            state.total += 1;
-
-            state.lastUpdated = new Date().toISOString();
+            state.error = null;
 
         },
 
-        socketAlarmUpdated(state, action) {
+        clearAlarms(state) {
 
-            const index = state.alarms.findIndex(
+            state.active = [];
 
-                alarm => alarm.id === action.payload.id
+            state.history = [];
 
-            );
+            state.statistics = {};
 
-            if (index !== -1) {
+            state.summary = {};
 
-                state.alarms[index] = action.payload;
+            state.selectedAlarm = null;
 
-            }
-
-        },
-
-        socketAlarmDeleted(state, action) {
-
-            state.alarms = state.alarms.filter(
-
-                alarm => alarm.id !== action.payload
-
-            );
-
-            state.total--;
+            state.error = null;
 
         }
 
@@ -396,89 +396,619 @@ const alarmSlice = createSlice({
 
     extraReducers: builder => {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Active Alarms
+        |--------------------------------------------------------------------------
+        */
+
         builder
 
-            .addCase(fetchAlarms.pending, state => {
+            .addCase(
 
-                state.loading = true;
+                fetchActiveAlarms.pending,
 
-                state.error = null;
+                state => {
 
-            })
+                    state.loading = true;
 
-            .addCase(fetchAlarms.fulfilled, (state, action) => {
+                    state.loadingActive = true;
 
-                state.loading = false;
+                    state.error = null;
 
-                state.alarms = action.payload.rows;
+                }
 
-                state.total = action.payload.total;
+            )
 
-                state.lastUpdated = new Date().toISOString();
+            .addCase(
 
-            })
+                fetchActiveAlarms.fulfilled,
 
-            .addCase(fetchAlarms.rejected, (state, action) => {
+                (state, action) => {
 
-                state.loading = false;
+                    state.loading = false;
 
-                state.error = action.payload;
+                    state.loadingActive = false;
 
-            });
+                    state.active =
 
-        builder.addCase(fetchActiveSummary.fulfilled, (state, action) => {
+                        Array.isArray(action.payload)
 
-            state.activeSummary = action.payload;
+                            ? action.payload
 
-        });
+                            : action.payload?.rows ||
 
-        builder.addCase(fetchAlarmStatistics.fulfilled, (state, action) => {
+                              action.payload?.alarms ||
 
-            state.statistics = action.payload;
+                              action.payload?.data ||
 
-        });
+                              [];
 
-        builder.addCase(fetchSeverityDistribution.fulfilled, (state, action) => {
+                    state.lastUpdated =
 
-            state.severity = action.payload;
+                        new Date().toISOString();
 
-        });
+                }
 
-        builder.addCase(fetchAlarmTrends.fulfilled, (state, action) => {
+            )
 
-            state.trends = action.payload;
+            .addCase(
 
-        });
+                fetchActiveAlarms.rejected,
 
-        builder.addCase(fetchAlarmDetails.fulfilled, (state, action) => {
+                (state, action) => {
 
-            state.selectedAlarm = action.payload;
+                    state.loading = false;
 
-        });
+                    state.loadingActive = false;
 
-        builder.addCase(acknowledgeAlarm.fulfilled, (state) => {
+                    state.error = action.payload;
 
-            state.lastUpdated = new Date().toISOString();
-
-        });
-
-        builder.addCase(resolveAlarm.fulfilled, (state) => {
-
-            state.lastUpdated = new Date().toISOString();
-
-        });
-
-        builder.addCase(deleteAlarm.fulfilled, (state, action) => {
-
-            state.alarms = state.alarms.filter(
-
-                alarm => alarm.id !== action.payload
+                }
 
             );
 
-            state.total--;
+        /*
+        |--------------------------------------------------------------------------
+        | Alarm History
+        |--------------------------------------------------------------------------
+        */
 
-        });
+        builder
+
+            .addCase(
+
+                fetchAlarmHistory.pending,
+
+                state => {
+
+                    state.loading = true;
+
+                    state.loadingHistory = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmHistory.fulfilled,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.loadingHistory = false;
+
+                    state.history =
+
+                        Array.isArray(action.payload)
+
+                            ? action.payload
+
+                            : action.payload?.rows ||
+
+                              action.payload?.alarms ||
+
+                              action.payload?.data ||
+
+                              [];
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmHistory.rejected,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.loadingHistory = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alarm Statistics
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                fetchAlarmStatistics.pending,
+
+                state => {
+
+                    state.loadingStatistics = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmStatistics.fulfilled,
+
+                (state, action) => {
+
+                    state.loadingStatistics = false;
+
+                    state.statistics =
+
+                        action.payload || {};
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmStatistics.rejected,
+
+                (state, action) => {
+
+                    state.loadingStatistics = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alarm Summary
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                fetchAlarmSummary.pending,
+
+                state => {
+
+                    state.loadingSummary = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmSummary.fulfilled,
+
+                (state, action) => {
+
+                    state.loadingSummary = false;
+
+                    state.summary =
+
+                        action.payload || {};
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarmSummary.rejected,
+
+                (state, action) => {
+
+                    state.loadingSummary = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alarm Details
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                fetchAlarm.pending,
+
+                state => {
+
+                    state.loadingAlarm = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarm.fulfilled,
+
+                (state, action) => {
+
+                    state.loadingAlarm = false;
+
+                    state.selectedAlarm =
+
+                        action.payload;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchAlarm.rejected,
+
+                (state, action) => {
+
+                    state.loadingAlarm = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Acknowledge Alarm
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                acknowledgeAlarm.pending,
+
+                state => {
+
+                    state.processing = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                acknowledgeAlarm.fulfilled,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    const updatedAlarm =
+
+                        action.payload;
+
+                    const alarmId =
+
+                        updatedAlarm?._id ||
+
+                        updatedAlarm?.id;
+
+                    if (updatedAlarm && alarmId) {
+
+                        const activeIndex =
+
+                            state.active.findIndex(
+
+                                alarm =>
+
+                                    alarm._id === alarmId ||
+
+                                    alarm.id === alarmId
+
+                            );
+
+                        if (activeIndex !== -1) {
+
+                            state.active[activeIndex] =
+
+                                updatedAlarm;
+
+                        }
+
+                        if (
+
+                            state.selectedAlarm &&
+
+                            (
+
+                                state.selectedAlarm._id === alarmId ||
+
+                                state.selectedAlarm.id === alarmId
+
+                            )
+
+                        ) {
+
+                            state.selectedAlarm =
+
+                                updatedAlarm;
+
+                        }
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                acknowledgeAlarm.rejected,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Resolve Alarm
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                resolveAlarm.pending,
+
+                state => {
+
+                    state.processing = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                resolveAlarm.fulfilled,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    const updatedAlarm =
+
+                        action.payload;
+
+                    const alarmId =
+
+                        updatedAlarm?._id ||
+
+                        updatedAlarm?.id;
+
+                    if (updatedAlarm && alarmId) {
+
+                        state.active =
+
+                            state.active.filter(
+
+                                alarm =>
+
+                                    alarm._id !== alarmId &&
+
+                                    alarm.id !== alarmId
+
+                            );
+
+                        const historyIndex =
+
+                            state.history.findIndex(
+
+                                alarm =>
+
+                                    alarm._id === alarmId ||
+
+                                    alarm.id === alarmId
+
+                            );
+
+                        if (historyIndex !== -1) {
+
+                            state.history[historyIndex] =
+
+                                updatedAlarm;
+
+                        }
+
+                        else {
+
+                            state.history.unshift(
+
+                                updatedAlarm
+
+                            );
+
+                        }
+
+                        state.selectedAlarm =
+
+                            updatedAlarm;
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                resolveAlarm.rejected,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Alarm
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                deleteAlarm.pending,
+
+                state => {
+
+                    state.processing = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                deleteAlarm.fulfilled,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    const alarmId = action.payload;
+
+                    state.active =
+
+                        state.active.filter(
+
+                            alarm =>
+
+                                alarm._id !== alarmId &&
+
+                                alarm.id !== alarmId
+
+                        );
+
+                    state.history =
+
+                        state.history.filter(
+
+                            alarm =>
+
+                                alarm._id !== alarmId &&
+
+                                alarm.id !== alarmId
+
+                        );
+
+                    if (
+
+                        state.selectedAlarm &&
+
+                        (
+
+                            state.selectedAlarm._id === alarmId ||
+
+                            state.selectedAlarm.id === alarmId
+
+                        )
+
+                    ) {
+
+                        state.selectedAlarm = null;
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                deleteAlarm.rejected,
+
+                (state, action) => {
+
+                    state.processing = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
 
     }
 
@@ -486,17 +1016,11 @@ const alarmSlice = createSlice({
 
 export const {
 
-    setFilters,
-
-    setPaginationModel,
-
     clearSelectedAlarm,
 
-    socketAlarmCreated,
+    clearAlarmError,
 
-    socketAlarmUpdated,
-
-    socketAlarmDeleted
+    clearAlarms
 
 } = alarmSlice.actions;
 

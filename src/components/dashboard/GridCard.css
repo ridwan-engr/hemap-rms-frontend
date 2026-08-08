@@ -1,0 +1,84 @@
+.grid-card{
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.grid-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.status-online{
+
+    color:#198754;
+
+    font-weight:600;
+
+}
+
+.status-offline{
+
+    color:#dc3545;
+
+    font-weight:600;
+
+}
+
+.grid-power{
+
+    text-align:center;
+
+    margin-bottom:25px;
+
+}
+
+.grid-power h1{
+
+    color:#0d6efd;
+
+    font-size:48px;
+
+}
+
+.grid-details{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+}
+
+.grid-details label{
+
+    display:block;
+
+    color:#666;
+
+    font-size:13px;
+
+    margin-bottom:4px;
+
+}
+
+.grid-details strong{
+
+    font-size:18px;
+
+}
+

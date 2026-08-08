@@ -1,185 +1,99 @@
 import { useState } from "react";
 
 import {
-
     Card,
     CardContent,
     Stack,
     Button,
     CircularProgress
-
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DownloadIcon from "@mui/icons-material/Download";
 
-import useSite from "../hooks/useSite";
-import SiteForm from "./SiteForm";
-
-/*
-|--------------------------------------------------------------------------
-| Site Toolbar
-|--------------------------------------------------------------------------
-*/
+import useSite from "../hooks/useSites.js";
+import SiteForm from "./SiteForm.jsx";
 
 export default function SiteToolbar() {
 
     const {
-
-        refresh,
-
-        refreshing
-
+        reload,
+        refreshing,
+        loading
     } = useSite();
 
     const [openForm, setOpenForm] = useState(false);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Form Controls
-    |--------------------------------------------------------------------------
-    */
-
     const handleOpenForm = () => {
-
         setOpenForm(true);
-
     };
 
     const handleCloseForm = () => {
-
         setOpenForm(false);
-
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | Export
-    |--------------------------------------------------------------------------
-    |
-    | Placeholder.
-    | CSV / Excel / PDF export will be implemented
-    | in the Reporting module.
-    |
-    */
+    const handleRefresh = () => {
+        reload();
+    };
 
     const handleExport = () => {
-
-        console.info(
-
-            "Export Sites..."
-
-        );
-
+        console.info("Export Sites...");
     };
 
     return (
-
         <>
-
             <Card>
-
                 <CardContent>
-
                     <Stack
-
                         direction="row"
-
                         spacing={2}
-
-                        justifyContent="flex-end"
-
+                        sx={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            alignItems: "center"
+                        }}
                     >
 
                         <Button
-
                             variant="outlined"
-
                             startIcon={
-
-                                refreshing
-
-                                    ? (
-
-                                        <CircularProgress
-
-                                            size={18}
-
-                                        />
-
-                                    )
-
-                                    : (
-
-                                        <RefreshIcon />
-
-                                    )
-
+                                refreshing || loading ? (
+                                    <CircularProgress size={18} />
+                                ) : (
+                                    <RefreshIcon />
+                                )
                             }
-
-                            onClick={refresh}
-
-                            disabled={refreshing}
-
+                            onClick={handleRefresh}
+                            disabled={refreshing || loading}
                         >
-
                             Refresh
-
                         </Button>
 
                         <Button
-
                             variant="outlined"
-
-                            startIcon={
-
-                                <DownloadIcon />
-
-                            }
-
+                            startIcon={<DownloadIcon />}
                             onClick={handleExport}
-
                         >
-
                             Export
-
                         </Button>
 
                         <Button
-
                             variant="contained"
-
-                            startIcon={
-
-                                <AddIcon />
-
-                            }
-
+                            startIcon={<AddIcon />}
                             onClick={handleOpenForm}
-
                         >
-
                             Add Site
-
                         </Button>
 
                     </Stack>
-
                 </CardContent>
-
             </Card>
 
             <SiteForm
-
                 open={openForm}
-
                 onClose={handleCloseForm}
-
             />
-
         </>
-
     );
-
 }

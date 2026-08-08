@@ -1,0 +1,121 @@
+.alarm-card{
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.alarm-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.alarm-count{
+
+    background:#dc2626;
+
+    color:#fff;
+
+    padding:6px 12px;
+
+    border-radius:30px;
+
+    font-weight:600;
+
+}
+
+.alarm-empty{
+
+    padding:40px;
+
+    text-align:center;
+
+    color:#16a34a;
+
+    font-size:18px;
+
+}
+
+.alarm-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+.alarm-item{
+
+    border-left:6px solid #ccc;
+
+    border-radius:8px;
+
+    padding:16px;
+
+    background:#fafafa;
+
+}
+
+.alarm-message{
+
+    margin:10px 0;
+
+    color:#555;
+
+}
+
+.alarm-footer{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    font-size:13px;
+
+    color:#888;
+
+}
+
+.alarm-item.critical{
+
+    border-color:#dc2626;
+
+}
+
+.alarm-item.major{
+
+    border-color:#ea580c;
+
+}
+
+.alarm-item.minor{
+
+    border-color:#ca8a04;
+
+}
+
+.alarm-item.warning{
+
+    border-color:#2563eb;
+
+}
+
+.alarm-item.info{
+
+    border-color:#16a34a;
+
+}

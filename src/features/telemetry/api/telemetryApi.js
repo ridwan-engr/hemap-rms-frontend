@@ -1,85 +1,157 @@
-import api from "../../../api/axios";
+import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
-| Live Telemetry
+| Telemetry API
 |--------------------------------------------------------------------------
 */
 
-export const getLiveTelemetry = (params = {}) =>
-    api.get("/telemetry/live", { params });
+/*
+|--------------------------------------------------------------------------
+| Current Telemetry
+|--------------------------------------------------------------------------
+| Backend:
+| GET /telemetry
+|
+| Query:
+| telemetryQueryValidator
+|--------------------------------------------------------------------------
+*/
 
-export const getHistoricalTelemetry = (params = {}) =>
-    api.get("/telemetry/history", { params });
+export async function getTelemetry(params = {}) {
+    const { data } = await apiClient.get(
+        "/telemetry",
+        {
+            params
+        }
+    );
 
-export const getLatestTelemetry = (siteId) =>
-    api.get("/telemetry/latest", {
-        params: { siteId }
-    });
+    return data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Historical Telemetry
+|--------------------------------------------------------------------------
+| Backend:
+| GET /telemetry/history
+|
+| Query:
+| telemetryHistoryValidator
+|--------------------------------------------------------------------------
+*/
+
+export async function getTelemetryHistory(params = {}) {
+    const { data } = await apiClient.get(
+        "/telemetry/history",
+        {
+            params
+        }
+    );
+
+    return data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Telemetry Summary
+|--------------------------------------------------------------------------
+| Backend:
+| GET /telemetry/summary
+|
+| Query:
+| telemetryQueryValidator
+|--------------------------------------------------------------------------
+*/
+
+export async function getTelemetrySummary(params = {}) {
+    const { data } = await apiClient.get(
+        "/telemetry/summary",
+        {
+            params
+        }
+    );
+
+    return data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Latest Telemetry
+|--------------------------------------------------------------------------
+| Backend:
+| GET /telemetry/:installationId/latest
+|
+| Params:
+| installationId
+|--------------------------------------------------------------------------
+*/
+
+export async function getLatestTelemetry(installationId) {
+    const { data } = await apiClient.get(
+        `/telemetry/${installationId}/latest`
+    );
+
+    return data;
+}
+
 
 /*
 |--------------------------------------------------------------------------
 | Device Status
 |--------------------------------------------------------------------------
+| Backend:
+| GET /telemetry/:installationId/status
+|
+| Params:
+| installationId
+|--------------------------------------------------------------------------
 */
 
-export const getDeviceStatus = (siteId) =>
-    api.get("/telemetry/status/device", {
-        params: { siteId }
-    });
+export async function getDeviceStatus(installationId) {
+    const { data } = await apiClient.get(
+        `/telemetry/${installationId}/status`
+    );
 
-export const getCommunicationStatus = (siteId) =>
-    api.get("/telemetry/status/communication", {
-        params: { siteId }
-    });
+    return data;
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Components
+| Synchronize Telemetry
+|--------------------------------------------------------------------------
+| Backend:
+| POST /telemetry/:installationId/synchronize
+|
+| Authorization:
+| ADMIN
 |--------------------------------------------------------------------------
 */
 
-export const getBatteryTelemetry = (installationId) =>
-    api.get(`/telemetry/battery/${installationId}`);
+export async function synchronizeTelemetry(installationId) {
+    const { data } = await apiClient.post(
+        `/telemetry/${installationId}/synchronize`
+    );
 
-export const getSolarTelemetry = (installationId) =>
-    api.get(`/telemetry/solar/${installationId}`);
+    return data;
+}
 
-export const getGeneratorTelemetry = (installationId) =>
-    api.get(`/telemetry/generator/${installationId}`);
-
-export const getGridTelemetry = (installationId) =>
-    api.get(`/telemetry/grid/${installationId}`);
-
-export const getInverterTelemetry = (installationId) =>
-    api.get(`/telemetry/inverter/${installationId}`);
-
-export const getRectifierTelemetry = (installationId) =>
-    api.get(`/telemetry/rectifier/${installationId}`);
-
-export const getSmartMeterTelemetry = (installationId) =>
-    api.get(`/telemetry/smart-meter/${installationId}`);
-
-export const getLoadTelemetry = (installationId) =>
-    api.get(`/telemetry/load/${installationId}`);
 
 /*
 |--------------------------------------------------------------------------
-| Analytics
+| Default Export
 |--------------------------------------------------------------------------
 */
 
-export const getTelemetryStatistics = (params = {}) =>
-    api.get("/telemetry/statistics", { params });
-
-export const getTelemetryKPIs = () =>
-    api.get("/telemetry/kpis");
-
-export const getTelemetryAlarms = () =>
-    api.get("/telemetry/alarms");
-
-export const getTelemetryForecast = () =>
-    api.get("/telemetry/forecast");
-
-export const getReliabilitySummary = () =>
-    api.get("/telemetry/reliability");
+export default {
+    getTelemetry,
+    getTelemetryHistory,
+    getTelemetrySummary,
+    getLatestTelemetry,
+    getDeviceStatus,
+    synchronizeTelemetry
+};

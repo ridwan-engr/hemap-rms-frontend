@@ -1,23 +1,13 @@
-import { useEffect } from "react";
+import { Stack, Typography } from "@mui/material";
 
-import {
-
-    Grid,
-    Stack,
-    Typography
-
-} from "@mui/material";
-
-import useSite from "../hooks/useSite";
-
-import SiteToolbar from "../components/SiteToolbar";
-import SiteFilter from "../components/SiteFilter";
-import SiteSummaryCards from "../components/SiteSummaryCards";
-import SiteStatistics from "../components/SiteStatistics";
-import SiteHealthChart from "../components/SiteHealthChart";
-import SiteMap from "../components/SiteMap";
-import SiteTable from "../components/SiteTable";
-import SiteDetails from "../components/SiteDetails";
+import SiteToolbar from "../components/SiteToolbar.jsx";
+import SiteFilter from "../components/SiteFilter.jsx";
+import SiteSummaryCards from "../components/SiteSummaryCards.jsx";
+import SiteStatistics from "../components/SiteStatistics.jsx";
+import SiteHealthChart from "../components/SiteHealthChart.jsx";
+import SiteMap from "../components/SiteMap.jsx";
+import SiteTable from "../components/SiteTable.jsx";
+import SiteDetails from "../components/SiteDetails.jsx";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,66 +17,15 @@ import SiteDetails from "../components/SiteDetails";
 
 export default function SitesPage() {
 
-    const {
-
-        reload,
-
-        loadSummary,
-
-        loadStatistics,
-
-        loadHealth,
-
-        loadLocations
-
-    } = useSite();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initial Page Load
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        reload();
-
-        loadSummary();
-
-        loadStatistics();
-
-        loadHealth();
-
-        loadLocations();
-
-    }, [
-
-        reload,
-
-        loadSummary,
-
-        loadStatistics,
-
-        loadHealth,
-
-        loadLocations
-
-    ]);
-
     return (
 
         <Stack spacing={3}>
 
             <Typography
-
                 variant="h4"
-
                 fontWeight={700}
-
             >
-
                 Sites
-
             </Typography>
 
             <SiteToolbar />
@@ -95,45 +34,15 @@ export default function SitesPage() {
 
             <SiteSummaryCards />
 
-            <Grid
+            <SiteTable />
 
-                container
+            <SiteDetails />
 
-                spacing={3}
+            <SiteStatistics />
 
-            >
+            <SiteHealthChart />
 
-                <Grid size={{ xs: 12, lg: 8 }}>
-
-                    <SiteTable />
-
-                </Grid>
-
-                <Grid size={{ xs: 12, lg: 4 }}>
-
-                    <SiteDetails />
-
-                </Grid>
-
-                <Grid size={{ xs: 12, lg: 6 }}>
-
-                    <SiteStatistics />
-
-                </Grid>
-
-                <Grid size={{ xs: 12, lg: 6 }}>
-
-                    <SiteHealthChart />
-
-                </Grid>
-
-                <Grid size={{ xs: 12 }}>
-
-                    <SiteMap />
-
-                </Grid>
-
-            </Grid>
+            <SiteMap />
 
         </Stack>
 

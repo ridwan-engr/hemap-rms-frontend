@@ -1,21 +1,17 @@
 import { useMemo } from "react";
 
 import {
-
     Card,
     CardContent,
     Chip,
     Typography
-
 } from "@mui/material";
 
 import {
-
     DataGrid
-
 } from "@mui/x-data-grid";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,19 +23,19 @@ function StatusChip({ status }) {
 
     let color = "default";
 
-    switch (status?.toLowerCase()) {
+    switch (status?.toUpperCase()) {
 
-        case "healthy":
-        case "online":
+        case "ONLINE":
+        case "HEALTHY":
             color = "success";
             break;
 
-        case "warning":
+        case "WARNING":
             color = "warning";
             break;
 
-        case "critical":
-        case "offline":
+        case "CRITICAL":
+        case "OFFLINE":
             color = "error";
             break;
 
@@ -48,19 +44,12 @@ function StatusChip({ status }) {
     }
 
     return (
-
         <Chip
-
-            label={status}
-
+            label={status ?? "UNKNOWN"}
             color={color}
-
             size="small"
-
         />
-
     );
-
 }
 
 /*
@@ -72,109 +61,71 @@ function StatusChip({ status }) {
 export default function SiteTable() {
 
     const {
-
-        sites,
-
-        total,
-
-        loading,
-
+        sites = [],
+        total = 0,
+        loading = false,
         paginationModel,
-
         updatePagination,
-
         viewSite
-
     } = useSite();
 
     const columns = useMemo(
-
         () => [
 
             {
-
                 field: "siteCode",
-
                 headerName: "Site Code",
-
                 flex: 1,
-
                 minWidth: 130
-
             },
 
             {
-
-                field: "siteName",
-
+                field: "name",
                 headerName: "Site Name",
-
                 flex: 1.5,
-
                 minWidth: 220
-
             },
 
             {
-
                 field: "state",
-
                 headerName: "State",
-
                 flex: 1,
-
-                minWidth: 120
-
+                minWidth: 120,
+                valueGetter: (_, row) =>
+                    row.location?.state ?? ""
             },
 
             {
-
-                field: "technology",
-
-                headerName: "Technology",
-
+                field: "systemType",
+                headerName: "System Type",
                 flex: 1,
-
                 minWidth: 130
-
             },
 
             {
-
-                field: "powerSource",
-
-                headerName: "Power Source",
-
+                field: "installedCapacity",
+                headerName: "Capacity",
                 flex: 1,
-
-                minWidth: 150
-
+                minWidth: 130,
+                valueFormatter: value =>
+                    value == null
+                        ? ""
+                        : `${value} kW`
             },
 
             {
-
                 field: "status",
-
                 headerName: "Status",
-
                 minWidth: 130,
-
                 renderCell: params => (
-
                     <StatusChip
-
                         status={params.value}
-
                     />
-
                 )
-
             }
 
         ],
-
         []
-
     );
 
     return (
@@ -184,17 +135,11 @@ export default function SiteTable() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                     gutterBottom
-
                 >
-
                     Sites
-
                 </Typography>
 
                 <DataGrid
@@ -209,16 +154,21 @@ export default function SiteTable() {
 
                     rowCount={total}
 
+                    /*
+                    |--------------------------------------------------------------------------
+                    | IMPORTANT
+                    |--------------------------------------------------------------------------
+                    | Backend uses MongoDB _id.
+                    |--------------------------------------------------------------------------
+                    */
+
+                    getRowId={row => row._id}
+
                     pageSizeOptions={[
-
                         10,
-
                         25,
-
                         50,
-
                         100
-
                     ]}
 
                     pagination
@@ -228,30 +178,18 @@ export default function SiteTable() {
                     paginationModel={paginationModel}
 
                     onPaginationModelChange={
-
                         updatePagination
-
                     }
 
                     disableRowSelectionOnClick
 
-                    onRowClick={
+                    onRowClick={params => {
 
-                        params =>
+                        viewSite(
+                            params.row._id
+                        );
 
-                            viewSite(
-
-                                params.row.id
-
-                            )
-
-                    }
-
-                    getRowId={
-
-                        row => row.id
-
-                    }
+                    }}
 
                 />
 
@@ -260,5 +198,4 @@ export default function SiteTable() {
         </Card>
 
     );
-
 }

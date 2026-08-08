@@ -1,122 +1,224 @@
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import {
+    useCallback,
+    useEffect,
+    useMemo
+} from "react";
+
+import {
+    useDispatch,
+    useSelector
+} from "react-redux";
 
 import {
     fetchDashboard,
     fetchDashboardCards,
     fetchDashboardKPIs,
     fetchDashboardMap,
+    fetchDashboardCharts,
     refreshDashboard
 } from "../../../store/slices/dashboardSlice.js";
 
-/**
- * ============================================================================
- * Dashboard Hook
- * ============================================================================
- * Central hook used by every Dashboard component.
- * No Dashboard component should dispatch Redux actions directly.
- * ============================================================================
- */
+/*
+|--------------------------------------------------------------------------
+| Stable Empty Filters
+|--------------------------------------------------------------------------
+*/
 
-export default function useDashboard(filters = {}) {
+const EMPTY_FILTERS = {};
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Hook
+|--------------------------------------------------------------------------
+*/
+
+export default function useDashboard(filters = EMPTY_FILTERS) {
 
     const dispatch = useDispatch();
 
-    const dashboard = useSelector(
-        (state) => state.dashboard.dashboard
+    /*
+    |--------------------------------------------------------------------------
+    | Redux State
+    |--------------------------------------------------------------------------
+    */
+
+    const dashboardState = useSelector(
+        state => state.dashboard
     );
 
-    const cards = useSelector(
-        (state) => state.dashboard.cards
+    const {
+
+        dashboard = null,
+
+        cards = null,
+
+        kpis = null,
+
+        charts = null,
+
+        map = [],
+
+        loading = false,
+
+        refreshing = false,
+
+        error = null,
+
+        lastUpdated = null
+
+    } = dashboardState || {};
+
+    /*
+    |--------------------------------------------------------------------------
+    | Stable Filters
+    |--------------------------------------------------------------------------
+    */
+
+    const normalizedFilters = useMemo(
+        () => filters || {},
+        [filters]
     );
 
-    const kpis = useSelector(
-        (state) => state.dashboard.kpis
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | Derived Dashboard Data
+    |--------------------------------------------------------------------------
+    */
 
-    const map = useSelector(
-        (state) => state.dashboard.map
-    );
+    const telemetry =
+        dashboard?.telemetry ?? {};
 
-    const loading = useSelector(
-        (state) => state.dashboard.loading
-    );
+    const statistics =
+        dashboard?.statistics ?? {};
 
-    const refreshing = useSelector(
-        (state) => state.dashboard.refreshing
-    );
+    const optimization =
+        dashboard?.optimization ?? {};
 
-    const error = useSelector(
-        (state) => state.dashboard.error
-    );
+    const reliability =
+        dashboard?.reliability ?? {};
 
-    /**
-     * Load complete dashboard
-     */
+    const alarms =
+        dashboard?.alarms ?? [];
 
-    const loadDashboard = useCallback(() => {
+    const sites =
+        dashboard?.sites ?? [];
 
-        dispatch(fetchDashboard(filters));
+    const forecast =
+        dashboard?.forecast ?? {};
 
-    }, [dispatch, filters]);
+    const weather =
+        dashboard?.weather ?? {};
 
-    /**
-     * Load KPI cards
-     */
-
-    const loadCards = useCallback(() => {
-
-        dispatch(fetchDashboardCards(filters));
-
-    }, [dispatch, filters]);
-
-    /**
-     * Load KPIs
-     */
-
-    const loadKPIs = useCallback(() => {
-
-        dispatch(fetchDashboardKPIs(filters));
-
-    }, [dispatch, filters]);
-
-    /**
-     * Load map
-     */
-
-    const loadMap = useCallback(() => {
-
-        dispatch(fetchDashboardMap(filters));
-
-    }, [dispatch, filters]);
-
-    /**
-     * Refresh dashboard
-     */
-
-    const refresh = useCallback(() => {
-
-        dispatch(refreshDashboard(filters));
-
-    }, [dispatch, filters]);
-
-    /**
-     * Initial load
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Dashboard Load
+    |--------------------------------------------------------------------------
+    */
 
     useEffect(() => {
 
-        loadDashboard();
-        loadCards();
-        loadKPIs();
-        loadMap();
+        dispatch(
+            fetchDashboard(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardCards(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardKPIs(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardMap(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardCharts(
+                normalizedFilters
+            )
+        );
 
     }, [
-        loadDashboard,
-        loadCards,
-        loadKPIs,
-        loadMap
+        dispatch,
+        normalizedFilters
     ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Manual Reload
+    |--------------------------------------------------------------------------
+    */
+
+    const reload = useCallback(() => {
+
+        dispatch(
+            fetchDashboard(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardCards(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardKPIs(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardMap(
+                normalizedFilters
+            )
+        );
+
+        dispatch(
+            fetchDashboardCharts(
+                normalizedFilters
+            )
+        );
+
+    }, [
+        dispatch,
+        normalizedFilters
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Manual Refresh
+    |--------------------------------------------------------------------------
+    */
+
+    const refresh = useCallback(() => {
+
+        return dispatch(
+            refreshDashboard(
+                normalizedFilters
+            )
+        );
+
+    }, [
+        dispatch,
+        normalizedFilters
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Return
+    |--------------------------------------------------------------------------
+    */
 
     return {
 
@@ -126,7 +228,25 @@ export default function useDashboard(filters = {}) {
 
         kpis,
 
+        charts,
+
         map,
+
+        telemetry,
+
+        statistics,
+
+        optimization,
+
+        reliability,
+
+        alarms,
+
+        sites,
+
+        forecast,
+
+        weather,
 
         loading,
 
@@ -134,9 +254,11 @@ export default function useDashboard(filters = {}) {
 
         error,
 
-        refresh,
+        lastUpdated,
 
-        reload: loadDashboard
+        reload,
+
+        refresh
 
     };
 

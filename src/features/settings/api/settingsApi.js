@@ -2,162 +2,131 @@ import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
-| Get Settings
+| System Settings API
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Get all system settings
+ *
+ * Backend:
+ * GET /settings
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function getSettings() {
 
-    const { data } = await apiClient.get(
-
+    const response = await apiClient.get(
         "/settings"
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Setting
-|--------------------------------------------------------------------------
-*/
 
+/**
+ * Get a single system setting
+ *
+ * Backend:
+ * GET /settings/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function getSetting(settingId) {
 
-    const { data } = await apiClient.get(
-
+    const response = await apiClient.get(
         `/settings/${settingId}`
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get By Key
-|--------------------------------------------------------------------------
-*/
 
-export async function getSettingByKey(key) {
-
-    const { data } = await apiClient.get(
-
-        `/settings/key/${key}`
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Create
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Create a system setting
+ *
+ * Backend:
+ * POST /settings
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function createSetting(payload) {
 
-    const { data } = await apiClient.post(
-
+    const response = await apiClient.post(
         "/settings",
-
         payload
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Update
-|--------------------------------------------------------------------------
-*/
 
+/**
+ * Update a system setting
+ *
+ * Backend:
+ * PUT /settings/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function updateSetting(
-
     settingId,
-
     payload
-
 ) {
 
-    const { data } = await apiClient.put(
-
+    const response = await apiClient.put(
         `/settings/${settingId}`,
-
         payload
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
-/*
-|--------------------------------------------------------------------------
-| Update By Key
-|--------------------------------------------------------------------------
-*/
 
-export async function updateSettingByKey(
-
-    key,
-
-    payload
-
-) {
-
-    const { data } = await apiClient.put(
-
-        `/settings/key/${key}`,
-
-        payload
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Delete
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Delete a system setting
+ *
+ * Backend:
+ * DELETE /settings/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function deleteSetting(settingId) {
 
-    const { data } = await apiClient.delete(
-
+    const response = await apiClient.delete(
         `/settings/${settingId}`
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Initialize Defaults
+| Default Export
 |--------------------------------------------------------------------------
 */
 
-export async function initializeDefaults() {
+export default {
 
-    const { data } = await apiClient.post(
+    getSettings,
 
-        "/settings/initialize"
+    getSetting,
 
-    );
+    createSetting,
 
-    return data;
+    updateSetting,
 
-}
+    deleteSetting
+
+};

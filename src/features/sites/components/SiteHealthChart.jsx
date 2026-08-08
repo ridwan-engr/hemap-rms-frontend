@@ -1,25 +1,25 @@
 import {
 
     Card,
+
     CardContent,
+
     Typography,
     Skeleton,
     Box
-
+    
 } from "@mui/material";
 
 import {
-
     ResponsiveContainer,
     PieChart,
     Pie,
     Cell,
     Tooltip,
     Legend
-
 } from "recharts";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -28,15 +28,10 @@ import useSite from "../hooks/useSite";
 */
 
 const COLORS = [
-
-    "#2E7D32", // Healthy
-
-    "#ED6C02", // Warning
-
-    "#D32F2F", // Critical
-
-    "#616161"  // Offline
-
+    "#2E7D32",
+    "#ED6C02",
+    "#D32F2F",
+    "#616161"
 ];
 
 /*
@@ -48,163 +43,101 @@ const COLORS = [
 export default function SiteHealthChart() {
 
     const {
-
-        health,
-
+        health = {},
         loading
-
     } = useSite();
 
     if (loading) {
 
         return (
-
             <Card>
-
                 <CardContent>
 
                     <Skeleton
-
                         variant="text"
-
                         width={220}
-
                         height={40}
-
                     />
 
                     <Skeleton
-
                         variant="rounded"
-
                         height={340}
-
                     />
 
                 </CardContent>
-
             </Card>
-
         );
-
     }
 
     const chartData = [
-
         {
-
             name: "Healthy",
-
-            value: health?.healthy ?? 0
-
+            value:
+                Number(health?.healthy) || 0
         },
-
         {
-
             name: "Warning",
-
-            value: health?.warning ?? 0
-
+            value:
+                Number(health?.warning) || 0
         },
-
         {
-
             name: "Critical",
-
-            value: health?.critical ?? 0
-
+            value:
+                Number(health?.critical) || 0
         },
-
         {
-
             name: "Offline",
-
-            value: health?.offline ?? 0
-
+            value:
+                Number(health?.offline) || 0
         }
-
     ];
 
     return (
-
         <Card>
-
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                     gutterBottom
-
                 >
-
                     Site Health Distribution
-
                 </Typography>
 
                 <Box
-
                     sx={{
-
                         width: "100%",
-
                         height: 340
-
                     }}
-
                 >
 
-                    <ResponsiveContainer>
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                    >
 
                         <PieChart>
 
                             <Pie
-
                                 data={chartData}
-
                                 dataKey="value"
-
                                 nameKey="name"
-
                                 outerRadius={110}
-
                                 label
-
                             >
-
-                                {
-
-                                    chartData.map(
-
-                                        (
-
-                                            entry,
-
-                                            index
-
-                                        ) => (
-
-                                            <Cell
-
-                                                key={entry.name}
-
-                                                fill={
-
-                                                    COLORS[index]
-
-                                                }
-
-                                            />
-
-                                        )
-
+                                {chartData.map(
+                                    (
+                                        entry,
+                                        index
+                                    ) => (
+                                        <Cell
+                                            key={entry.name}
+                                            fill={
+                                                COLORS[index]
+                                            }
+                                        />
                                     )
-
-                                }
-
+                                )}
                             </Pie>
 
                             <Tooltip />
@@ -218,9 +151,6 @@ export default function SiteHealthChart() {
                 </Box>
 
             </CardContent>
-
         </Card>
-
     );
-
 }

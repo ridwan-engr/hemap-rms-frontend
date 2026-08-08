@@ -1,31 +1,41 @@
 import { useCallback } from "react";
 
 import {
-
     useDispatch,
     useSelector
-
 } from "react-redux";
 
 import {
-
-    generateSiteOverviewAsync,
-    generateEnergyAsync,
-    generateBatteryAsync,
-    generateReliabilityAsync,
-    generateAlarmAsync,
-    generateMaintenanceAsync,
-    generateDashboardAsync,
-    generateExecutiveAsync,
-    exportReportAsync,
-    fetchReportResponse,
-    clearReport
-
+    createReport,
+    fetchReports,
+    fetchReportById,
+    downloadReportFile,
+    removeReport,
+    setReportFilters,
+    setReportPagination,
+    clearSelectedReport,
+    clearReportError,
+    clearReports
 } from "../../../store/slices/reportSlice.js";
+
 
 /*
 |--------------------------------------------------------------------------
 | useReports
+|--------------------------------------------------------------------------
+|
+| Central hook for Report Management.
+|
+| Components should NEVER dispatch Redux actions directly.
+|
+| Backend contract:
+|
+| POST   /reports
+| GET    /reports
+| GET    /reports/:reportId
+| GET    /reports/:reportId/download
+| DELETE /reports/:reportId
+|
 |--------------------------------------------------------------------------
 */
 
@@ -33,21 +43,38 @@ export default function useReports() {
 
     const dispatch = useDispatch();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redux State
+    |--------------------------------------------------------------------------
+    */
+
     const {
 
-        report,
+        reports,
 
-        summary,
+        total,
 
-        exportData,
+        selectedReport,
+
+        pagination,
+
+        filters,
 
         loading,
 
-        exporting,
+        generating,
+
+        downloading,
+
+        deleting,
 
         error,
 
-        lastGenerated
+        lastGenerated,
+
+        lastUpdated
 
     } = useSelector(
 
@@ -55,175 +82,65 @@ export default function useReports() {
 
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Report Generators
-    |--------------------------------------------------------------------------
-    */
-
-    const generateSiteOverview = useCallback(
-
-        payload => dispatch(
-
-            generateSiteOverviewAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateEnergy = useCallback(
-
-        payload => dispatch(
-
-            generateEnergyAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateBattery = useCallback(
-
-        payload => dispatch(
-
-            generateBatteryAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateReliability = useCallback(
-
-        payload => dispatch(
-
-            generateReliabilityAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateAlarm = useCallback(
-
-        payload => dispatch(
-
-            generateAlarmAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateMaintenance = useCallback(
-
-        payload => dispatch(
-
-            generateMaintenanceAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateDashboard = useCallback(
-
-        payload => dispatch(
-
-            generateDashboardAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    const generateExecutive = useCallback(
-
-        payload => dispatch(
-
-            generateExecutiveAsync(payload)
-
-        ),
-
-        [
-
-            dispatch
-
-        ]
-
-    );
 
     /*
     |--------------------------------------------------------------------------
-    | Export
+    | Load Reports
     |--------------------------------------------------------------------------
     */
 
-    const exportGeneratedReport = useCallback(
+    const loadReports = useCallback(
 
-        payload => dispatch(
+        (params = filters) => {
 
-            exportReportAsync(payload)
+            return dispatch(
 
-        ),
+                fetchReports({
+
+                    ...params,
+
+                    page:
+                        pagination?.page ?? 1,
+
+                    limit:
+                        pagination?.limit ?? 25
+
+                })
+
+            );
+
+        },
 
         [
 
-            dispatch
+            dispatch,
+
+            filters,
+
+            pagination
 
         ]
 
     );
+
 
     /*
     |--------------------------------------------------------------------------
-    | Report Response
+    | Load Single Report
     |--------------------------------------------------------------------------
     */
 
-    const loadReportResponse = useCallback(
+    const loadReport = useCallback(
 
-        reportId => dispatch(
+        reportId => {
 
-            fetchReportResponse(reportId)
+            return dispatch(
 
-        ),
+                fetchReportById(reportId)
+
+            );
+
+        },
 
         [
 
@@ -232,20 +149,25 @@ export default function useReports() {
         ]
 
     );
+
 
     /*
     |--------------------------------------------------------------------------
-    | Clear
+    | Generate Report
     |--------------------------------------------------------------------------
     */
 
-    const resetReport = useCallback(
+    const generate = useCallback(
 
-        () => dispatch(
+        payload => {
 
-            clearReport()
+            return dispatch(
 
-        ),
+                createReport(payload)
+
+            );
+
+        },
 
         [
 
@@ -254,44 +176,336 @@ export default function useReports() {
         ]
 
     );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Download Report
+    |--------------------------------------------------------------------------
+    */
+
+    const download = useCallback(
+
+        reportId => {
+
+            return dispatch(
+
+                downloadReportFile(reportId)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Report
+    |--------------------------------------------------------------------------
+    */
+
+    const remove = useCallback(
+
+        reportId => {
+
+            return dispatch(
+
+                removeReport(reportId)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filters
+    |--------------------------------------------------------------------------
+    */
+
+    const updateFilters = useCallback(
+
+        nextFilters => {
+
+            dispatch(
+
+                setReportFilters(nextFilters)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    const updatePagination = useCallback(
+
+        nextPagination => {
+
+            dispatch(
+
+                setReportPagination(
+
+                    nextPagination
+
+                )
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Selected Report
+    |--------------------------------------------------------------------------
+    */
+
+    const clearSelected = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearSelectedReport()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Error
+    |--------------------------------------------------------------------------
+    */
+
+    const clearError = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearReportError()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Reports
+    |--------------------------------------------------------------------------
+    */
+
+    const resetReports = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearReports()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh
+    |--------------------------------------------------------------------------
+    */
+
+    const refresh = useCallback(
+
+        () => {
+
+            return dispatch(
+
+                fetchReports({
+
+                    ...filters,
+
+                    page:
+                        pagination?.page ?? 1,
+
+                    limit:
+                        pagination?.limit ?? 25
+
+                })
+
+            );
+
+        },
+
+        [
+
+            dispatch,
+
+            filters,
+
+            pagination
+
+        ]
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public API
+    |--------------------------------------------------------------------------
+    */
 
     return {
 
-        report,
+        /*
+        |----------------------------------------------------------------------
+        | Data
+        |----------------------------------------------------------------------
+        */
 
-        summary,
+        reports,
 
-        exportData,
+        total,
+
+        selectedReport,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | Pagination / Filters
+        |----------------------------------------------------------------------
+        */
+
+        pagination,
+
+        filters,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | Status
+        |----------------------------------------------------------------------
+        */
 
         loading,
 
-        exporting,
+        generating,
+
+        downloading,
+
+        deleting,
 
         error,
 
         lastGenerated,
 
-        generateSiteOverview,
+        lastUpdated,
 
-        generateEnergy,
 
-        generateBattery,
+        /*
+        |----------------------------------------------------------------------
+        | Operations
+        |----------------------------------------------------------------------
+        */
 
-        generateReliability,
+        loadReports,
 
-        generateAlarm,
+        loadReport,
 
-        generateMaintenance,
+        generate,
 
-        generateDashboard,
+        download,
 
-        generateExecutive,
+        remove,
 
-        exportGeneratedReport,
+        refresh,
 
-        loadReportResponse,
 
-        resetReport
+        /*
+        |----------------------------------------------------------------------
+        | Filters
+        |----------------------------------------------------------------------
+        */
+
+        updateFilters,
+
+        updatePagination,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | State Management
+        |----------------------------------------------------------------------
+        */
+
+        clearSelected,
+
+        clearError,
+
+        resetReports
 
     };
 

@@ -1,62 +1,51 @@
-import api from "../../../api/axios.js";
+import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
 | Alarm API
 |--------------------------------------------------------------------------
-|
-| All Alarm REST requests originate here.
-| Components should NEVER call axios directly.
-|
+| All alarm REST requests originate here.
+| Components and hooks should not call axios directly.
+|--------------------------------------------------------------------------
 */
 
 /*
 |--------------------------------------------------------------------------
-| Alarm List
+| Active Alarms
 |--------------------------------------------------------------------------
 */
 
-export async function getAlarms(params = {}) {
+export async function getActiveAlarms(params = {}) {
 
-    const response = await api.get(
-
-        "/alarms",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Active Alarm Summary
-|--------------------------------------------------------------------------
-*/
-
-export async function getActiveSummary(params = {}) {
-
-    const response = await api.get(
-
+    const response = await apiClient.get(
         "/alarms/active",
-
         {
-
             params
-
         }
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Alarm History
+|--------------------------------------------------------------------------
+*/
+
+export async function getAlarmHistory(params = {}) {
+
+    const response = await apiClient.get(
+        "/alarms/history",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -66,69 +55,35 @@ export async function getActiveSummary(params = {}) {
 
 export async function getAlarmStatistics(params = {}) {
 
-    const response = await api.get(
-
+    const response = await apiClient.get(
         "/alarms/statistics",
-
         {
-
             params
-
         }
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Severity Distribution
+| Alarm Summary
 |--------------------------------------------------------------------------
 */
 
-export async function getSeverityDistribution(params = {}) {
+export async function getAlarmSummary(params = {}) {
 
-    const response = await api.get(
-
-        "/alarms/severity",
-
+    const response = await apiClient.get(
+        "/alarms/summary",
         {
-
             params
-
         }
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Alarm Trends
-|--------------------------------------------------------------------------
-*/
-
-export async function getAlarmTrends(params = {}) {
-
-    const response = await api.get(
-
-        "/alarms/trends",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -136,17 +91,15 @@ export async function getAlarmTrends(params = {}) {
 |--------------------------------------------------------------------------
 */
 
-export async function getAlarmById(id) {
+export async function getAlarmById(alarmId) {
 
-    const response = await api.get(
-
-        `/alarms/${id}`
-
+    const response = await apiClient.get(
+        `/alarms/${alarmId}`
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -154,17 +107,15 @@ export async function getAlarmById(id) {
 |--------------------------------------------------------------------------
 */
 
-export async function acknowledgeAlarm(id) {
+export async function acknowledgeAlarm(alarmId) {
 
-    const response = await api.post(
-
-        `/alarms/${id}/acknowledge`
-
+    const response = await apiClient.patch(
+        `/alarms/${alarmId}/acknowledge`
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -172,19 +123,19 @@ export async function acknowledgeAlarm(id) {
 |--------------------------------------------------------------------------
 */
 
-export async function resolveAlarm(id, payload = {}) {
+export async function resolveAlarm(
+    alarmId,
+    payload = {}
+) {
 
-    const response = await api.post(
-
-        `/alarms/${id}/resolve`,
-
+    const response = await apiClient.patch(
+        `/alarms/${alarmId}/resolve`,
         payload
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
@@ -192,29 +143,31 @@ export async function resolveAlarm(id, payload = {}) {
 |--------------------------------------------------------------------------
 */
 
-export async function deleteAlarm(id) {
+export async function deleteAlarm(alarmId) {
 
-    const response = await api.delete(
-
-        `/alarms/${id}`
-
+    const response = await apiClient.delete(
+        `/alarms/${alarmId}`
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Default Export
+|--------------------------------------------------------------------------
+*/
 
 export default {
 
-    getAlarms,
+    getActiveAlarms,
 
-    getActiveSummary,
+    getAlarmHistory,
 
     getAlarmStatistics,
 
-    getSeverityDistribution,
-
-    getAlarmTrends,
+    getAlarmSummary,
 
     getAlarmById,
 

@@ -30,7 +30,7 @@ import useDashboard from "../hooks/useDashboard";
 
 function StatusChip({ status }) {
 
-    const value = status?.toUpperCase() || "UNKNOWN";
+    const value = (status || "UNKNOWN").toUpperCase();
 
     let color = "default";
 
@@ -71,21 +71,21 @@ function StatusChip({ status }) {
 
 /*
 |--------------------------------------------------------------------------
-| Site Status Table
+| Site Status
 |--------------------------------------------------------------------------
 */
 
-export default function SiteStatusTable() {
+export default function SiteStatus() {
 
     const {
 
-        dashboard,
+        sites,
 
         loading
 
     } = useDashboard();
 
-    const rows = dashboard?.statistics?.sites || [];
+    const rows = sites ?? [];
 
     const columns = useMemo(() => [
 
@@ -127,9 +127,13 @@ export default function SiteStatusTable() {
 
             width: 120,
 
-            valueFormatter: (value) =>
+            valueFormatter: ({ value }) =>
 
-                `${value}%`
+                value != null
+
+                    ? `${value}%`
+
+                    : "--"
 
         },
 
@@ -141,9 +145,13 @@ export default function SiteStatusTable() {
 
             width: 120,
 
-            valueFormatter: (value) =>
+            valueFormatter: ({ value }) =>
 
-                `${value} kW`
+                value != null
+
+                    ? `${value} kW`
+
+                    : "--"
 
         },
 
@@ -155,9 +163,13 @@ export default function SiteStatusTable() {
 
             width: 130,
 
-            valueFormatter: (value) =>
+            valueFormatter: ({ value }) =>
 
-                `${value} kW`
+                value != null
+
+                    ? `${value} kW`
+
+                    : "--"
 
         },
 
@@ -169,9 +181,13 @@ export default function SiteStatusTable() {
 
             width: 120,
 
-            valueFormatter: (value) =>
+            valueFormatter: ({ value }) =>
 
-                `${value} kW`
+                value != null
+
+                    ? `${value} kW`
+
+                    : "--"
 
         },
 
@@ -183,9 +199,13 @@ export default function SiteStatusTable() {
 
             width: 120,
 
-            valueFormatter: (value) =>
+            valueFormatter: ({ value }) =>
 
-                `${value} kW`
+                value != null
+
+                    ? `${value} kW`
+
+                    : "--"
 
         },
 
@@ -195,7 +215,15 @@ export default function SiteStatusTable() {
 
             headerName: "Last Communication",
 
-            flex: 1.5
+            flex: 1.5,
+
+            valueFormatter: ({ value }) =>
+
+                value
+
+                    ? new Date(value).toLocaleString()
+
+                    : "--"
 
         }
 
@@ -207,9 +235,11 @@ export default function SiteStatusTable() {
 
             sx={{
 
-                p:3,
+                p: 3,
 
-                mt:3
+                mt: 3,
+
+                borderRadius: 3
 
             }}
 
@@ -233,59 +263,69 @@ export default function SiteStatusTable() {
 
                 loading
 
-                ?
+                    ? (
 
-                (
+                        <Box
 
-                    <Box
+                            display="flex"
 
-                        display="flex"
+                            justifyContent="center"
 
-                        justifyContent="center"
+                            alignItems="center"
 
-                        py={8}
+                            py={8}
 
-                    >
+                        >
 
-                        <CircularProgress />
+                            <CircularProgress />
 
-                    </Box>
+                        </Box>
 
-                )
+                    )
 
-                :
+                    : (
 
-                (
+                        <DataGrid
 
-                    <DataGrid
+                            rows={rows}
 
-                        rows={rows}
+                            columns={columns}
 
-                        columns={columns}
+                            getRowId={(row) =>
 
-                        autoHeight
+                                row._id ??
 
-                        pageSizeOptions={[10,20,50]}
+                                row.siteId ??
 
-                        initialState={{
+                                row.installationId ??
 
-                            pagination: {
-
-                                paginationModel: {
-
-                                    pageSize:10
-
-                                }
+                                row.id
 
                             }
 
-                        }}
+                            autoHeight
 
-                        disableRowSelectionOnClick
+                            pageSizeOptions={[10, 20, 50]}
 
-                    />
+                            initialState={{
 
-                )
+                                pagination: {
+
+                                    paginationModel: {
+
+                                        pageSize: 10
+
+                                    }
+
+                                }
+
+                            }}
+
+                            disableRowSelectionOnClick
+
+                        />
+
+                    )
 
             }
 

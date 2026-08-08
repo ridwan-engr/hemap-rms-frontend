@@ -1,20 +1,16 @@
-import { useCallback, useEffect } from "react";
-
-import { useDispatch, useSelector } from "react-redux";
+import { useCallback } from "react";
 
 import {
+    useDispatch,
+    useSelector
+} from "react-redux";
 
-    fetchAlarms,
-
-    fetchActiveSummary,
-
+import {
+    fetchActiveAlarms,
+    fetchAlarmHistory,
     fetchAlarmStatistics,
-
-    fetchSeverityDistribution,
-
-    fetchAlarmTrends,
-
-    fetchAlarmDetails,
+    fetchAlarmSummary,
+    fetchAlarm,
 
     acknowledgeAlarm as acknowledgeAlarmAction,
 
@@ -22,23 +18,25 @@ import {
 
     deleteAlarm as deleteAlarmAction,
 
-    setFilters,
+    clearSelectedAlarm,
+    clearAlarmError,
+    clearAlarms
 
-    setPaginationModel
-
-} from "../../../store/slices/alarmSlice";
+} from "../../../store/slices/alarmSlice.js";
 
 /*
 |--------------------------------------------------------------------------
-| Alarm Hook
+| useAlarm
 |--------------------------------------------------------------------------
 |
-| Central hook used by every Alarm component.
-| Components must NEVER dispatch Redux actions directly.
+| Central hook for Alarm Management.
 |
+| Components should NEVER dispatch Redux actions directly.
+|
+|--------------------------------------------------------------------------
 */
 
-export default function useAlarm(initialFilters = {}) {
+export default function useAlarm() {
 
     const dispatch = useDispatch();
 
@@ -48,271 +46,223 @@ export default function useAlarm(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    const alarms = useSelector(
+    const {
 
-        state => state.alarms.alarms
+        active,
 
-    );
+        history,
 
-    const total = useSelector(
+        statistics,
 
-        state => state.alarms.total
+        summary,
 
-    );
+        selectedAlarm,
 
-    const activeSummary = useSelector(
+        loading,
 
-        state => state.alarms.activeSummary
+        loadingActive,
 
-    );
+        loadingHistory,
 
-    const statistics = useSelector(
+        loadingStatistics,
 
-        state => state.alarms.statistics
+        loadingSummary,
 
-    );
+        loadingAlarm,
 
-    const severity = useSelector(
+        processing,
 
-        state => state.alarms.severity
+        error,
 
-    );
+        lastUpdated
 
-    const trends = useSelector(
+    } = useSelector(
 
-        state => state.alarms.trends
-
-    );
-
-    const selectedAlarm = useSelector(
-
-        state => state.alarms.selectedAlarm
-
-    );
-
-    const filters = useSelector(
-
-        state => state.alarms.filters
-
-    );
-
-    const paginationModel = useSelector(
-
-        state => state.alarms.paginationModel
-
-    );
-
-    const loading = useSelector(
-
-        state => state.alarms.loading
-
-    );
-
-    const error = useSelector(
-
-        state => state.alarms.error
+        state => state.alarms
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Loaders
+    | Active Alarms
     |--------------------------------------------------------------------------
     */
 
-    const reload = useCallback(
+    const loadActiveAlarms = useCallback(
+
+        (params = {}) => {
+
+            return dispatch(
+
+                fetchActiveAlarms(params)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alarm History
+    |--------------------------------------------------------------------------
+    */
+
+    const loadAlarmHistory = useCallback(
+
+        (params = {}) => {
+
+            return dispatch(
+
+                fetchAlarmHistory(params)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alarm Statistics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadAlarmStatistics = useCallback(
+
+        (params = {}) => {
+
+            return dispatch(
+
+                fetchAlarmStatistics(params)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alarm Summary
+    |--------------------------------------------------------------------------
+    */
+
+    const loadAlarmSummary = useCallback(
+
+        (params = {}) => {
+
+            return dispatch(
+
+                fetchAlarmSummary(params)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Alarm Details
+    |--------------------------------------------------------------------------
+    */
+
+    const loadAlarm = useCallback(
+
+        alarmId => {
+
+            return dispatch(
+
+                fetchAlarm(alarmId)
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Acknowledge
+    |--------------------------------------------------------------------------
+    */
+
+    const acknowledge = useCallback(
+
+        alarmId => {
+
+            return dispatch(
+
+                acknowledgeAlarmAction(
+
+                    alarmId
+
+                )
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Resolve
+    |--------------------------------------------------------------------------
+    */
+
+    const resolve = useCallback(
 
         (
 
-            query = filters
+            alarmId,
+
+            payload = {}
 
         ) => {
 
-            dispatch(
-
-                fetchAlarms({
-
-                    ...query,
-
-                    page:
-
-                        paginationModel.page + 1,
-
-                    limit:
-
-                        paginationModel.pageSize
-
-                })
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters,
-
-            paginationModel
-
-        ]
-
-    );
-
-    const loadSummary = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchActiveSummary(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadStatistics = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchAlarmStatistics(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadSeverity = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchSeverityDistribution(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadTrends = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchAlarmTrends(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Actions
-    |--------------------------------------------------------------------------
-    */
-
-    const viewAlarm = useCallback(
-
-        id => {
-
-            dispatch(
-
-                fetchAlarmDetails(id)
-
-            );
-
-        },
-
-        [dispatch]
-
-    );
-
-    const acknowledgeAlarm = useCallback(
-
-        async id => {
-
-            await dispatch(
-
-                acknowledgeAlarmAction(id)
-
-            );
-
-            reload();
-
-            loadSummary();
-
-        },
-
-        [
-
-            dispatch,
-
-            reload,
-
-            loadSummary
-
-        ]
-
-    );
-
-    const resolveAlarm = useCallback(
-
-        async (
-
-            id,
-
-            payload
-
-        ) => {
-
-            await dispatch(
+            return dispatch(
 
                 resolveAlarmAction({
 
-                    id,
+                    alarmId,
 
                     payload
 
@@ -320,181 +270,205 @@ export default function useAlarm(initialFilters = {}) {
 
             );
 
-            reload();
-
-            loadSummary();
-
         },
 
         [
 
-            dispatch,
-
-            reload,
-
-            loadSummary
+            dispatch
 
         ]
-
-    );
-
-    const deleteAlarm = useCallback(
-
-        async id => {
-
-            await dispatch(
-
-                deleteAlarmAction(id)
-
-            );
-
-            reload();
-
-        },
-
-        [
-
-            dispatch,
-
-            reload
-
-        ]
-
-    );
-
-    const updateFilters = useCallback(
-
-        nextFilters => {
-
-            dispatch(
-
-                setFilters(nextFilters)
-
-            );
-
-        },
-
-        [dispatch]
-
-    );
-
-    const updatePagination = useCallback(
-
-        model => {
-
-            dispatch(
-
-                setPaginationModel(model)
-
-            );
-
-        },
-
-        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Initial Load
+    | Delete
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+    const removeAlarm = useCallback(
 
-        if (
+        alarmId => {
 
-            Object.keys(initialFilters)
+            return dispatch(
 
-                .length > 0
+                deleteAlarmAction(
 
-        ) {
+                    alarmId
 
-            dispatch(
-
-                setFilters(initialFilters)
+                )
 
             );
 
-        }
+        },
 
-    }, [
+        [
 
-        dispatch,
+            dispatch
 
-        initialFilters
+        ]
 
-    ]);
-
-    useEffect(() => {
-
-        reload();
-
-        loadSummary();
-
-        loadStatistics();
-
-        loadSeverity();
-
-        loadTrends();
-
-    }, [
-
-        reload,
-
-        loadSummary,
-
-        loadStatistics,
-
-        loadSeverity,
-
-        loadTrends
-
-    ]);
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Exposed API
+    | Clear Selected Alarm
+    |--------------------------------------------------------------------------
+    */
+
+    const clearSelection = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearSelectedAlarm()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Error
+    |--------------------------------------------------------------------------
+    */
+
+    const clearError = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearAlarmError()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear All Alarm State
+    |--------------------------------------------------------------------------
+    */
+
+    const clearAll = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearAlarms()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public API
     |--------------------------------------------------------------------------
     */
 
     return {
 
-        alarms,
+        /*
+        | Data
+        */
 
-        total,
+        active,
 
-        activeSummary,
+        history,
 
         statistics,
 
-        severity,
-
-        trends,
+        summary,
 
         selectedAlarm,
 
-        filters,
-
-        paginationModel,
+        /*
+        | Loading
+        */
 
         loading,
 
+        loadingActive,
+
+        loadingHistory,
+
+        loadingStatistics,
+
+        loadingSummary,
+
+        loadingAlarm,
+
+        processing,
+
+        /*
+        | Status
+        */
+
         error,
 
-        reload,
+        lastUpdated,
 
-        viewAlarm,
+        /*
+        | Loaders
+        */
 
-        acknowledgeAlarm,
+        loadActiveAlarms,
 
-        resolveAlarm,
+        loadAlarmHistory,
 
-        deleteAlarm,
+        loadAlarmStatistics,
 
-        updateFilters,
+        loadAlarmSummary,
 
-        updatePagination
+        loadAlarm,
+
+        /*
+        | Alarm Actions
+        */
+
+        acknowledge,
+
+        resolve,
+
+        deleteAlarm: removeAlarm,
+
+        /*
+        | State Controls
+        */
+
+        clearSelection,
+
+        clearError,
+
+        clearAll
 
     };
 

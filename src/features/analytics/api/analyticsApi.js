@@ -1,4 +1,4 @@
-import api from "../../../api/axios";
+import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
@@ -8,7 +8,19 @@ import api from "../../../api/axios";
 | Centralized Analytics API.
 | Components and hooks should never call axios directly.
 |
+| Backend contract:
+|
+| GET /analytics/dashboard
+| GET /analytics/energy
+| GET /analytics/battery
+| GET /analytics/solar
+| GET /analytics/generator
+| GET /analytics/grid
+| GET /analytics/reliability
+|
+|--------------------------------------------------------------------------
 */
+
 
 /*
 |--------------------------------------------------------------------------
@@ -16,23 +28,125 @@ import api from "../../../api/axios";
 |--------------------------------------------------------------------------
 */
 
-export async function getDashboardAnalytics(params = {}) {
+export async function getDashboardAnalytics(
+    params = {}
+) {
 
-    const response = await api.get(
-
+    const response = await apiClient.get(
         "/analytics/dashboard",
-
         {
-
             params
-
         }
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Energy Analytics
+|--------------------------------------------------------------------------
+*/
+
+export async function getEnergyAnalytics(
+    params = {}
+) {
+
+    const response = await apiClient.get(
+        "/analytics/energy",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Battery Analytics
+|--------------------------------------------------------------------------
+*/
+
+export async function getBatteryAnalytics(
+    params = {}
+) {
+
+    const response = await apiClient.get(
+        "/analytics/battery",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Solar Analytics
+|--------------------------------------------------------------------------
+*/
+
+export async function getSolarAnalytics(
+    params = {}
+) {
+
+    const response = await apiClient.get(
+        "/analytics/solar",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Generator Analytics
+|--------------------------------------------------------------------------
+*/
+
+export async function getGeneratorAnalytics(
+    params = {}
+) {
+
+    const response = await apiClient.get(
+        "/analytics/generator",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Grid Analytics
+|--------------------------------------------------------------------------
+*/
+
+export async function getGridAnalytics(
+    params = {}
+) {
+
+    const response = await apiClient.get(
+        "/analytics/grid",
+        {
+            params
+        }
+    );
+
+    return response.data?.data ?? response.data;
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,284 +154,41 @@ export async function getDashboardAnalytics(params = {}) {
 |--------------------------------------------------------------------------
 */
 
-export async function getReliabilityMetrics(params = {}) {
+export async function getReliabilityAnalytics(
+    params = {}
+) {
 
-    const response = await api.get(
-
+    const response = await apiClient.get(
         "/analytics/reliability",
-
         {
-
             params
-
         }
-
     );
 
-    return response.data;
-
+    return response.data?.data ?? response.data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Energy Forecast
+| Default Export
 |--------------------------------------------------------------------------
 */
-
-export async function getEnergyForecast(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/forecast",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Energy Trends
-|--------------------------------------------------------------------------
-*/
-
-export async function getEnergyTrends(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/trends",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Optimization Summary
-|--------------------------------------------------------------------------
-*/
-
-export async function getOptimizationSummary(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/optimization",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| KPI Comparison
-|--------------------------------------------------------------------------
-*/
-
-export async function getKPIComparison(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/kpis",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Availability
-|--------------------------------------------------------------------------
-*/
-
-export async function getAvailability(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/availability",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Battery Health
-|--------------------------------------------------------------------------
-*/
-
-export async function getBatteryHealth(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/battery",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Solar Performance
-|--------------------------------------------------------------------------
-*/
-
-export async function getSolarPerformance(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/solar",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Generator Performance
-|--------------------------------------------------------------------------
-*/
-
-export async function getGeneratorPerformance(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/generator",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Weather Impact
-|--------------------------------------------------------------------------
-*/
-
-export async function getWeatherImpact(params = {}) {
-
-    const response = await api.get(
-
-        "/analytics/weather",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return response.data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Refresh Analytics Cache
-|--------------------------------------------------------------------------
-*/
-
-export async function refreshAnalytics(params = {}) {
-
-    const response = await api.post(
-
-        "/analytics/refresh",
-
-        params
-
-    );
-
-    return response.data;
-
-}
 
 export default {
 
     getDashboardAnalytics,
 
-    getReliabilityMetrics,
+    getEnergyAnalytics,
 
-    getEnergyForecast,
+    getBatteryAnalytics,
 
-    getEnergyTrends,
+    getSolarAnalytics,
 
-    getOptimizationSummary,
+    getGeneratorAnalytics,
 
-    getKPIComparison,
+    getGridAnalytics,
 
-    getAvailability,
-
-    getBatteryHealth,
-
-    getSolarPerformance,
-
-    getGeneratorPerformance,
-
-    getWeatherImpact,
-
-    refreshAnalytics
+    getReliabilityAnalytics
 
 };

@@ -1,0 +1,109 @@
+.powerflow{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:25px;
+
+    margin-top:25px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:15px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.power-node{
+
+    width:220px;
+
+    padding:18px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    background:#f7f8fa;
+
+}
+
+.power-node h4{
+
+    margin-bottom:10px;
+
+}
+
+.power-node h2{
+
+    color:#0d6efd;
+
+    margin:0;
+
+}
+
+.power-node small{
+
+    color:#666;
+
+}
+
+.arrow{
+
+    font-size:32px;
+
+    color:#198754;
+
+}
+
+.power-center{
+
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr 1fr;
+
+    gap:20px;
+
+    align-items:center;
+
+}
+
+.grid,
+.generator,
+.inverter{
+
+    text-align:center;
+
+    background:#eef3ff;
+
+    padding:18px;
+
+    border-radius:12px;
+
+}
+
+.inverter{
+
+    background:#d9f2ff;
+
+}
+
+.grid{
+
+    background:#fff3cd;
+
+}
+
+.generator{
+
+    background:#fde2e2;
+
+}

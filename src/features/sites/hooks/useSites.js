@@ -1,34 +1,25 @@
-import { useCallback, useEffect } from "react";
-
-import { useDispatch, useSelector } from "react-redux";
+import {
+    useCallback,
+    useEffect
+} from "react";
 
 import {
+    useDispatch,
+    useSelector
+} from "react-redux";
 
+import {
     fetchSites,
-
     fetchSite,
 
-    fetchSiteSummary,
-
-    fetchSiteStatistics,
-
-    fetchSiteHealth,
-
-    fetchSiteLocations,
-
     createSite as createSiteAction,
-
     updateSite as updateSiteAction,
-
     deleteSite as deleteSiteAction,
 
-    refreshSites as refreshSitesAction,
-
     setSiteFilters,
-
-    setPaginationModel
-
-} from "../../../store/slices/siteSlice";
+    setPaginationModel,
+    clearSelectedSite
+} from "../../../store/slices/siteSlice.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -36,11 +27,12 @@ import {
 |--------------------------------------------------------------------------
 |
 | Central hook for Site Management.
-| Components should NEVER dispatch Redux actions directly.
+| Components should not dispatch Redux actions directly.
 |
+|--------------------------------------------------------------------------
 */
 
-export default function useSite(initialFilters = {}) {
+export default function useSites(initialFilters = {}) {
 
     const dispatch = useDispatch();
 
@@ -50,87 +42,36 @@ export default function useSite(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    const sites = useSelector(
+    const {
 
-        state => state.sites.sites
+        sites = [],
 
-    );
+        total = 0,
 
-    const total = useSelector(
+        selectedSite = null,
 
-        state => state.sites.total
+        filters = {},
 
-    );
+        paginationModel = {
+            page: 0,
+            pageSize: 25
+        },
 
-    const selectedSite = useSelector(
+        loading = false,
 
-        state => state.sites.selectedSite
+        refreshing = false,
 
-    );
+        error = null,
 
-    const summary = useSelector(
+        lastUpdated = null
 
-        state => state.sites.summary
-
-    );
-
-    const statistics = useSelector(
-
-        state => state.sites.statistics
-
-    );
-
-    const health = useSelector(
-
-        state => state.sites.health
-
-    );
-
-    const locations = useSelector(
-
-        state => state.sites.locations
-
-    );
-
-    const filters = useSelector(
-
-        state => state.sites.filters
-
-    );
-
-    const paginationModel = useSelector(
-
-        state => state.sites.paginationModel
-
-    );
-
-    const loading = useSelector(
-
-        state => state.sites.loading
-
-    );
-
-    const refreshing = useSelector(
-
-        state => state.sites.refreshing
-
-    );
-
-    const error = useSelector(
-
-        state => state.sites.error
-
-    );
-
-    const lastUpdated = useSelector(
-
-        state => state.sites.lastUpdated
-
+    } = useSelector(
+        state => state.sites
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Loaders
+    | Load Sites
     |--------------------------------------------------------------------------
     */
 
@@ -138,15 +79,17 @@ export default function useSite(initialFilters = {}) {
 
         (query = filters) => {
 
-            dispatch(
+            return dispatch(
 
                 fetchSites({
 
                     ...query,
 
-                    page: paginationModel.page + 1,
+                    page:
+                        paginationModel.page + 1,
 
-                    limit: paginationModel.pageSize
+                    limit:
+                        paginationModel.pageSize
 
                 })
 
@@ -155,119 +98,36 @@ export default function useSite(initialFilters = {}) {
         },
 
         [
-
             dispatch,
-
             filters,
-
-            paginationModel
-
-        ]
-
-    );
-
-    const loadSummary = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchSiteSummary(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadStatistics = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchSiteStatistics(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadHealth = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchSiteHealth(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
-        ]
-
-    );
-
-    const loadLocations = useCallback(
-
-        () => {
-
-            dispatch(
-
-                fetchSiteLocations(filters)
-
-            );
-
-        },
-
-        [
-
-            dispatch,
-
-            filters
-
+            paginationModel.page,
+            paginationModel.pageSize
         ]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | CRUD Operations
+    | Load Single Site
     |--------------------------------------------------------------------------
     */
 
     const viewSite = useCallback(
 
-        id => {
+        siteId => {
 
-            dispatch(
+            if (!siteId) {
 
-                fetchSite(id)
+                return Promise.reject(
+                    new Error(
+                        "siteId is required"
+                    )
+                );
 
+            }
+
+            return dispatch(
+                fetchSite(siteId)
             );
 
         },
@@ -276,147 +136,135 @@ export default function useSite(initialFilters = {}) {
 
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Create Site
+    |--------------------------------------------------------------------------
+    */
+
     const createSite = useCallback(
 
         async payload => {
 
-            await dispatch(
+            const result =
+                await dispatch(
 
-                createSiteAction(payload)
+                    createSiteAction(
+                        payload
+                    )
 
-            );
+                );
 
-            reload();
+            if (
+                createSiteAction.fulfilled
+                    .match(result)
+            ) {
 
-            loadSummary();
+                await reload();
 
-        },
+            }
 
-        [
-
-            dispatch,
-
-            reload,
-
-            loadSummary
-
-        ]
-
-    );
-
-    const updateSite = useCallback(
-
-        async (
-
-            siteId,
-
-            payload
-
-        ) => {
-
-            await dispatch(
-
-                updateSiteAction({
-
-                    siteId,
-
-                    payload
-
-                })
-
-            );
-
-            reload();
-
-            loadSummary();
+            return result;
 
         },
 
         [
-
             dispatch,
-
-            reload,
-
-            loadSummary
-
-        ]
-
-    );
-
-    const deleteSite = useCallback(
-
-        async siteId => {
-
-            await dispatch(
-
-                deleteSiteAction(siteId)
-
-            );
-
-            reload();
-
-            loadSummary();
-
-        },
-
-        [
-
-            dispatch,
-
-            reload,
-
-            loadSummary
-
+            reload
         ]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Refresh
+    | Update Site
     |--------------------------------------------------------------------------
     */
 
-    const refresh = useCallback(
+    const updateSite = useCallback(
 
-        async () => {
+        async (
+            siteId,
+            payload
+        ) => {
 
-            await dispatch(
+            if (!siteId) {
 
-                refreshSitesAction(filters)
+                return Promise.reject(
+                    new Error(
+                        "siteId is required"
+                    )
+                );
 
-            );
+            }
 
-            reload();
+            const result =
+                await dispatch(
 
-            loadSummary();
+                    updateSiteAction({
 
-            loadStatistics();
+                        siteId,
 
-            loadHealth();
+                        payload
 
-            loadLocations();
+                    })
+
+                );
+
+            if (
+                updateSiteAction.fulfilled
+                    .match(result)
+            ) {
+
+                await reload();
+
+            }
+
+            return result;
 
         },
 
         [
-
             dispatch,
-
-            filters,
-
-            reload,
-
-            loadSummary,
-
-            loadStatistics,
-
-            loadHealth,
-
-            loadLocations
-
+            reload
         ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Site
+    |--------------------------------------------------------------------------
+    */
+
+    const deleteSite = useCallback(
+
+        async siteId => {
+
+            if (!siteId) {
+
+                return Promise.reject(
+                    new Error(
+                        "siteId is required"
+                    )
+                );
+
+            }
+
+            const result =
+                await dispatch(
+
+                    deleteSiteAction(
+                        siteId
+                    )
+
+                );
+
+            return result;
+
+        },
+
+        [dispatch]
 
     );
 
@@ -432,7 +280,9 @@ export default function useSite(initialFilters = {}) {
 
             dispatch(
 
-                setSiteFilters(nextFilters)
+                setSiteFilters(
+                    nextFilters
+                )
 
             );
 
@@ -442,14 +292,42 @@ export default function useSite(initialFilters = {}) {
 
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
     const updatePagination = useCallback(
 
         model => {
 
             dispatch(
 
-                setPaginationModel(model)
+                setPaginationModel(
+                    model
+                )
 
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Selected Site
+    |--------------------------------------------------------------------------
+    */
+
+    const clearSite = useCallback(
+
+        () => {
+
+            dispatch(
+                clearSelectedSite()
             );
 
         },
@@ -464,29 +342,32 @@ export default function useSite(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+    useEffect(
 
-        if (
+        () => {
 
-            Object.keys(initialFilters).length > 0
+            if (
+                initialFilters &&
+                Object.keys(
+                    initialFilters
+                ).length > 0
+            ) {
 
-        ) {
+                dispatch(
 
-            dispatch(
+                    setSiteFilters(
+                        initialFilters
+                    )
 
-                setSiteFilters(initialFilters)
+                );
 
-            );
+            }
 
-        }
+        },
 
-    }, [
+        [dispatch, initialFilters]
 
-        dispatch,
-
-        initialFilters
-
-    ]);
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -494,39 +375,27 @@ export default function useSite(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+    useEffect(
 
-        reload();
+        () => {
 
-        loadSummary();
+            reload();
 
-        loadStatistics();
+        },
 
-        loadHealth();
+        [reload]
 
-        loadLocations();
-
-    }, [
-
-        reload,
-
-        loadSummary,
-
-        loadStatistics,
-
-        loadHealth,
-
-        loadLocations
-
-    ]);
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Public API
+    | Public Hook API
     |--------------------------------------------------------------------------
     */
 
     return {
+
+        /* Data */
 
         sites,
 
@@ -534,17 +403,13 @@ export default function useSite(initialFilters = {}) {
 
         selectedSite,
 
-        summary,
-
-        statistics,
-
-        health,
-
-        locations,
+        /* Query */
 
         filters,
 
         paginationModel,
+
+        /* Request */
 
         loading,
 
@@ -554,9 +419,9 @@ export default function useSite(initialFilters = {}) {
 
         lastUpdated,
 
-        reload,
+        /* Actions */
 
-        refresh,
+        reload,
 
         viewSite,
 
@@ -566,9 +431,13 @@ export default function useSite(initialFilters = {}) {
 
         deleteSite,
 
+        /* UI */
+
         updateFilters,
 
-        updatePagination
+        updatePagination,
+
+        clearSite
 
     };
 

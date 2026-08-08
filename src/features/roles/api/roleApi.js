@@ -2,130 +2,136 @@ import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
-| Roles
+| Role API
+|--------------------------------------------------------------------------
+|
+| Backend contract:
+|
+| GET    /roles
+| GET    /roles/:id
+| POST   /roles
+| PUT    /roles/:id
+| DELETE /roles/:id
+|
+| All routes require authentication.
+| All routes require ADMIN authorization.
+|
 |--------------------------------------------------------------------------
 */
 
-export async function getRoles(params = {}) {
+
+/*
+|--------------------------------------------------------------------------
+| Get All Roles
+|--------------------------------------------------------------------------
+*/
+
+export async function getRoles(
+    params = {}
+) {
 
     const { data } = await apiClient.get(
-
         "/roles",
-
         {
-
             params
-
         }
-
     );
 
-    return data;
-
+    return data?.data ?? data;
 }
 
-export async function getRole(roleId) {
+
+/*
+|--------------------------------------------------------------------------
+| Get Single Role
+|--------------------------------------------------------------------------
+*/
+
+export async function getRole(
+    roleId
+) {
 
     const { data } = await apiClient.get(
-
         `/roles/${roleId}`
-
     );
 
-    return data;
-
+    return data?.data ?? data;
 }
 
-export async function createRole(payload) {
+
+/*
+|--------------------------------------------------------------------------
+| Create Role
+|--------------------------------------------------------------------------
+*/
+
+export async function createRole(
+    payload
+) {
 
     const { data } = await apiClient.post(
-
         "/roles",
-
         payload
-
     );
 
-    return data;
-
+    return data?.data ?? data;
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Update Role
+|--------------------------------------------------------------------------
+*/
+
 export async function updateRole(
-
     roleId,
-
     payload
-
 ) {
 
     const { data } = await apiClient.put(
-
         `/roles/${roleId}`,
-
         payload
-
     );
 
-    return data;
-
+    return data?.data ?? data;
 }
 
-export async function deleteRole(roleId) {
+
+/*
+|--------------------------------------------------------------------------
+| Delete Role
+|--------------------------------------------------------------------------
+*/
+
+export async function deleteRole(
+    roleId
+) {
 
     const { data } = await apiClient.delete(
-
         `/roles/${roleId}`
-
     );
 
-    return data;
-
+    return data?.data ?? data;
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard
+| Default Export
 |--------------------------------------------------------------------------
 */
 
-export async function getRoleSummary() {
+export default {
 
-    const { data } = await apiClient.get(
+    getRoles,
 
-        "/roles/summary"
+    getRole,
 
-    );
+    createRole,
 
-    return data;
+    updateRole,
 
-}
+    deleteRole
 
-export async function getRoleStatistics() {
-
-    const { data } = await apiClient.get(
-
-        "/roles/statistics"
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Permissions
-|--------------------------------------------------------------------------
-*/
-
-export async function getAvailablePermissions() {
-
-    const { data } = await apiClient.get(
-
-        "/roles/permissions"
-
-    );
-
-    return data;
-
-}
+};

@@ -8,166 +8,200 @@ import apiClient from "../../../services/api/apiClient";
 
 /*
 |--------------------------------------------------------------------------
-| Users
+| Get All Users
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Backend:
+ * GET /users
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function getUsers(params = {}) {
 
-    const { data } = await apiClient.get(
-
+    const response = await apiClient.get(
         "/users",
-
         {
-
             params
-
         }
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Get User By ID
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Backend:
+ * GET /users/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function getUserById(userId) {
 
-    const { data } = await apiClient.get(
-
+    const response = await apiClient.get(
         `/users/${userId}`
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard Data
+| Create User
 |--------------------------------------------------------------------------
 */
 
-export async function getUserSummary() {
-
-    const { data } = await apiClient.get(
-
-        "/users/summary"
-
-    );
-
-    return data;
-
-}
-
-export async function getUserStatistics() {
-
-    const { data } = await apiClient.get(
-
-        "/users/statistics"
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| CRUD
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Backend:
+ * POST /users
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function createUser(payload) {
 
-    const { data } = await apiClient.post(
-
+    const response = await apiClient.post(
         "/users",
-
         payload
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Update User
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Backend:
+ * PUT /users/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function updateUser(
-
     userId,
-
     payload
-
 ) {
 
-    const { data } = await apiClient.put(
-
+    const response = await apiClient.put(
         `/users/${userId}`,
-
         payload
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Activate User
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Backend:
+ * PATCH /users/:id/activate
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
+export async function activateUser(userId) {
+
+    const response = await apiClient.patch(
+        `/users/${userId}/activate`
+    );
+
+    return response.data?.data ?? response.data;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Deactivate User
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Backend:
+ * PATCH /users/:id/deactivate
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
+export async function deactivateUser(userId) {
+
+    const response = await apiClient.patch(
+        `/users/${userId}/deactivate`
+    );
+
+    return response.data?.data ?? response.data;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Delete User
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Backend:
+ * DELETE /users/:id
+ *
+ * Requires:
+ * Authentication + ADMIN
+ */
 export async function deleteUser(userId) {
 
-    const { data } = await apiClient.delete(
-
+    const response = await apiClient.delete(
         `/users/${userId}`
-
     );
 
-    return data;
+    return response.data?.data ?? response.data;
 
 }
+
 
 /*
 |--------------------------------------------------------------------------
-| Refresh
+| Default Export
 |--------------------------------------------------------------------------
 */
 
-export async function refreshUsers() {
+export default {
 
-    const { data } = await apiClient.post(
+    getUsers,
 
-        "/users/refresh"
+    getUserById,
 
-    );
+    createUser,
 
-    return data;
+    updateUser,
 
-}
+    activateUser,
 
-/*
-|--------------------------------------------------------------------------
-| Lookups
-|--------------------------------------------------------------------------
-*/
+    deactivateUser,
 
-export async function getRoles() {
+    deleteUser
 
-    const { data } = await apiClient.get(
-
-        "/users/roles"
-
-    );
-
-    return data;
-
-}
-
-export async function getSites() {
-
-    const { data } = await apiClient.get(
-
-        "/users/sites"
-
-    );
-
-    return data;
-
-}
+};

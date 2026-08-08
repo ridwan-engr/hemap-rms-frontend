@@ -1,22 +1,15 @@
-import {
-
-    Grid
-
-} from "@mui/material";
+import { Grid } from "@mui/material";
 
 import SolarPowerIcon from "@mui/icons-material/SolarPower";
 import BatteryChargingFullIcon from "@mui/icons-material/BatteryChargingFull";
 import ElectricalServicesIcon from "@mui/icons-material/ElectricalServices";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-import StatCard from "../../../components/common/StatCard";
+import StatCard from "../../../components/common/StatCard.jsx";
 
 export default function DashboardKPIs({
-
     cards,
-
     loading
-
 }) {
 
     return (
@@ -26,70 +19,80 @@ export default function DashboardKPIs({
             spacing={3}
         >
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
 
                 <StatCard
-
                     title="Active Sites"
-
                     value={cards?.activeSites ?? 0}
-
-                    icon={<ElectricalServicesIcon />}
-
+                    icon={
+                        <ElectricalServicesIcon />
+                    }
                     loading={loading}
-
                 />
 
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
 
                 <StatCard
-
                     title="Battery SOC"
-
                     value={cards?.batterySOC ?? 0}
-
                     unit="%"
-
-                    icon={<BatteryChargingFullIcon />}
-
+                    icon={
+                        <BatteryChargingFullIcon />
+                    }
                     loading={loading}
-
                 />
 
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
 
                 <StatCard
-
                     title="Renewable Energy"
-
                     value={cards?.renewableEnergy ?? 0}
-
                     unit="%"
-
-                    icon={<SolarPowerIcon />}
-
+                    icon={
+                        <SolarPowerIcon />
+                    }
                     loading={loading}
-
                 />
 
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
 
                 <StatCard
-
                     title="Active Alarms"
-
                     value={cards?.activeAlarms ?? 0}
-
-                    icon={<WarningAmberIcon />}
-
+                    icon={
+                        <WarningAmberIcon />
+                    }
                     loading={loading}
-
                 />
 
             </Grid>

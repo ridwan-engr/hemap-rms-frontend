@@ -3,54 +3,56 @@ import {
     Paper,
     Stack,
     Typography,
-    LinearProgress
+    LinearProgress,
+    Box
 } from "@mui/material";
 
+import useDashboard from "../hooks/useDashboard";
 
-export default function DashboardEnergy({
+export default function DashboardEnergy() {
 
-    statistics,
+    const {
 
-    loading
+        dashboard,
 
-}) {
+        loading
 
-    const energyGenerated = statistics?.energyGenerated ?? 0;
+    } = useDashboard();
 
-    const energyConsumed = statistics?.energyConsumed ?? 0;
+    const statistics =
+        dashboard?.statistics ?? {};
 
-    const renewablePercentage = statistics?.renewablePercentage ??
+    const energyGenerated =
+        statistics.energyGenerated ?? 0;
 
-        statistics?.renewableFraction ??
+    const energyConsumed =
+        statistics.energyConsumed ?? 0;
+
+    const renewablePercentage =
+
+        statistics.renewablePercentage ??
+
+        statistics.renewableFraction ??
 
         0;
 
-    const generatorRuntime = statistics?.generatorRuntime ?? 0;
+    const generatorRuntime =
+        statistics.generatorRuntime ?? 0;
 
     return (
 
         <Paper
-
             elevation={1}
-
             sx={{
-
                 p: 3,
-
                 borderRadius: 3
-
             }}
-
         >
 
             <Typography
-
                 variant="h6"
-
                 fontWeight={700}
-
                 mb={3}
-
             >
 
                 Energy Summary
@@ -58,14 +60,16 @@ export default function DashboardEnergy({
             </Typography>
 
             <Grid
-
                 container
-
                 spacing={3}
-
             >
 
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 3
+                    }}
+                >
 
                     <EnergyCard
 
@@ -81,7 +85,12 @@ export default function DashboardEnergy({
 
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 3
+                    }}
+                >
 
                     <EnergyCard
 
@@ -97,7 +106,12 @@ export default function DashboardEnergy({
 
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 3
+                    }}
+                >
 
                     <EnergyCard
 
@@ -113,16 +127,18 @@ export default function DashboardEnergy({
 
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 3
+                    }}
+                >
 
                     <Stack spacing={1}>
 
                         <Typography
-
                             variant="body2"
-
                             color="text.secondary"
-
                         >
 
                             Renewable Contribution
@@ -130,19 +146,14 @@ export default function DashboardEnergy({
                         </Typography>
 
                         <Typography
-
                             variant="h4"
-
                             fontWeight={700}
-
                         >
 
                             {
 
                                 loading
-
                                     ? "--"
-
                                     : renewablePercentage
 
                             }%
@@ -150,19 +161,12 @@ export default function DashboardEnergy({
                         </Typography>
 
                         <LinearProgress
-
                             variant="determinate"
-
                             value={renewablePercentage}
-
                             sx={{
-
                                 height: 10,
-
                                 borderRadius: 5
-
                             }}
-
                         />
 
                     </Stack>
@@ -194,11 +198,8 @@ function EnergyCard({
         <Stack spacing={1}>
 
             <Typography
-
                 variant="body2"
-
                 color="text.secondary"
-
             >
 
                 {title}
@@ -206,42 +207,30 @@ function EnergyCard({
             </Typography>
 
             <Typography
-
                 variant="h4"
-
                 fontWeight={700}
-
             >
 
                 {
 
                     loading
-
                         ? "--"
-
                         : value
 
                 }
 
-                <Typography
-
+                <Box
                     component="span"
-
                     sx={{
-
                         ml: 1,
-
                         fontSize: 16,
-
                         color: "text.secondary"
-
                     }}
-
                 >
 
                     {unit}
 
-                </Typography>
+                </Box>
 
             </Typography>
 

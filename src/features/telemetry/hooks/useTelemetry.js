@@ -1,26 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
 
 import {
-
-    getLiveTelemetry,
-
-    getTelemetryKPIs,
-
-    getTelemetryAlarms
-
+    getTelemetry,
+    getTelemetrySummary,
+    getTelemetryHistory,
+    getLatestTelemetry,
+    getDeviceStatus
 } from "../api/telemetryApi";
 
 export default function useTelemetry(filters = {}) {
 
     const [telemetry, setTelemetry] = useState(null);
 
-    const [kpis, setKPIs] = useState(null);
+    const [summary, setSummary] = useState(null);
 
-    const [alarms, setAlarms] = useState([]);
+    const [history, setHistory] = useState([]);
+
+    const [deviceStatus, setDeviceStatus] = useState(null);
 
     const [loading, setLoading] = useState(true);
 
     const [error, setError] = useState(null);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Telemetry
+    |--------------------------------------------------------------------------
+    */
 
     const loadTelemetry = useCallback(async () => {
 
@@ -28,44 +34,47 @@ export default function useTelemetry(filters = {}) {
 
             setLoading(true);
 
-            const [
+            setError(null);
 
-                telemetryRes,
+            /*
+             * Current telemetry
+             */
+            const telemetryResponse =
+                await getTelemetry(filters);
 
-                kpiRes,
+            /*
+             * Telemetry summary
+             */
+            const summaryResponse =
+                await getTelemetrySummary(filters);
 
-                alarmRes
+            setTelemetry(
+                telemetryResponse?.data ??
+                telemetryResponse ??
+                null
+            );
 
-            ] = await Promise.all([
-
-                getLiveTelemetry(filters),
-
-                getTelemetryKPIs(),
-
-                getTelemetryAlarms()
-
-            ]);
-
-            setTelemetry(telemetryRes.data.data);
-
-            setKPIs(kpiRes.data.data);
-
-            setAlarms(alarmRes.data.data);
-
-        }
-
-        catch (err) {
-
-            setError(
-
-                err.response?.data ||
-
-                err.message
-
+            setSummary(
+                summaryResponse?.data ??
+                summaryResponse ??
+                null
             );
 
         }
+        catch (err) {
 
+            console.error(
+                "Telemetry loading failed:",
+                err
+            );
+
+            setError(
+                err.response?.data ??
+                err.message ??
+                "Failed to load telemetry."
+            );
+
+        }
         finally {
 
             setLoading(false);
@@ -74,25 +83,200 @@ export default function useTelemetry(filters = {}) {
 
     }, [filters]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Load
+    |--------------------------------------------------------------------------
+    */
+
     useEffect(() => {
 
         loadTelemetry();
 
     }, [loadTelemetry]);
 
+    /*
+    |--------------------------------------------------------------------------
+    | Load Historical Telemetry
+    |--------------------------------------------------------------------------
+    */
+
+    const loadHistory = useCallback(
+        async (params = {}) => {
+
+            try {
+
+                const response =
+                    await getTelemetryHistory(params);
+
+                const data =
+                    response?.data ??
+                    response ??
+                    [];
+
+                setHistory(
+                    Array.isArray(data)
+                        ? data
+                        : data?.data ?? []
+                );
+
+                return data;
+
+            }
+            catch (err) {
+
+                console.error(
+                    "Telemetry history loading failed:",
+                    err
+                );
+
+                setError(
+                    err.response?.data ??
+                    err.message ??
+                    "Failed to load telemetry history."
+                );
+
+                return [];
+
+            }
+
+        },
+        []
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Latest Installation Telemetry
+    |--------------------------------------------------------------------------
+    */
+
+    const loadLatestTelemetry = useCallback(
+        async (installationId) => {
+
+            if (!installationId) {
+
+                return null;
+
+            }
+
+            try {
+
+                const response =
+                    await getLatestTelemetry(
+                        installationId
+                    );
+
+                const data =
+                    response?.data ??
+                    response ??
+                    null;
+
+                setTelemetry(data);
+
+                return data;
+
+            }
+            catch (err) {
+
+                console.error(
+                    "Latest telemetry loading failed:",
+                    err
+                );
+
+                setError(
+                    err.response?.data ??
+                    err.message ??
+                    "Failed to load latest telemetry."
+                );
+
+                return null;
+
+            }
+
+        },
+        []
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Device Status
+    |--------------------------------------------------------------------------
+    */
+
+    const loadDeviceStatus = useCallback(
+        async (installationId) => {
+
+            if (!installationId) {
+
+                return null;
+
+            }
+
+            try {
+
+                const response =
+                    await getDeviceStatus(
+                        installationId
+                    );
+
+                const data =
+                    response?.data ??
+                    response ??
+                    null;
+
+                setDeviceStatus(data);
+
+                return data;
+
+            }
+            catch (err) {
+
+                console.error(
+                    "Device status loading failed:",
+                    err
+                );
+
+                setError(
+                    err.response?.data ??
+                    err.message ??
+                    "Failed to load device status."
+                );
+
+                return null;
+
+            }
+
+        },
+        []
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Return
+    |--------------------------------------------------------------------------
+    */
+
     return {
 
         telemetry,
 
-        kpis,
+        summary,
 
-        alarms,
+        history,
+
+        deviceStatus,
 
         loading,
 
         error,
 
-        reload: loadTelemetry
+        reload: loadTelemetry,
+
+        loadHistory,
+
+        loadLatestTelemetry,
+
+        loadDeviceStatus
 
     };
 

@@ -1,24 +1,15 @@
 import {
-
     createSlice,
     createAsyncThunk
-
 } from "@reduxjs/toolkit";
 
 import {
-
     getSettings,
     getSetting,
-    getSettingByKey,
-
-    createSetting,
-    updateSetting,
-    updateSettingByKey,
-    deleteSetting,
-
-    initializeDefaults
-
-} from "../../features/settings/api/settingsApi";
+    createSetting as createSettingApi,
+    updateSetting as updateSettingApi,
+    deleteSetting as deleteSettingApi
+} from "../../features/settings/api/settingsApi.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -26,11 +17,17 @@ import {
 |--------------------------------------------------------------------------
 */
 
+/*
+|--------------------------------------------------------------------------
+| Fetch All Settings
+|--------------------------------------------------------------------------
+*/
+
 export const fetchSettings = createAsyncThunk(
 
     "settings/fetchSettings",
 
-    async (_, thunkAPI) => {
+    async (_, { rejectWithValue }) => {
 
         try {
 
@@ -40,7 +37,7 @@ export const fetchSettings = createAsyncThunk(
 
         catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
 
                 error.response?.data ||
 
@@ -54,11 +51,17 @@ export const fetchSettings = createAsyncThunk(
 
 );
 
+/*
+|--------------------------------------------------------------------------
+| Fetch Single Setting
+|--------------------------------------------------------------------------
+*/
+
 export const fetchSetting = createAsyncThunk(
 
     "settings/fetchSetting",
 
-    async (settingId, thunkAPI) => {
+    async (settingId, { rejectWithValue }) => {
 
         try {
 
@@ -68,7 +71,7 @@ export const fetchSetting = createAsyncThunk(
 
         catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
 
                 error.response?.data ||
 
@@ -82,49 +85,27 @@ export const fetchSetting = createAsyncThunk(
 
 );
 
-export const fetchSettingByKey = createAsyncThunk(
-
-    "settings/fetchSettingByKey",
-
-    async (key, thunkAPI) => {
-
-        try {
-
-            return await getSettingByKey(key);
-
-        }
-
-        catch (error) {
-
-            return thunkAPI.rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
+/*
+|--------------------------------------------------------------------------
+| Create Setting
+|--------------------------------------------------------------------------
+*/
 
 export const createNewSetting = createAsyncThunk(
 
     "settings/create",
 
-    async (payload, thunkAPI) => {
+    async (payload, { rejectWithValue }) => {
 
         try {
 
-            return await createSetting(payload);
+            return await createSettingApi(payload);
 
         }
 
         catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
 
                 error.response?.data ||
 
@@ -137,6 +118,12 @@ export const createNewSetting = createAsyncThunk(
     }
 
 );
+
+/*
+|--------------------------------------------------------------------------
+| Update Setting
+|--------------------------------------------------------------------------
+*/
 
 export const updateExistingSetting = createAsyncThunk(
 
@@ -145,22 +132,19 @@ export const updateExistingSetting = createAsyncThunk(
     async (
 
         {
-
-            id,
-
+            settingId,
             payload
-
         },
 
-        thunkAPI
+        { rejectWithValue }
 
     ) => {
 
         try {
 
-            return await updateSetting(
+            return await updateSettingApi(
 
-                id,
+                settingId,
 
                 payload
 
@@ -170,7 +154,7 @@ export const updateExistingSetting = createAsyncThunk(
 
         catch (error) {
 
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
 
                 error.response?.data ||
 
@@ -184,97 +168,29 @@ export const updateExistingSetting = createAsyncThunk(
 
 );
 
-export const updateExistingSettingByKey = createAsyncThunk(
-
-    "settings/updateByKey",
-
-    async (
-
-        {
-
-            key,
-
-            payload
-
-        },
-
-        thunkAPI
-
-    ) => {
-
-        try {
-
-            return await updateSettingByKey(
-
-                key,
-
-                payload
-
-            );
-
-        }
-
-        catch (error) {
-
-            return thunkAPI.rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
+/*
+|--------------------------------------------------------------------------
+| Delete Setting
+|--------------------------------------------------------------------------
+*/
 
 export const deleteExistingSetting = createAsyncThunk(
 
     "settings/delete",
 
-    async (id, thunkAPI) => {
+    async (settingId, { rejectWithValue }) => {
 
         try {
 
-            await deleteSetting(id);
+            await deleteSettingApi(settingId);
 
-            return id;
+            return settingId;
 
         }
 
         catch (error) {
 
-            return thunkAPI.rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const initializeSystemDefaults = createAsyncThunk(
-
-    "settings/initializeDefaults",
-
-    async (_, thunkAPI) => {
-
-        try {
-
-            return await initializeDefaults();
-
-        }
-
-        catch (error) {
-
-            return thunkAPI.rejectWithValue(
+            return rejectWithValue(
 
                 error.response?.data ||
 
@@ -326,11 +242,23 @@ const settingsSlice = createSlice({
 
     reducers: {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Category
+        |--------------------------------------------------------------------------
+        */
+
         setCategory(state, action) {
 
             state.category = action.payload;
 
         },
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clear Selected Setting
+        |--------------------------------------------------------------------------
+        */
 
         clearSelectedSetting(state) {
 
@@ -342,87 +270,409 @@ const settingsSlice = createSlice({
 
     extraReducers: builder => {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Fetch All Settings
+        |--------------------------------------------------------------------------
+        */
+
         builder
 
-            .addCase(fetchSettings.pending, state => {
+            .addCase(
 
-                state.loading = true;
+                fetchSettings.pending,
 
-                state.error = null;
+                state => {
 
-            })
+                    state.loading = true;
 
-            .addCase(fetchSettings.fulfilled, (state, action) => {
+                    state.error = null;
 
-                state.loading = false;
+                }
 
-                state.refreshing = false;
+            )
 
-                state.settings = action.payload.data || [];
+            .addCase(
 
-                state.lastUpdated = Date.now();
+                fetchSettings.fulfilled,
 
-            })
+                (state, action) => {
 
-            .addCase(fetchSettings.rejected, (state, action) => {
+                    state.loading = false;
 
-                state.loading = false;
+                    state.refreshing = false;
 
-                state.refreshing = false;
+                    /*
+                    | API already returns:
+                    |
+                    | response.data?.data ?? response.data
+                    |
+                    */
 
-                state.error = action.payload;
+                    state.settings =
 
-            })
+                        Array.isArray(action.payload)
 
-            .addCase(fetchSetting.fulfilled, (state, action) => {
+                            ? action.payload
 
-                state.selectedSetting = action.payload.data;
+                            : action.payload?.settings || [];
 
-            })
+                    state.lastUpdated =
 
-            .addCase(fetchSettingByKey.fulfilled, (state, action) => {
+                        new Date().toISOString();
 
-                state.selectedSetting = action.payload.data;
+                }
 
-            })
+            )
 
-            .addCase(createNewSetting.fulfilled, state => {
+            .addCase(
 
-                state.lastUpdated = Date.now();
+                fetchSettings.rejected,
 
-            })
+                (state, action) => {
 
-            .addCase(updateExistingSetting.fulfilled, state => {
+                    state.loading = false;
 
-                state.lastUpdated = Date.now();
+                    state.refreshing = false;
 
-            })
+                    state.error = action.payload;
 
-            .addCase(updateExistingSettingByKey.fulfilled, state => {
+                }
 
-                state.lastUpdated = Date.now();
+            );
 
-            })
+        /*
+        |--------------------------------------------------------------------------
+        | Fetch Single Setting
+        |--------------------------------------------------------------------------
+        */
 
-            .addCase(deleteExistingSetting.fulfilled, (state, action) => {
+        builder
 
-                state.settings = state.settings.filter(
+            .addCase(
 
-                    setting => setting._id !== action.payload
+                fetchSetting.pending,
 
-                );
+                state => {
 
-            })
+                    state.loading = true;
 
-            .addCase(initializeSystemDefaults.fulfilled, state => {
+                    state.error = null;
 
-                state.lastUpdated = Date.now();
+                }
 
-            });
+            )
+
+            .addCase(
+
+                fetchSetting.fulfilled,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.selectedSetting =
+
+                        action.payload;
+
+                }
+
+            )
+
+            .addCase(
+
+                fetchSetting.rejected,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Setting
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                createNewSetting.pending,
+
+                state => {
+
+                    state.loading = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                createNewSetting.fulfilled,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    const createdSetting =
+
+                        action.payload;
+
+                    /*
+                    | Add the newly created setting
+                    | when the API returns the object.
+                    */
+
+                    if (
+
+                        createdSetting &&
+
+                        typeof createdSetting === "object"
+
+                    ) {
+
+                        state.settings.push(
+
+                            createdSetting
+
+                        );
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                createNewSetting.rejected,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Setting
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                updateExistingSetting.pending,
+
+                state => {
+
+                    state.loading = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                updateExistingSetting.fulfilled,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    const updatedSetting =
+
+                        action.payload;
+
+                    if (
+
+                        updatedSetting &&
+
+                        typeof updatedSetting === "object"
+
+                    ) {
+
+                        const settingId =
+
+                            updatedSetting._id ||
+
+                            updatedSetting.id;
+
+                        const index =
+
+                            state.settings.findIndex(
+
+                                setting =>
+
+                                    setting._id === settingId ||
+
+                                    setting.id === settingId
+
+                            );
+
+                        if (index !== -1) {
+
+                            state.settings[index] =
+
+                                updatedSetting;
+
+                        }
+
+                        if (
+
+                            state.selectedSetting &&
+
+                            (
+
+                                state.selectedSetting._id === settingId ||
+
+                                state.selectedSetting.id === settingId
+
+                            )
+
+                        ) {
+
+                            state.selectedSetting =
+
+                                updatedSetting;
+
+                        }
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                updateExistingSetting.rejected,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Setting
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+
+                deleteExistingSetting.pending,
+
+                state => {
+
+                    state.loading = true;
+
+                    state.error = null;
+
+                }
+
+            )
+
+            .addCase(
+
+                deleteExistingSetting.fulfilled,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.settings =
+
+                        state.settings.filter(
+
+                            setting =>
+
+                                setting._id !== action.payload &&
+
+                                setting.id !== action.payload
+
+                        );
+
+                    if (
+
+                        state.selectedSetting &&
+
+                        (
+
+                            state.selectedSetting._id === action.payload ||
+
+                            state.selectedSetting.id === action.payload
+
+                        )
+
+                    ) {
+
+                        state.selectedSetting = null;
+
+                    }
+
+                    state.lastUpdated =
+
+                        new Date().toISOString();
+
+                }
+
+            )
+
+            .addCase(
+
+                deleteExistingSetting.rejected,
+
+                (state, action) => {
+
+                    state.loading = false;
+
+                    state.error = action.payload;
+
+                }
+
+            );
 
     }
 
 });
+
+/*
+|--------------------------------------------------------------------------
+| Actions
+|--------------------------------------------------------------------------
+*/
 
 export const {
 
@@ -431,5 +681,11 @@ export const {
     clearSelectedSetting
 
 } = settingsSlice.actions;
+
+/*
+|--------------------------------------------------------------------------
+| Reducer
+|--------------------------------------------------------------------------
+*/
 
 export default settingsSlice.reducer;

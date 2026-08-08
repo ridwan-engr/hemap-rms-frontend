@@ -1,0 +1,49 @@
+.kpi-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:20px;
+
+    margin-bottom:25px;
+
+}
+
+.kpi-card{
+
+    background:#ffffff;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+    transition:.25s;
+
+}
+
+.kpi-card:hover{
+
+    transform:translateY(-3px);
+
+}
+
+.kpi-card span{
+
+    color:#777;
+
+    font-size:14px;
+
+}
+
+.kpi-card h2{
+
+    margin-top:12px;
+
+    font-size:28px;
+
+    color:#0d6efd;
+
+}

@@ -19,7 +19,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import PowerIcon from "@mui/icons-material/Power";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -28,30 +28,27 @@ import useSite from "../hooks/useSite";
 */
 
 function SummaryCard({
-
     title,
-
     value,
-
-    icon,
-
-    color
-
+    icon
 }) {
 
     return (
-
         <Card
             elevation={2}
-            sx={{ height: "100%" }}
+            sx={{
+                height: "100%"
+            }}
         >
-
             <CardContent>
 
                 <Stack
                     direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+                    spacing={2}
+                    sx={{
+                        justifyContent: "space-between",
+                        alignItems: "center"
+                    }}
                 >
 
                     <Stack spacing={1}>
@@ -77,11 +74,8 @@ function SummaryCard({
                 </Stack>
 
             </CardContent>
-
         </Card>
-
     );
-
 }
 
 /*

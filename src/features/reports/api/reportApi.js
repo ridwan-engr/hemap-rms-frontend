@@ -2,119 +2,122 @@ import apiClient from "../../../services/api/apiClient.js";
 
 /*
 |--------------------------------------------------------------------------
-| Site Overview
+| Report API
+|--------------------------------------------------------------------------
+|
+| Backend contract:
+|
+| POST   /reports
+| GET    /reports
+| GET    /reports/:reportId
+| GET    /reports/:reportId/download
+| DELETE /reports/:reportId
+|
 |--------------------------------------------------------------------------
 */
 
-export const generateSiteOverview = payload =>
-    apiClient.post(
-        "/reports/generate/site-overview",
-        payload
-    );
 
 /*
 |--------------------------------------------------------------------------
-| Energy Report
+| Generate Report
 |--------------------------------------------------------------------------
+|
+| payload must conform to generateReportValidator
+|
 */
 
-export const generateEnergyReport = payload =>
-    apiClient.post(
-        "/reports/generate/energy",
+export async function generateReport(payload) {
+
+    return apiClient.post(
+        "/reports",
         payload
     );
 
-/*
-|--------------------------------------------------------------------------
-| Battery Report
-|--------------------------------------------------------------------------
-*/
+}
 
-export const generateBatteryReport = payload =>
-    apiClient.post(
-        "/reports/generate/battery",
-        payload
-    );
 
 /*
 |--------------------------------------------------------------------------
-| Reliability Report
+| Get Reports
 |--------------------------------------------------------------------------
 */
 
-export const generateReliabilityReport = payload =>
-    apiClient.post(
-        "/reports/generate/reliability",
-        payload
+export async function getReports(params = {}) {
+
+    return apiClient.get(
+        "/reports",
+        {
+            params
+        }
     );
+
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Alarm Report
+| Get Report By ID
 |--------------------------------------------------------------------------
 */
 
-export const generateAlarmReport = payload =>
-    apiClient.post(
-        "/reports/generate/alarms",
-        payload
+export async function getReportById(reportId) {
+
+    return apiClient.get(
+        `/reports/${reportId}`
     );
+
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Maintenance Report
+| Download Report
 |--------------------------------------------------------------------------
 */
 
-export const generateMaintenanceReport = payload =>
-    apiClient.post(
-        "/reports/generate/maintenance",
-        payload
+export async function downloadReport(reportId) {
+
+    return apiClient.get(
+        `/reports/${reportId}/download`,
+        {
+            responseType: "blob"
+        }
     );
+
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard Report
+| Delete Report
 |--------------------------------------------------------------------------
 */
 
-export const generateDashboardReport = payload =>
-    apiClient.post(
-        "/reports/generate/dashboard",
-        payload
+export async function deleteReport(reportId) {
+
+    return apiClient.delete(
+        `/reports/${reportId}`
     );
+
+}
+
 
 /*
 |--------------------------------------------------------------------------
-| Executive Report
+| Default Export
 |--------------------------------------------------------------------------
 */
 
-export const generateExecutiveReport = payload =>
-    apiClient.post(
-        "/reports/generate/executive",
-        payload
-    );
+export default {
 
-/*
-|--------------------------------------------------------------------------
-| Export
-|--------------------------------------------------------------------------
-*/
+    generateReport,
 
-export const exportReport = payload =>
-    apiClient.post(
-        "/reports/export",
-        payload
-    );
+    getReports,
 
-/*
-|--------------------------------------------------------------------------
-| Report Response
-|--------------------------------------------------------------------------
-*/
+    getReportById,
 
-export const getReportResponse = reportId =>
-    apiClient.get(
-        `/reports/response/${reportId}`
-    );
+    downloadReport,
+
+    deleteReport
+
+};

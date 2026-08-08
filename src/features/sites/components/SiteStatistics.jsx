@@ -1,5 +1,4 @@
 import {
-
     Card,
     CardContent,
     Grid,
@@ -8,10 +7,9 @@ import {
     Divider,
     LinearProgress,
     Skeleton
-
 } from "@mui/material";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -20,63 +18,60 @@ import useSite from "../hooks/useSite";
 */
 
 function StatisticItem({
-
     label,
-
     value,
-
     total,
-
     color = "primary"
-
 }) {
 
-    const percentage = total > 0
+    const numericValue =
+        Number(value) || 0;
 
-        ? (value / total) * 100
+    const numericTotal =
+        Number(total) || 0;
 
-        : 0;
+    const percentage =
+        numericTotal > 0
+            ? Math.min(
+                (numericValue / numericTotal) * 100,
+                100
+            )
+            : 0;
 
     return (
-
         <Stack spacing={1}>
 
             <Stack
-
                 direction="row"
-
-                justifyContent="space-between"
-
+                spacing={2}
+                sx={{
+                    justifyContent: "space-between",
+                    alignItems: "center"
+                }}
             >
 
-                <Typography variant="body2">
-
+                <Typography
+                    variant="body2"
+                >
                     {label}
-
                 </Typography>
 
-                <Typography fontWeight={600}>
-
-                    {value}
-
+                <Typography
+                    fontWeight={600}
+                >
+                    {numericValue}
                 </Typography>
 
             </Stack>
 
             <LinearProgress
-
                 variant="determinate"
-
                 value={percentage}
-
                 color={color}
-
             />
 
         </Stack>
-
     );
-
 }
 
 /*
@@ -88,177 +83,189 @@ function StatisticItem({
 export default function SiteStatistics() {
 
     const {
-
         statistics,
-
         loading
-
     } = useSite();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
 
     if (loading) {
 
         return (
-
             <Card>
-
                 <CardContent>
 
                     <Skeleton
-
                         variant="text"
-
                         width={200}
-
                         height={40}
-
                     />
 
                     <Skeleton
-
                         variant="rounded"
-
                         height={220}
-
                     />
 
                 </CardContent>
-
             </Card>
-
         );
-
     }
 
-    const totalSites = statistics?.totalSites ?? 0;
+    /*
+    |--------------------------------------------------------------------------
+    | Statistics
+    |--------------------------------------------------------------------------
+    */
+
+    const totalSites =
+        Number(
+            statistics?.totalSites
+        ) || 0;
+
+    const healthySites =
+        Number(
+            statistics?.healthySites
+        ) || 0;
+
+    const warningSites =
+        Number(
+            statistics?.warningSites
+        ) || 0;
+
+    const criticalSites =
+        Number(
+            statistics?.criticalSites
+        ) || 0;
+
+    const offlineSites =
+        Number(
+            statistics?.offlineSites
+        ) || 0;
+
+    const solarSites =
+        Number(
+            statistics?.solarSites
+        ) || 0;
+
+    const hybridSites =
+        Number(
+            statistics?.hybridSites
+        ) || 0;
 
     return (
-
         <Card>
-
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                     gutterBottom
-
                 >
-
                     Site Statistics
-
                 </Typography>
 
-                <Divider sx={{ mb: 3 }} />
+                <Divider
+                    sx={{
+                        mb: 3
+                    }}
+                />
 
                 <Grid
-
                     container
-
                     spacing={3}
-
                 >
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Healthy"
-
-                            value={statistics?.healthySites ?? 0}
-
+                            value={healthySites}
                             total={totalSites}
-
                             color="success"
-
                         />
-
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Warning"
-
-                            value={statistics?.warningSites ?? 0}
-
+                            value={warningSites}
                             total={totalSites}
-
                             color="warning"
-
                         />
-
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Critical"
-
-                            value={statistics?.criticalSites ?? 0}
-
+                            value={criticalSites}
                             total={totalSites}
-
                             color="error"
-
                         />
-
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Offline"
-
-                            value={statistics?.offlineSites ?? 0}
-
+                            value={offlineSites}
                             total={totalSites}
-
                             color="error"
-
                         />
-
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Solar Enabled"
-
-                            value={statistics?.solarSites ?? 0}
-
+                            value={solarSites}
                             total={totalSites}
-
+                            color="success"
                         />
-
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
-
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
                         <StatisticItem
-
                             label="Hybrid Sites"
-
-                            value={statistics?.hybridSites ?? 0}
-
+                            value={hybridSites}
                             total={totalSites}
-
+                            color="primary"
                         />
-
                     </Grid>
 
                 </Grid>
 
             </CardContent>
-
         </Card>
-
     );
-
 }

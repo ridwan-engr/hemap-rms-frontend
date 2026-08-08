@@ -3,159 +3,59 @@ import {
     Card,
     CardContent,
     Typography,
-    Grid,
-    Divider,
-    Stack,
-    Chip,
+    Skeleton,
     Box
 
 } from "@mui/material";
 
-import useSite from "../hooks/useSite.js";
+import {
+
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    Tooltip,
+    Legend
+
+} from "recharts";
+
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
-| Detail Item
+| Chart Colors
 |--------------------------------------------------------------------------
 */
 
-function DetailItem({
+const COLORS = [
 
-    label,
+    "#2E7D32", // Healthy
 
-    value
+    "#ED6C02", // Warning
 
-}) {
+    "#D32F2F", // Critical
 
-    return (
+    "#616161"  // Offline
 
-        <Box>
-
-            <Typography
-
-                variant="caption"
-
-                color="text.secondary"
-
-            >
-
-                {label}
-
-            </Typography>
-
-            <Typography
-
-                variant="body1"
-
-                fontWeight={500}
-
-            >
-
-                {
-
-                    value ||
-
-                    "-"
-
-                }
-
-            </Typography>
-
-        </Box>
-
-    );
-
-}
+];
 
 /*
 |--------------------------------------------------------------------------
-| Status Chip
+| Site Health Chart
 |--------------------------------------------------------------------------
 */
 
-function StatusChip({
-
-    status
-
-}) {
-
-    let color = "default";
-
-    switch (
-
-        status?.toLowerCase()
-
-    ) {
-
-        case "healthy":
-
-        case "online":
-
-            color = "success";
-
-            break;
-
-        case "warning":
-
-            color = "warning";
-
-            break;
-
-        case "critical":
-
-        case "offline":
-
-            color = "error";
-
-            break;
-
-        default:
-
-            color = "default";
-
-    }
-
-    return (
-
-        <Chip
-
-            label={
-
-                status ||
-
-                "Unknown"
-
-            }
-
-            color={color}
-
-            size="small"
-
-        />
-
-    );
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Site Details
-|--------------------------------------------------------------------------
-*/
-
-export default function SiteDetails() {
+export default function SiteHealthChart() {
 
     const {
 
-        selectedSite
+        health,
+
+        loading
 
     } = useSite();
 
-    if (
-
-        !selectedSite
-
-    ) {
+    if (loading) {
 
         return (
 
@@ -163,15 +63,23 @@ export default function SiteDetails() {
 
                 <CardContent>
 
-                    <Typography
+                    <Skeleton
 
-                        color="text.secondary"
+                        variant="text"
 
-                    >
+                        width={220}
 
-                        Select a site from the table to view its details.
+                        height={40}
 
-                    </Typography>
+                    />
+
+                    <Skeleton
+
+                        variant="rounded"
+
+                        height={340}
+
+                    />
 
                 </CardContent>
 
@@ -181,151 +89,133 @@ export default function SiteDetails() {
 
     }
 
+    const chartData = [
+
+        {
+
+            name: "Healthy",
+
+            value: health?.healthy ?? 0
+
+        },
+
+        {
+
+            name: "Warning",
+
+            value: health?.warning ?? 0
+
+        },
+
+        {
+
+            name: "Critical",
+
+            value: health?.critical ?? 0
+
+        },
+
+        {
+
+            name: "Offline",
+
+            value: health?.offline ?? 0
+
+        }
+
+    ];
+
     return (
 
         <Card>
 
             <CardContent>
 
-                <Stack
+                <Typography
 
-                    direction="row"
+                    variant="h6"
 
-                    justifyContent="space-between"
+                    fontWeight={700}
 
-                    alignItems="center"
-
-                    sx={{ mb: 2 }}
+                    gutterBottom
 
                 >
 
-                    <Typography
+                    Site Health Distribution
 
-                        variant="h6"
+                </Typography>
 
-                        fontWeight={700}
+                <Box
 
-                    >
+                    sx={{
 
-                        Site Details
+                        width: "100%",
 
-                    </Typography>
+                        height: 340
 
-                    <StatusChip
-
-                        status={selectedSite.status}
-
-                    />
-
-                </Stack>
-
-                <Divider sx={{ mb: 3 }} />
-
-                <Grid
-
-                    container
-
-                    spacing={3}
+                    }}
 
                 >
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <ResponsiveContainer>
 
-                        <DetailItem
+                        <PieChart>
 
-                            label="Site Code"
+                            <Pie
 
-                            value={selectedSite.siteCode}
+                                data={chartData}
 
-                        />
+                                dataKey="value"
 
-                    </Grid>
+                                nameKey="name"
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                                outerRadius={110}
 
-                        <DetailItem
+                                label
 
-                            label="Site Name"
+                            >
 
-                            value={selectedSite.siteName}
+                                {
 
-                        />
+                                    chartData.map(
 
-                    </Grid>
+                                        (
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                                            entry,
 
-                        <DetailItem
+                                            index
 
-                            label="State"
+                                        ) => (
 
-                            value={selectedSite.state}
+                                            <Cell
 
-                        />
+                                                key={entry.name}
 
-                    </Grid>
+                                                fill={
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                                                    COLORS[index]
 
-                        <DetailItem
+                                                }
 
-                            label="Technology"
+                                            />
 
-                            value={selectedSite.technology}
+                                        )
 
-                        />
+                                    )
 
-                    </Grid>
+                                }
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                            </Pie>
 
-                        <DetailItem
+                            <Tooltip />
 
-                            label="Power Source"
+                            <Legend />
 
-                            value={selectedSite.powerSource}
+                        </PieChart>
 
-                        />
+                    </ResponsiveContainer>
 
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 6 }}>
-
-                        <DetailItem
-
-                            label="Latitude"
-
-                            value={selectedSite.latitude}
-
-                        />
-
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 6 }}>
-
-                        <DetailItem
-
-                            label="Longitude"
-
-                            value={selectedSite.longitude}
-
-                        />
-
-                    </Grid>
-
-                    <Grid size={{ xs: 12, md: 6 }}>
-
-                        <DetailItem
-
-                            label="Status"
-
-                            value={selectedSite.status}
-
-                        />
-
-                    </Grid>
-
-                </Grid>
+                </Box>
 
             </CardContent>
 

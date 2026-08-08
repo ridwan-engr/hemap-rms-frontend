@@ -1,33 +1,40 @@
 import { useCallback } from "react";
 
 import {
-
     useDispatch,
-
     useSelector
-
 } from "react-redux";
 
 import {
-
     fetchDevices,
     fetchDevice,
-    fetchDeviceSummary,
-    fetchDeviceStatistics,
-    fetchDeviceHealth,
     createDevice,
     updateDevice,
     deleteDevice,
-    refreshDevices,
 
     setDeviceFilters,
-    setPaginationModel
+    setPaginationModel,
 
-} from "../../../store/slices/deviceSlice";
+    clearSelectedDevice,
+    clearDeviceError
+
+} from "../../../store/slices/deviceSlice.js";
 
 /*
 |--------------------------------------------------------------------------
 | Device Hook
+|--------------------------------------------------------------------------
+|
+| Central hook for Device Management.
+|
+| Components should NOT:
+|
+| - dispatch Redux actions directly
+| - call deviceApi directly
+|
+| Components should interact with the device
+| module through this hook.
+|
 |--------------------------------------------------------------------------
 */
 
@@ -35,21 +42,32 @@ export default function useDevice() {
 
     const dispatch = useDispatch();
 
+    /*
+    |--------------------------------------------------------------------------
+    | Redux State
+    |--------------------------------------------------------------------------
+    */
+
     const {
 
         devices,
+
         total,
+
         selectedDevice,
-        summary,
-        statistics,
-        health,
 
         filters,
+
         paginationModel,
 
         loading,
-        refreshing,
+
+        saving,
+
+        deleting,
+
         error,
+
         lastUpdated
 
     } = useSelector(
@@ -60,7 +78,19 @@ export default function useDevice() {
 
     /*
     |--------------------------------------------------------------------------
-    | Loaders
+    | Load Devices
+    |--------------------------------------------------------------------------
+    |
+    | Uses the filters and pagination stored in Redux.
+    |
+    | MUI DataGrid uses zero-based pages:
+    |
+    | page = 0
+    |
+    | Backend commonly expects:
+    |
+    | page = 1
+    |
     |--------------------------------------------------------------------------
     */
 
@@ -68,21 +98,23 @@ export default function useDevice() {
 
         (params = filters) => {
 
-            dispatch(
+            const requestParams = {
 
-                fetchDevices({
+                ...params,
 
-                    ...params,
+                page:
+                    paginationModel.page + 1,
 
-                    page:
+                limit:
+                    paginationModel.pageSize
 
-                        paginationModel.page + 1,
+            };
 
-                    limit:
+            return dispatch(
 
-                        paginationModel.pageSize
-
-                })
+                fetchDevices(
+                    requestParams
+                )
 
             );
 
@@ -100,77 +132,81 @@ export default function useDevice() {
 
     );
 
-    const refresh = useCallback(
-
-        () => dispatch(refreshDevices()),
-
-        [dispatch]
-
-    );
-
-    const loadSummary = useCallback(
-
-        () => dispatch(fetchDeviceSummary()),
-
-        [dispatch]
-
-    );
-
-    const loadStatistics = useCallback(
-
-        () => dispatch(fetchDeviceStatistics()),
-
-        [dispatch]
-
-    );
-
-    const loadHealth = useCallback(
-
-        () => dispatch(fetchDeviceHealth()),
-
-        [dispatch]
-
-    );
-
     /*
     |--------------------------------------------------------------------------
-    | Device Actions
+    | Load Single Device
     |--------------------------------------------------------------------------
     */
 
     const viewDevice = useCallback(
 
-        deviceId =>
+        deviceId => {
 
-            dispatch(
+            if (!deviceId) {
+
+                return;
+
+            }
+
+            return dispatch(
 
                 fetchDevice(deviceId)
 
-            ),
+            );
 
-        [dispatch]
+        },
+
+        [
+
+            dispatch
+
+        ]
 
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Create Device
+    |--------------------------------------------------------------------------
+    */
 
     const createNewDevice = useCallback(
 
-        payload =>
+        payload => {
 
-            dispatch(
+            return dispatch(
 
                 createDevice(payload)
 
-            ),
+            );
 
-        [dispatch]
+        },
+
+        [
+
+            dispatch
+
+        ]
 
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Update Device
+    |--------------------------------------------------------------------------
+    */
+
     const updateExistingDevice = useCallback(
 
-        (deviceId, payload) =>
+        (
 
-            dispatch(
+            deviceId,
+
+            payload
+
+        ) => {
+
+            return dispatch(
 
                 updateDevice({
 
@@ -180,23 +216,47 @@ export default function useDevice() {
 
                 })
 
-            ),
+            );
 
-        [dispatch]
+        },
+
+        [
+
+            dispatch
+
+        ]
 
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Device
+    |--------------------------------------------------------------------------
+    */
+
     const removeDevice = useCallback(
 
-        deviceId =>
+        deviceId => {
 
-            dispatch(
+            if (!deviceId) {
+
+                return;
+
+            }
+
+            return dispatch(
 
                 deleteDevice(deviceId)
 
-            ),
+            );
 
-        [dispatch]
+        },
+
+        [
+
+            dispatch
+
+        ]
 
     );
 
@@ -222,9 +282,19 @@ export default function useDevice() {
 
         },
 
-        [dispatch]
+        [
+
+            dispatch
+
+        ]
 
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
 
     const updatePagination = useCallback(
 
@@ -242,49 +312,150 @@ export default function useDevice() {
 
         },
 
-        [dispatch]
+        [
+
+            dispatch
+
+        ]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Hook API
+    | Clear Selected Device
+    |--------------------------------------------------------------------------
+    */
+
+    const clearSelection = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearSelectedDevice()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Error
+    |--------------------------------------------------------------------------
+    */
+
+    const clearError = useCallback(
+
+        () => {
+
+            dispatch(
+
+                clearDeviceError()
+
+            );
+
+        },
+
+        [
+
+            dispatch
+
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Hook API
     |--------------------------------------------------------------------------
     */
 
     return {
 
+        /*
+        |------------------------------------------------------------------
+        | Data
+        |------------------------------------------------------------------
+        */
+
         devices,
+
         total,
+
         selectedDevice,
 
-        summary,
-        statistics,
-        health,
-
         filters,
+
         paginationModel,
 
+        /*
+        |------------------------------------------------------------------
+        | Status
+        |------------------------------------------------------------------
+        */
+
         loading,
-        refreshing,
+
+        saving,
+
+        deleting,
+
         error,
+
         lastUpdated,
 
-        reload,
-        refresh,
+        /*
+        |------------------------------------------------------------------
+        | Data Loading
+        |------------------------------------------------------------------
+        */
 
-        loadSummary,
-        loadStatistics,
-        loadHealth,
+        reload,
 
         viewDevice,
 
-        createDevice: createNewDevice,
-        updateDevice: updateExistingDevice,
-        deleteDevice: removeDevice,
+        /*
+        |------------------------------------------------------------------
+        | CRUD
+        |------------------------------------------------------------------
+        */
+
+        createDevice:
+            createNewDevice,
+
+        updateDevice:
+            updateExistingDevice,
+
+        deleteDevice:
+            removeDevice,
+
+        /*
+        |------------------------------------------------------------------
+        | Filters & Pagination
+        |------------------------------------------------------------------
+        */
 
         updateFilters,
-        updatePagination
+
+        updatePagination,
+
+        /*
+        |------------------------------------------------------------------
+        | Selection / Errors
+        |------------------------------------------------------------------
+        */
+
+        clearSelection,
+
+        clearError
 
     };
 

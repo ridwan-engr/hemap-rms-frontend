@@ -1,21 +1,33 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+    createAsyncThunk,
+    createSlice
+} from "@reduxjs/toolkit";
 
 import {
-
     getDashboardAnalytics,
-    getReliabilityMetrics,
-    getEnergyForecast,
-    getEnergyTrends,
-    getOptimizationSummary,
-    getKPIComparison,
-    getAvailability,
-    getBatteryHealth,
-    getSolarPerformance,
-    getGeneratorPerformance,
-    getWeatherImpact,
-    refreshAnalytics as refreshAnalyticsApi
+    getEnergyAnalytics,
+    getBatteryAnalytics,
+    getSolarAnalytics,
+    getGeneratorAnalytics,
+    getGridAnalytics,
+    getReliabilityAnalytics
+} from "../../features/analytics/api/analyticsApi.js";
 
-} from "../../features/analytics/api/analyticsApi";
+/*
+|--------------------------------------------------------------------------
+| Error Helper
+|--------------------------------------------------------------------------
+*/
+
+const getErrorMessage = error => {
+
+    return (
+        error.response?.data ||
+        error.message ||
+        "Analytics request failed"
+    );
+
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -23,341 +35,257 @@ import {
 |--------------------------------------------------------------------------
 */
 
-export const fetchDashboardAnalytics = createAsyncThunk(
+/*
+|--------------------------------------------------------------------------
+| Dashboard Analytics
+|--------------------------------------------------------------------------
+*/
 
-    "analytics/dashboard",
+export const fetchDashboardAnalytics =
+    createAsyncThunk(
 
-    async (filters = {}, { rejectWithValue }) => {
+        "analytics/fetchDashboardAnalytics",
 
-        try {
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-            return await getDashboardAnalytics(filters);
+            try {
 
-        }
+                return await getDashboardAnalytics(
+                    filters
+                );
 
-        catch (error) {
+            }
 
-            return rejectWithValue(
+            catch (error) {
 
-                error.response?.data ||
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchReliabilityMetrics = createAsyncThunk(
-
-    "analytics/reliability",
-
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getReliabilityMetrics(filters);
+            }
 
         }
 
-        catch (error) {
+    );
 
-            return rejectWithValue(
+/*
+|--------------------------------------------------------------------------
+| Energy Analytics
+|--------------------------------------------------------------------------
+*/
 
-                error.response?.data ||
+export const fetchEnergyAnalytics =
+    createAsyncThunk(
 
-                error.message
+        "analytics/fetchEnergyAnalytics",
 
-            );
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        }
+            try {
 
-    }
+                return await getEnergyAnalytics(
+                    filters
+                );
 
-);
+            }
 
-export const fetchEnergyForecast = createAsyncThunk(
+            catch (error) {
 
-    "analytics/forecast",
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getEnergyForecast(filters);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
+            }
 
         }
 
-    }
+    );
 
-);
+/*
+|--------------------------------------------------------------------------
+| Battery Analytics
+|--------------------------------------------------------------------------
+*/
 
-export const fetchEnergyTrends = createAsyncThunk(
+export const fetchBatteryAnalytics =
+    createAsyncThunk(
 
-    "analytics/trends",
+        "analytics/fetchBatteryAnalytics",
 
-    async (filters = {}, { rejectWithValue }) => {
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        try {
+            try {
 
-            return await getEnergyTrends(filters);
+                return await getBatteryAnalytics(
+                    filters
+                );
 
-        }
+            }
 
-        catch (error) {
+            catch (error) {
 
-            return rejectWithValue(
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchOptimizationSummary = createAsyncThunk(
-
-    "analytics/optimization",
-
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getOptimizationSummary(filters);
+            }
 
         }
 
-        catch (error) {
+    );
 
-            return rejectWithValue(
+/*
+|--------------------------------------------------------------------------
+| Solar Analytics
+|--------------------------------------------------------------------------
+*/
 
-                error.response?.data ||
+export const fetchSolarAnalytics =
+    createAsyncThunk(
 
-                error.message
+        "analytics/fetchSolarAnalytics",
 
-            );
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        }
+            try {
 
-    }
+                return await getSolarAnalytics(
+                    filters
+                );
 
-);
+            }
 
-export const fetchKPIComparison = createAsyncThunk(
+            catch (error) {
 
-    "analytics/kpis",
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getKPIComparison(filters);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
+            }
 
         }
 
-    }
+    );
 
-);
+/*
+|--------------------------------------------------------------------------
+| Generator Analytics
+|--------------------------------------------------------------------------
+*/
 
-export const fetchAvailability = createAsyncThunk(
+export const fetchGeneratorAnalytics =
+    createAsyncThunk(
 
-    "analytics/availability",
+        "analytics/fetchGeneratorAnalytics",
 
-    async (filters = {}, { rejectWithValue }) => {
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        try {
+            try {
 
-            return await getAvailability(filters);
+                return await getGeneratorAnalytics(
+                    filters
+                );
 
-        }
+            }
 
-        catch (error) {
+            catch (error) {
 
-            return rejectWithValue(
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchBatteryHealth = createAsyncThunk(
-
-    "analytics/battery",
-
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getBatteryHealth(filters);
+            }
 
         }
 
-        catch (error) {
+    );
 
-            return rejectWithValue(
+/*
+|--------------------------------------------------------------------------
+| Grid Analytics
+|--------------------------------------------------------------------------
+*/
 
-                error.response?.data ||
+export const fetchGridAnalytics =
+    createAsyncThunk(
 
-                error.message
+        "analytics/fetchGridAnalytics",
 
-            );
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        }
+            try {
 
-    }
+                return await getGridAnalytics(
+                    filters
+                );
 
-);
+            }
 
-export const fetchSolarPerformance = createAsyncThunk(
+            catch (error) {
 
-    "analytics/solar",
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getSolarPerformance(filters);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
+            }
 
         }
 
-    }
+    );
 
-);
+/*
+|--------------------------------------------------------------------------
+| Reliability Analytics
+|--------------------------------------------------------------------------
+*/
 
-export const fetchGeneratorPerformance = createAsyncThunk(
+export const fetchReliabilityAnalytics =
+    createAsyncThunk(
 
-    "analytics/generator",
+        "analytics/fetchReliabilityAnalytics",
 
-    async (filters = {}, { rejectWithValue }) => {
+        async (
+            filters = {},
+            { rejectWithValue }
+        ) => {
 
-        try {
+            try {
 
-            return await getGeneratorPerformance(filters);
+                return await getReliabilityAnalytics(
+                    filters
+                );
 
-        }
+            }
 
-        catch (error) {
+            catch (error) {
 
-            return rejectWithValue(
+                return rejectWithValue(
+                    getErrorMessage(error)
+                );
 
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchWeatherImpact = createAsyncThunk(
-
-    "analytics/weather",
-
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getWeatherImpact(filters);
+            }
 
         }
 
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const refreshAnalytics = createAsyncThunk(
-
-    "analytics/refresh",
-
-    async (filters = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await refreshAnalyticsApi(filters);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
+    );
 
 /*
 |--------------------------------------------------------------------------
@@ -369,33 +297,23 @@ const initialState = {
 
     dashboard: null,
 
-    reliability: [],
+    energy: null,
 
-    forecast: [],
+    battery: null,
 
-    trends: [],
+    solar: null,
 
-    optimization: null,
+    generator: null,
 
-    kpis: [],
+    grid: null,
 
-    availability: [],
+    reliability: null,
 
-    batteryHealth: [],
-
-    solarPerformance: [],
-
-    generatorPerformance: [],
-
-    weatherImpact: [],
+    filters: {},
 
     loading: false,
 
-    refreshing: false,
-
     error: null,
-
-    filters: {},
 
     lastUpdated: null
 
@@ -415,15 +333,47 @@ const analyticsSlice = createSlice({
 
     reducers: {
 
-        setAnalyticsFilters(state, action) {
+        /*
+        |--------------------------------------------------------------------------
+        | Set Filters
+        |--------------------------------------------------------------------------
+        */
 
-            state.filters = action.payload;
+        setAnalyticsFilters(
+            state,
+            action
+        ) {
+
+            state.filters =
+                action.payload || {};
 
         },
 
+        /*
+        |--------------------------------------------------------------------------
+        | Clear Analytics
+        |--------------------------------------------------------------------------
+        */
+
         clearAnalytics(state) {
 
-            return initialState;
+            state.dashboard = null;
+
+            state.energy = null;
+
+            state.battery = null;
+
+            state.solar = null;
+
+            state.generator = null;
+
+            state.grid = null;
+
+            state.reliability = null;
+
+            state.error = null;
+
+            state.lastUpdated = null;
 
         }
 
@@ -431,128 +381,341 @@ const analyticsSlice = createSlice({
 
     extraReducers: builder => {
 
-        builder
-
-            .addCase(fetchDashboardAnalytics.pending, state => {
-
-                state.loading = true;
-
-                state.error = null;
-
-            })
-
-            .addCase(fetchDashboardAnalytics.fulfilled, (state, action) => {
-
-                state.loading = false;
-
-                state.dashboard = action.payload.data;
-
-                state.lastUpdated = new Date().toISOString();
-
-            })
-
-            .addCase(fetchDashboardAnalytics.rejected, (state, action) => {
-
-                state.loading = false;
-
-                state.error = action.payload;
-
-            });
-
-        builder.addCase(fetchReliabilityMetrics.fulfilled, (state, action) => {
-
-            state.reliability = action.payload;
-
-        });
-
-        builder.addCase(fetchEnergyForecast.fulfilled, (state, action) => {
-
-            state.forecast = action.payload;
-
-        });
-
-        builder.addCase(fetchEnergyTrends.fulfilled, (state, action) => {
-
-            state.trends = action.payload;
-
-        });
-
-        builder.addCase(fetchOptimizationSummary.fulfilled, (state, action) => {
-
-            state.optimization = action.payload;
-
-        });
-
-        builder.addCase(fetchKPIComparison.fulfilled, (state, action) => {
-
-            state.kpis = action.payload;
-
-        });
-
-        builder.addCase(fetchAvailability.fulfilled, (state, action) => {
-
-            state.availability = action.payload;
-
-        });
-
-        builder.addCase(fetchBatteryHealth.fulfilled, (state, action) => {
-
-            state.batteryHealth = action.payload;
-
-        });
-
-        builder.addCase(fetchSolarPerformance.fulfilled, (state, action) => {
-
-            state.solarPerformance = action.payload;
-
-        });
-
-        builder.addCase(fetchGeneratorPerformance.fulfilled, (state, action) => {
-
-            state.generatorPerformance = action.payload;
-
-        });
-
-        builder.addCase(fetchWeatherImpact.fulfilled, (state, action) => {
-
-            state.weatherImpact = action.payload;
-
-        });
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
 
         builder
 
-            .addCase(refreshAnalytics.pending, state => {
+            .addCase(
+                fetchDashboardAnalytics.pending,
+                state => {
 
-                state.refreshing = true;
+                    state.loading = true;
 
-            })
+                    state.error = null;
 
-            .addCase(refreshAnalytics.fulfilled, state => {
+                }
+            )
 
-                state.refreshing = false;
+            .addCase(
+                fetchDashboardAnalytics.fulfilled,
+                (state, action) => {
 
-                state.lastUpdated = new Date().toISOString();
+                    state.loading = false;
 
-            })
+                    state.dashboard =
+                        action.payload;
 
-            .addCase(refreshAnalytics.rejected, (state, action) => {
+                    state.lastUpdated =
+                        new Date().toISOString();
 
-                state.refreshing = false;
+                }
+            )
 
-                state.error = action.payload;
+            .addCase(
+                fetchDashboardAnalytics.rejected,
+                (state, action) => {
 
-            });
+                    state.loading = false;
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Energy
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchEnergyAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchEnergyAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.energy =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchEnergyAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Battery
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchBatteryAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchBatteryAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.battery =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchBatteryAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Solar
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchSolarAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchSolarAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.solar =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchSolarAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Generator
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchGeneratorAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchGeneratorAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.generator =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchGeneratorAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Grid
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchGridAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchGridAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.grid =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchGridAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Reliability
+        |--------------------------------------------------------------------------
+        */
+
+        builder
+
+            .addCase(
+                fetchReliabilityAnalytics.pending,
+                state => {
+
+                    state.error = null;
+
+                }
+            )
+
+            .addCase(
+                fetchReliabilityAnalytics.fulfilled,
+                (state, action) => {
+
+                    state.reliability =
+                        action.payload;
+
+                    state.lastUpdated =
+                        new Date().toISOString();
+
+                }
+            )
+
+            .addCase(
+                fetchReliabilityAnalytics.rejected,
+                (state, action) => {
+
+                    state.error =
+                        action.payload;
+
+                }
+            );
 
     }
 
 });
 
+/*
+|--------------------------------------------------------------------------
+| Actions
+|--------------------------------------------------------------------------
+*/
+
 export const {
-
     setAnalyticsFilters,
-
     clearAnalytics
-
 } = analyticsSlice.actions;
+
+/*
+|--------------------------------------------------------------------------
+| Selectors
+|--------------------------------------------------------------------------
+*/
+
+export const selectAnalytics =
+    state => state.analytics;
+
+export const selectDashboardAnalytics =
+    state => state.analytics.dashboard;
+
+export const selectEnergyAnalytics =
+    state => state.analytics.energy;
+
+export const selectBatteryAnalytics =
+    state => state.analytics.battery;
+
+export const selectSolarAnalytics =
+    state => state.analytics.solar;
+
+export const selectGeneratorAnalytics =
+    state => state.analytics.generator;
+
+export const selectGridAnalytics =
+    state => state.analytics.grid;
+
+export const selectReliabilityAnalytics =
+    state => state.analytics.reliability;
+
+export const selectAnalyticsLoading =
+    state => state.analytics.loading;
+
+export const selectAnalyticsError =
+    state => state.analytics.error;
 
 export default analyticsSlice.reducer;

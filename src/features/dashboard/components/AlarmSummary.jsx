@@ -16,8 +16,7 @@ import ErrorIcon from "@mui/icons-material/Error";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-import { useEffect, useState } from "react";
-import api from "../../../api/axios";
+import useDashboard from "../hooks/useDashboard";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,39 +26,60 @@ import api from "../../../api/axios";
 
 function SeverityChip({ severity }) {
 
-    switch (severity?.toUpperCase()) {
+    switch ((severity || "").toUpperCase()) {
 
         case "CRITICAL":
 
             return (
+
                 <Chip
+
                     color="error"
+
                     icon={<ErrorIcon />}
+
                     label="Critical"
+
                     size="small"
+
                 />
+
             );
 
         case "WARNING":
 
             return (
+
                 <Chip
+
                     color="warning"
+
                     icon={<WarningAmberIcon />}
+
                     label="Warning"
+
                     size="small"
+
                 />
+
             );
 
         default:
 
             return (
+
                 <Chip
+
                     color="info"
+
                     icon={<InfoOutlinedIcon />}
+
                     label="Info"
+
                     size="small"
+
                 />
+
             );
 
     }
@@ -74,47 +94,15 @@ function SeverityChip({ severity }) {
 
 export default function AlarmSummary() {
 
-    const [alarms, setAlarms] = useState([]);
+    const {
 
-    const [loading, setLoading] = useState(true);
+        alarms,
 
-    async function loadAlarms() {
+        loading
 
-        try {
+    } = useDashboard();
 
-            const response = await api.get(
-
-                "/telemetry/alarms"
-
-            );
-
-            setAlarms(
-
-                response.data.data || []
-
-            );
-
-        }
-
-        catch (error) {
-
-            console.error(error);
-
-        }
-
-        finally {
-
-            setLoading(false);
-
-        }
-
-    }
-
-    useEffect(() => {
-
-        loadAlarms();
-
-    }, []);
+    const activeAlarms = alarms ?? [];
 
     return (
 
@@ -123,15 +111,23 @@ export default function AlarmSummary() {
             <CardContent>
 
                 <Stack
+
                     direction="row"
+
                     justifyContent="space-between"
+
                     alignItems="center"
+
                     mb={2}
+
                 >
 
                     <Typography
+
                         variant="h6"
+
                         fontWeight={700}
+
                     >
 
                         Active Alarms
@@ -140,11 +136,13 @@ export default function AlarmSummary() {
 
                     <Chip
 
-                        label={`${alarms.length} Active`}
+                        label={`${activeAlarms.length} Active`}
 
                         color={
-                            alarms.length
+                            activeAlarms.length > 0
+
                                 ? "error"
+
                                 : "success"
                         }
 
@@ -159,8 +157,11 @@ export default function AlarmSummary() {
                     loading && (
 
                         <Stack
+
                             alignItems="center"
+
                             py={4}
+
                         >
 
                             <CircularProgress />
@@ -173,7 +174,7 @@ export default function AlarmSummary() {
 
                 {
 
-                    !loading && alarms.length === 0 && (
+                    !loading && activeAlarms.length === 0 && (
 
                         <Alert severity="success">
 
@@ -187,24 +188,57 @@ export default function AlarmSummary() {
 
                 {
 
-                    !loading && alarms.length > 0 && (
+                    !loading && activeAlarms.length > 0 && (
 
                         <List disablePadding>
 
                             {
 
-                                alarms.map((alarm) => (
+                                activeAlarms.map((alarm, index) => (
 
                                     <ListItem
+
                                         divider
-                                        key={alarm._id}
+
+                                        key={
+                                            alarm._id ??
+
+                                            alarm.vrmAlarmId ??
+
+                                            index
+                                        }
+
                                     >
 
                                         <ListItemText
 
-                                            primary={alarm.title}
+                                            primary={
+                                                alarm.title ??
 
-                                            secondary={`${alarm.siteName} • ${alarm.timestamp}`}
+                                                alarm.name ??
+
+                                                "Unnamed Alarm"
+                                            }
+
+                                            secondary={
+
+                                                [
+
+                                                    alarm.siteName,
+
+                                                    alarm.startedAt
+                                                        ? new Date(
+                                                            alarm.startedAt
+                                                        ).toLocaleString()
+                                                        : null
+
+                                                ]
+
+                                                    .filter(Boolean)
+
+                                                    .join(" • ")
+
+                                            }
 
                                         />
 

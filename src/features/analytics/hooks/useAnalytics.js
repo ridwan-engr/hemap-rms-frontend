@@ -1,35 +1,22 @@
-import { useCallback, useEffect } from "react";
-
-import { useDispatch, useSelector } from "react-redux";
+import {
+    useCallback,
+    useEffect
+} from "react";
 
 import {
+    useDispatch,
+    useSelector
+} from "react-redux";
 
+import {
     fetchDashboardAnalytics,
-
-    fetchReliabilityMetrics,
-
-    fetchEnergyForecast,
-
-    fetchEnergyTrends,
-
-    fetchOptimizationSummary,
-
-    fetchKPIComparison,
-
-    fetchAvailability,
-
-    fetchBatteryHealth,
-
-    fetchSolarPerformance,
-
-    fetchGeneratorPerformance,
-
-    fetchWeatherImpact,
-
-    refreshAnalytics,
-
+    fetchEnergyAnalytics,
+    fetchBatteryAnalytics,
+    fetchSolarAnalytics,
+    fetchGeneratorAnalytics,
+    fetchGridAnalytics,
+    fetchReliabilityAnalytics,
     setAnalyticsFilters
-
 } from "../../../store/slices/analyticsSlice.js";
 
 /*
@@ -37,12 +24,26 @@ import {
 | Analytics Hook
 |--------------------------------------------------------------------------
 |
-| Central hook used by every Analytics component.
+| Central hook used by Analytics components.
+|
 | Components should NEVER dispatch Redux actions directly.
 |
+| Backend contract:
+|
+| GET /analytics/dashboard
+| GET /analytics/energy
+| GET /analytics/battery
+| GET /analytics/solar
+| GET /analytics/generator
+| GET /analytics/grid
+| GET /analytics/reliability
+|
+|--------------------------------------------------------------------------
 */
 
-export default function useAnalytics(initialFilters = {}) {
+export default function useAnalytics(
+    initialFilters = {}
+) {
 
     const dispatch = useDispatch();
 
@@ -53,184 +54,252 @@ export default function useAnalytics(initialFilters = {}) {
     */
 
     const dashboard = useSelector(
-
         state => state.analytics.dashboard
+    );
 
+    const energy = useSelector(
+        state => state.analytics.energy
+    );
+
+    const battery = useSelector(
+        state => state.analytics.battery
+    );
+
+    const solar = useSelector(
+        state => state.analytics.solar
+    );
+
+    const generator = useSelector(
+        state => state.analytics.generator
+    );
+
+    const grid = useSelector(
+        state => state.analytics.grid
     );
 
     const reliability = useSelector(
-
         state => state.analytics.reliability
-
-    );
-
-    const forecast = useSelector(
-
-        state => state.analytics.forecast
-
-    );
-
-    const trends = useSelector(
-
-        state => state.analytics.trends
-
-    );
-
-    const optimization = useSelector(
-
-        state => state.analytics.optimization
-
-    );
-
-    const kpis = useSelector(
-
-        state => state.analytics.kpis
-
-    );
-
-    const availability = useSelector(
-
-        state => state.analytics.availability
-
-    );
-
-    const batteryHealth = useSelector(
-
-        state => state.analytics.batteryHealth
-
-    );
-
-    const solarPerformance = useSelector(
-
-        state => state.analytics.solarPerformance
-
-    );
-
-    const generatorPerformance = useSelector(
-
-        state => state.analytics.generatorPerformance
-
-    );
-
-    const weatherImpact = useSelector(
-
-        state => state.analytics.weatherImpact
-
     );
 
     const filters = useSelector(
-
         state => state.analytics.filters
-
     );
 
     const loading = useSelector(
-
         state => state.analytics.loading
-
-    );
-
-    const refreshing = useSelector(
-
-        state => state.analytics.refreshing
-
     );
 
     const error = useSelector(
-
         state => state.analytics.error
-
     );
 
     const lastUpdated = useSelector(
-
         state => state.analytics.lastUpdated
-
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Loaders
+    | Load Dashboard Analytics
     |--------------------------------------------------------------------------
     */
 
-    const loadDashboard = useCallback(() => {
+    const loadDashboard = useCallback(
+        (
+            query = filters
+        ) => {
 
-        dispatch(fetchDashboardAnalytics(filters));
+            return dispatch(
+                fetchDashboardAnalytics(query)
+            );
 
-    }, [dispatch, filters]);
-
-    const loadReliability = useCallback(() => {
-
-        dispatch(fetchReliabilityMetrics(filters));
-
-    }, [dispatch, filters]);
-
-    const loadForecast = useCallback(() => {
-
-        dispatch(fetchEnergyForecast(filters));
-
-    }, [dispatch, filters]);
-
-    const loadTrends = useCallback(() => {
-
-        dispatch(fetchEnergyTrends(filters));
-
-    }, [dispatch, filters]);
-
-    const loadOptimization = useCallback(() => {
-
-        dispatch(fetchOptimizationSummary(filters));
-
-    }, [dispatch, filters]);
-
-    const loadKPIs = useCallback(() => {
-
-        dispatch(fetchKPIComparison(filters));
-
-    }, [dispatch, filters]);
-
-    const loadAvailability = useCallback(() => {
-
-        dispatch(fetchAvailability(filters));
-
-    }, [dispatch, filters]);
-
-    const loadBatteryHealth = useCallback(() => {
-
-        dispatch(fetchBatteryHealth(filters));
-
-    }, [dispatch, filters]);
-
-    const loadSolarPerformance = useCallback(() => {
-
-        dispatch(fetchSolarPerformance(filters));
-
-    }, [dispatch, filters]);
-
-    const loadGeneratorPerformance = useCallback(() => {
-
-        dispatch(fetchGeneratorPerformance(filters));
-
-    }, [dispatch, filters]);
-
-    const loadWeatherImpact = useCallback(() => {
-
-        dispatch(fetchWeatherImpact(filters));
-
-    }, [dispatch, filters]);
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Refresh
+    | Load Energy Analytics
     |--------------------------------------------------------------------------
     */
 
-    const refresh = useCallback(() => {
+    const loadEnergy = useCallback(
+        (
+            query = filters
+        ) => {
 
-        dispatch(refreshAnalytics(filters));
+            return dispatch(
+                fetchEnergyAnalytics(query)
+            );
 
-    }, [dispatch, filters]);
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Battery Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadBattery = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return dispatch(
+                fetchBatteryAnalytics(query)
+            );
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Solar Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadSolar = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return dispatch(
+                fetchSolarAnalytics(query)
+            );
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Generator Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadGenerator = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return dispatch(
+                fetchGeneratorAnalytics(query)
+            );
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Grid Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadGrid = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return dispatch(
+                fetchGridAnalytics(query)
+            );
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Reliability Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const loadReliability = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return dispatch(
+                fetchReliabilityAnalytics(query)
+            );
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load All Analytics
+    |--------------------------------------------------------------------------
+    */
+
+    const reload = useCallback(
+        (
+            query = filters
+        ) => {
+
+            return Promise.all([
+
+                dispatch(
+                    fetchDashboardAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchEnergyAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchBatteryAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchSolarAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchGeneratorAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchGridAnalytics(query)
+                ),
+
+                dispatch(
+                    fetchReliabilityAnalytics(query)
+                )
+
+            ]);
+
+        },
+        [
+            dispatch,
+            filters
+        ]
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -239,19 +308,18 @@ export default function useAnalytics(initialFilters = {}) {
     */
 
     const updateFilters = useCallback(
-
         nextFilters => {
 
             dispatch(
-
-                setAnalyticsFilters(nextFilters)
-
+                setAnalyticsFilters(
+                    nextFilters || {}
+                )
             );
 
         },
-
-        [dispatch]
-
+        [
+            dispatch
+        ]
     );
 
     /*
@@ -260,29 +328,28 @@ export default function useAnalytics(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+    useEffect(
+        () => {
 
-        if (
+            if (
+                initialFilters &&
+                Object.keys(initialFilters).length > 0
+            ) {
 
-            Object.keys(initialFilters).length > 0
+                dispatch(
+                    setAnalyticsFilters(
+                        initialFilters
+                    )
+                );
 
-        ) {
+            }
 
-            dispatch(
-
-                setAnalyticsFilters(initialFilters)
-
-            );
-
-        }
-
-    }, [
-
-        dispatch,
-
-        initialFilters
-
-    ]);
+        },
+        [
+            dispatch,
+            initialFilters
+        ]
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -290,55 +357,16 @@ export default function useAnalytics(initialFilters = {}) {
     |--------------------------------------------------------------------------
     */
 
-    useEffect(() => {
+    useEffect(
+        () => {
 
-        loadDashboard();
+            reload();
 
-        loadReliability();
-
-        loadForecast();
-
-        loadTrends();
-
-        loadOptimization();
-
-        loadKPIs();
-
-        loadAvailability();
-
-        loadBatteryHealth();
-
-        loadSolarPerformance();
-
-        loadGeneratorPerformance();
-
-        loadWeatherImpact();
-
-    }, [
-
-        loadDashboard,
-
-        loadReliability,
-
-        loadForecast,
-
-        loadTrends,
-
-        loadOptimization,
-
-        loadKPIs,
-
-        loadAvailability,
-
-        loadBatteryHealth,
-
-        loadSolarPerformance,
-
-        loadGeneratorPerformance,
-
-        loadWeatherImpact
-
-    ]);
+        },
+        [
+            reload
+        ]
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -348,63 +376,69 @@ export default function useAnalytics(initialFilters = {}) {
 
     return {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Data
+        |--------------------------------------------------------------------------
+        */
+
         dashboard,
+
+        energy,
+
+        battery,
+
+        solar,
+
+        generator,
+
+        grid,
 
         reliability,
 
-        forecast,
-
-        trends,
-
-        optimization,
-
-        kpis,
-
-        availability,
-
-        batteryHealth,
-
-        solarPerformance,
-
-        generatorPerformance,
-
-        weatherImpact,
+        /*
+        |--------------------------------------------------------------------------
+        | Filters
+        |--------------------------------------------------------------------------
+        */
 
         filters,
 
-        loading,
+        /*
+        |--------------------------------------------------------------------------
+        | Status
+        |--------------------------------------------------------------------------
+        */
 
-        refreshing,
+        loading,
 
         error,
 
         lastUpdated,
 
-        refresh,
+        /*
+        |--------------------------------------------------------------------------
+        | Actions
+        |--------------------------------------------------------------------------
+        */
 
-        updateFilters,
+        reload,
 
-        reload: loadDashboard,
+        loadDashboard,
+
+        loadEnergy,
+
+        loadBattery,
+
+        loadSolar,
+
+        loadGenerator,
+
+        loadGrid,
 
         loadReliability,
 
-        loadForecast,
-
-        loadTrends,
-
-        loadOptimization,
-
-        loadKPIs,
-
-        loadAvailability,
-
-        loadBatteryHealth,
-
-        loadSolarPerformance,
-
-        loadGeneratorPerformance,
-
-        loadWeatherImpact
+        updateFilters
 
     };
 

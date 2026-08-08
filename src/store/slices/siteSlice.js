@@ -1,25 +1,17 @@
 import {
-
     createSlice,
-
     createAsyncThunk
-
 } from "@reduxjs/toolkit";
 
 import {
-
     getSites,
-    getSiteById,
-    getSiteSummary,
-    getSiteStatistics,
-    getSiteHealth,
-    getSiteLocations,
+    getSite,
     createSite as createSiteApi,
     updateSite as updateSiteApi,
-    deleteSite as deleteSiteApi,
-    refreshSites as refreshSitesApi
-
-} from "../../features/analytics/api/siteApi.js";
+    activateSite as activateSiteApi,
+    deactivateSite as deactivateSiteApi,
+    deleteSite as deleteSiteApi
+} from "../../features/sites/api/siteApi.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,308 +19,178 @@ import {
 |--------------------------------------------------------------------------
 */
 
+/**
+ * Fetch all sites
+ *
+ * Backend:
+ * GET /sites
+ */
 export const fetchSites = createAsyncThunk(
-
     "sites/fetchSites",
 
     async (params = {}, { rejectWithValue }) => {
-
         try {
-
             return await getSites(params);
-
         }
 
         catch (error) {
-
             return rejectWithValue(
-
                 error.response?.data ||
-
                 error.message
-
             );
-
         }
-
     }
-
 );
 
+/**
+ * Fetch single site
+ *
+ * Backend:
+ * GET /sites/:id
+ */
 export const fetchSite = createAsyncThunk(
-
     "sites/fetchSite",
 
     async (siteId, { rejectWithValue }) => {
-
         try {
-
-            return await getSiteById(siteId);
-
+            return await getSite(siteId);
         }
 
         catch (error) {
-
             return rejectWithValue(
-
                 error.response?.data ||
-
                 error.message
-
             );
-
         }
-
     }
-
 );
 
-export const fetchSiteSummary = createAsyncThunk(
-
-    "sites/fetchSiteSummary",
-
-    async (params = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getSiteSummary(params);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchSiteStatistics = createAsyncThunk(
-
-    "sites/fetchSiteStatistics",
-
-    async (params = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getSiteStatistics(params);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchSiteHealth = createAsyncThunk(
-
-    "sites/fetchSiteHealth",
-
-    async (params = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getSiteHealth(params);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
-export const fetchSiteLocations = createAsyncThunk(
-
-    "sites/fetchSiteLocations",
-
-    async (params = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await getSiteLocations(params);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
-);
-
+/**
+ * Create site
+ *
+ * Backend:
+ * POST /sites
+ */
 export const createSite = createAsyncThunk(
-
     "sites/createSite",
 
     async (payload, { rejectWithValue }) => {
-
         try {
-
             return await createSiteApi(payload);
-
         }
 
         catch (error) {
-
             return rejectWithValue(
-
                 error.response?.data ||
-
                 error.message
-
             );
-
         }
-
     }
-
 );
 
+/**
+ * Update site
+ *
+ * Backend:
+ * PUT /sites/:id
+ */
 export const updateSite = createAsyncThunk(
-
     "sites/updateSite",
 
     async (
-
         {
-
             siteId,
-
             payload
-
         },
-
         {
-
             rejectWithValue
-
         }
-
     ) => {
-
         try {
-
             return await updateSiteApi(
-
                 siteId,
-
                 payload
-
             );
-
         }
 
         catch (error) {
-
             return rejectWithValue(
-
                 error.response?.data ||
-
                 error.message
-
             );
-
         }
-
     }
-
 );
 
-export const deleteSite = createAsyncThunk(
+/**
+ * Activate site
+ *
+ * Backend:
+ * PATCH /sites/:id/activate
+ */
+export const activateSite = createAsyncThunk(
+    "sites/activateSite",
 
+    async (siteId, { rejectWithValue }) => {
+        try {
+            return await activateSiteApi(siteId);
+        }
+
+        catch (error) {
+            return rejectWithValue(
+                error.response?.data ||
+                error.message
+            );
+        }
+    }
+);
+
+/**
+ * Deactivate site
+ *
+ * Backend:
+ * PATCH /sites/:id/deactivate
+ */
+export const deactivateSite = createAsyncThunk(
+    "sites/deactivateSite",
+
+    async (siteId, { rejectWithValue }) => {
+        try {
+            return await deactivateSiteApi(siteId);
+        }
+
+        catch (error) {
+            return rejectWithValue(
+                error.response?.data ||
+                error.message
+            );
+        }
+    }
+);
+
+/**
+ * Delete site
+ *
+ * Backend:
+ * DELETE /sites/:id
+ */
+export const deleteSite = createAsyncThunk(
     "sites/deleteSite",
 
     async (siteId, { rejectWithValue }) => {
-
         try {
-
             await deleteSiteApi(siteId);
 
             return siteId;
-
         }
 
         catch (error) {
-
             return rejectWithValue(
-
                 error.response?.data ||
-
                 error.message
-
             );
-
         }
-
     }
-
-);
-
-export const refreshSites = createAsyncThunk(
-
-    "sites/refreshSites",
-
-    async (params = {}, { rejectWithValue }) => {
-
-        try {
-
-            return await refreshSitesApi(params);
-
-        }
-
-        catch (error) {
-
-            return rejectWithValue(
-
-                error.response?.data ||
-
-                error.message
-
-            );
-
-        }
-
-    }
-
 );
 
 /*
@@ -338,39 +200,36 @@ export const refreshSites = createAsyncThunk(
 */
 
 const initialState = {
-
     sites: [],
 
     total: 0,
 
     selectedSite: null,
 
-    summary: {},
-
-    statistics: {},
-
-    health: [],
-
-    locations: [],
-
     filters: {},
 
     paginationModel: {
-
         page: 0,
-
         pageSize: 25
-
     },
 
     loading: false,
 
-    refreshing: false,
+    selectedSiteLoading: false,
+
+    creating: false,
+
+    updating: false,
+
+    activating: false,
+
+    deactivating: false,
+
+    deleting: false,
 
     error: null,
 
     lastUpdated: null
-
 };
 
 /*
@@ -387,22 +246,44 @@ const siteSlice = createSlice({
 
     reducers: {
 
+        /**
+         * Set site filters
+         */
         setSiteFilters(state, action) {
 
             state.filters = action.payload;
-
         },
 
+        /**
+         * Set pagination
+         */
         setPaginationModel(state, action) {
 
             state.paginationModel = action.payload;
-
         },
 
+        /**
+         * Set selected site manually
+         */
+        setSelectedSite(state, action) {
+
+            state.selectedSite = action.payload;
+        },
+
+        /**
+         * Clear selected site
+         */
         clearSelectedSite(state) {
 
             state.selectedSite = null;
+        },
 
+        /**
+         * Clear site error
+         */
+        clearSiteError(state) {
+
+            state.error = null;
         }
 
     },
@@ -411,144 +292,494 @@ const siteSlice = createSlice({
 
         builder
 
-        /* Sites */
+        /*
+        |--------------------------------------------------------------------------
+        | Fetch Sites
+        |--------------------------------------------------------------------------
+        */
 
-        .addCase(fetchSites.pending, state => {
+        .addCase(
+            fetchSites.pending,
+            state => {
 
-            state.loading = true;
+                state.loading = true;
 
-            state.error = null;
+                state.error = null;
+            }
+        )
 
-        })
+        .addCase(
+            fetchSites.fulfilled,
+            (state, action) => {
 
-        .addCase(fetchSites.fulfilled, (state, action) => {
+                state.loading = false;
 
-            state.loading = false;
+                /*
+                 * Supports APIs returning:
+                 *
+                 * {
+                 *   rows: [],
+                 *   total: 10
+                 * }
+                 *
+                 * or:
+                 *
+                 * []
+                 */
 
-            state.sites = action.payload.rows ?? [];
+                if (Array.isArray(action.payload)) {
 
-            state.total = action.payload.total ?? 0;
+                    state.sites = action.payload;
 
-            state.lastUpdated = new Date().toISOString();
+                    state.total = action.payload.length;
 
-        })
+                }
 
-        .addCase(fetchSites.rejected, (state, action) => {
+                else {
 
-            state.loading = false;
+                    state.sites =
+                        action.payload?.rows ??
+                        action.payload?.sites ??
+                        action.payload?.data ??
+                        [];
 
-            state.error = action.payload;
+                    state.total =
+                        action.payload?.total ??
+                        state.sites.length;
+                }
 
-        })
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
 
-        /* Selected Site */
+        .addCase(
+            fetchSites.rejected,
+            (state, action) => {
 
-        .addCase(fetchSite.fulfilled, (state, action) => {
+                state.loading = false;
 
-            state.selectedSite = action.payload;
+                state.error = action.payload;
+            }
+        )
 
-        })
+        /*
+        |--------------------------------------------------------------------------
+        | Fetch Single Site
+        |--------------------------------------------------------------------------
+        */
 
-        /* Summary */
+        .addCase(
+            fetchSite.pending,
+            state => {
 
-        .addCase(fetchSiteSummary.fulfilled, (state, action) => {
+                state.selectedSiteLoading = true;
 
-            state.summary = action.payload;
+                state.error = null;
+            }
+        )
 
-        })
+        .addCase(
+            fetchSite.fulfilled,
+            (state, action) => {
 
-        /* Statistics */
+                state.selectedSiteLoading = false;
 
-        .addCase(fetchSiteStatistics.fulfilled, (state, action) => {
+                state.selectedSite =
+                    action.payload?.data ??
+                    action.payload;
+            }
+        )
 
-            state.statistics = action.payload;
+        .addCase(
+            fetchSite.rejected,
+            (state, action) => {
 
-        })
+                state.selectedSiteLoading = false;
 
-        /* Health */
+                state.error = action.payload;
+            }
+        )
 
-        .addCase(fetchSiteHealth.fulfilled, (state, action) => {
+        /*
+        |--------------------------------------------------------------------------
+        | Create Site
+        |--------------------------------------------------------------------------
+        */
 
-            state.health = action.payload;
+        .addCase(
+            createSite.pending,
+            state => {
 
-        })
+                state.creating = true;
 
-        /* Locations */
+                state.error = null;
+            }
+        )
 
-        .addCase(fetchSiteLocations.fulfilled, (state, action) => {
+        .addCase(
+            createSite.fulfilled,
+            (state, action) => {
 
-            state.locations = action.payload;
+                state.creating = false;
 
-        })
+                const createdSite =
+                    action.payload?.data ??
+                    action.payload;
 
-        /* Create */
+                if (createdSite) {
 
-        .addCase(createSite.fulfilled, state => {
+                    state.sites.unshift(
+                        createdSite
+                    );
 
-            state.lastUpdated = new Date().toISOString();
+                    state.total += 1;
+                }
 
-        })
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
 
-        /* Update */
+        .addCase(
+            createSite.rejected,
+            (state, action) => {
 
-        .addCase(updateSite.fulfilled, state => {
+                state.creating = false;
 
-            state.lastUpdated = new Date().toISOString();
+                state.error = action.payload;
+            }
+        )
 
-        })
+        /*
+        |--------------------------------------------------------------------------
+        | Update Site
+        |--------------------------------------------------------------------------
+        */
 
-        /* Delete */
+        .addCase(
+            updateSite.pending,
+            state => {
 
-        .addCase(deleteSite.fulfilled, (state, action) => {
+                state.updating = true;
 
-            state.sites = state.sites.filter(
+                state.error = null;
+            }
+        )
 
-                site => site.id !== action.payload
+        .addCase(
+            updateSite.fulfilled,
+            (state, action) => {
 
-            );
+                state.updating = false;
 
-            state.total--;
+                const updatedSite =
+                    action.payload?.data ??
+                    action.payload;
 
-            state.lastUpdated = new Date().toISOString();
+                if (updatedSite) {
 
-        })
+                    const siteId =
+                        updatedSite._id ??
+                        updatedSite.id;
 
-        /* Refresh */
+                    const index =
+                        state.sites.findIndex(
+                            site =>
+                                (site._id ?? site.id) ===
+                                siteId
+                        );
 
-        .addCase(refreshSites.pending, state => {
+                    if (index !== -1) {
 
-            state.refreshing = true;
+                        state.sites[index] =
+                            updatedSite;
+                    }
 
-        })
+                    if (
+                        state.selectedSite &&
+                        (
+                            state.selectedSite._id ??
+                            state.selectedSite.id
+                        ) === siteId
+                    ) {
 
-        .addCase(refreshSites.fulfilled, state => {
+                        state.selectedSite =
+                            updatedSite;
+                    }
+                }
 
-            state.refreshing = false;
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
 
-            state.lastUpdated = new Date().toISOString();
+        .addCase(
+            updateSite.rejected,
+            (state, action) => {
 
-        })
+                state.updating = false;
 
-        .addCase(refreshSites.rejected, (state, action) => {
+                state.error = action.payload;
+            }
+        )
 
-            state.refreshing = false;
+        /*
+        |--------------------------------------------------------------------------
+        | Activate Site
+        |--------------------------------------------------------------------------
+        */
 
-            state.error = action.payload;
+        .addCase(
+            activateSite.pending,
+            state => {
 
-        });
+                state.activating = true;
+
+                state.error = null;
+            }
+        )
+
+        .addCase(
+            activateSite.fulfilled,
+            (state, action) => {
+
+                state.activating = false;
+
+                const activatedSite =
+                    action.payload?.data ??
+                    action.payload;
+
+                if (activatedSite) {
+
+                    const siteId =
+                        activatedSite._id ??
+                        activatedSite.id;
+
+                    const index =
+                        state.sites.findIndex(
+                            site =>
+                                (site._id ?? site.id) ===
+                                siteId
+                        );
+
+                    if (index !== -1) {
+
+                        state.sites[index] =
+                            activatedSite;
+                    }
+
+                    if (
+                        state.selectedSite &&
+                        (
+                            state.selectedSite._id ??
+                            state.selectedSite.id
+                        ) === siteId
+                    ) {
+
+                        state.selectedSite =
+                            activatedSite;
+                    }
+                }
+
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
+
+        .addCase(
+            activateSite.rejected,
+            (state, action) => {
+
+                state.activating = false;
+
+                state.error = action.payload;
+            }
+        )
+
+        /*
+        |--------------------------------------------------------------------------
+        | Deactivate Site
+        |--------------------------------------------------------------------------
+        */
+
+        .addCase(
+            deactivateSite.pending,
+            state => {
+
+                state.deactivating = true;
+
+                state.error = null;
+            }
+        )
+
+        .addCase(
+            deactivateSite.fulfilled,
+            (state, action) => {
+
+                state.deactivating = false;
+
+                const deactivatedSite =
+                    action.payload?.data ??
+                    action.payload;
+
+                if (deactivatedSite) {
+
+                    const siteId =
+                        deactivatedSite._id ??
+                        deactivatedSite.id;
+
+                    const index =
+                        state.sites.findIndex(
+                            site =>
+                                (site._id ?? site.id) ===
+                                siteId
+                        );
+
+                    if (index !== -1) {
+
+                        state.sites[index] =
+                            deactivatedSite;
+                    }
+
+                    if (
+                        state.selectedSite &&
+                        (
+                            state.selectedSite._id ??
+                            state.selectedSite.id
+                        ) === siteId
+                    ) {
+
+                        state.selectedSite =
+                            deactivatedSite;
+                    }
+                }
+
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
+
+        .addCase(
+            deactivateSite.rejected,
+            (state, action) => {
+
+                state.deactivating = false;
+
+                state.error = action.payload;
+            }
+        )
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Site
+        |--------------------------------------------------------------------------
+        */
+
+        .addCase(
+            deleteSite.pending,
+            state => {
+
+                state.deleting = true;
+
+                state.error = null;
+            }
+        )
+
+        .addCase(
+            deleteSite.fulfilled,
+            (state, action) => {
+
+                state.deleting = false;
+
+                state.sites =
+                    state.sites.filter(
+                        site =>
+                            (site._id ?? site.id) !==
+                            action.payload
+                    );
+
+                state.total =
+                    Math.max(0, state.total - 1);
+
+                if (
+                    state.selectedSite &&
+                    (
+                        state.selectedSite._id ??
+                        state.selectedSite.id
+                    ) === action.payload
+                ) {
+
+                    state.selectedSite = null;
+                }
+
+                state.lastUpdated =
+                    new Date().toISOString();
+            }
+        )
+
+        .addCase(
+            deleteSite.rejected,
+            (state, action) => {
+
+                state.deleting = false;
+
+                state.error = action.payload;
+            }
+        );
 
     }
 
 });
 
+/*
+|--------------------------------------------------------------------------
+| Actions
+|--------------------------------------------------------------------------
+*/
+
 export const {
-
     setSiteFilters,
-
     setPaginationModel,
-
-    clearSelectedSite
-
+    setSelectedSite,
+    clearSelectedSite,
+    clearSiteError
 } = siteSlice.actions;
+
+/*
+|--------------------------------------------------------------------------
+| Selectors
+|--------------------------------------------------------------------------
+*/
+
+export const selectSites =
+    state => state.sites.sites;
+
+export const selectTotalSites =
+    state => state.sites.total;
+
+export const selectSelectedSite =
+    state => state.sites.selectedSite;
+
+export const selectSiteLoading =
+    state => state.sites.loading;
+
+export const selectSelectedSiteLoading =
+    state => state.sites.selectedSiteLoading;
+
+export const selectSiteError =
+    state => state.sites.error;
+
+export const selectSiteFilters =
+    state => state.sites.filters;
+
+export const selectSitePagination =
+    state => state.sites.paginationModel;
+
+/*
+|--------------------------------------------------------------------------
+| Reducer
+|--------------------------------------------------------------------------
+*/
 
 export default siteSlice.reducer;

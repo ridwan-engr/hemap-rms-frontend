@@ -169,7 +169,7 @@ export default function DashboardCards() {
 
                     title="Total Sites"
 
-                    value={cards.totalSites}
+                    value={cards?.totalSites ?? 0}
 
                     icon={<LanguageIcon fontSize="large" />}
 
@@ -191,7 +191,7 @@ export default function DashboardCards() {
 
                     title="Active Sites"
 
-                    value={cards.activeSites}
+                    value={cards?.activeSites ?? 0}
 
                     icon={<CheckCircleIcon fontSize="large" />}
 
@@ -213,7 +213,7 @@ export default function DashboardCards() {
 
                     title="Active Alarms"
 
-                    value={cards.activeAlarms}
+                    value={cards?.activeAlarms ?? 0}
 
                     icon={<WarningAmberIcon fontSize="large" />}
 
@@ -235,7 +235,7 @@ export default function DashboardCards() {
 
                     title="Battery SOC"
 
-                    value={`${cards.batterySOC}%`}
+                    value={`${cards?.batterySOC ?? 0}%`}
 
                     icon={<BatteryChargingFullIcon fontSize="large" />}
 
@@ -257,7 +257,7 @@ export default function DashboardCards() {
 
                     title="Renewables"
 
-                    value={`${cards.renewableEnergy}%`}
+                    value={`${cards?.renewableEnergy ?? 0}%`}
 
                     icon={<SolarPowerIcon fontSize="large" />}
 
@@ -279,7 +279,7 @@ export default function DashboardCards() {
 
                     title="Generator Runtime"
 
-                    value={`${cards.generatorRuntime} h`}
+                    value={`${cards?.generatorRuntime ?? 0} h`}
 
                     icon={<ElectricBoltIcon fontSize="large" />}
 

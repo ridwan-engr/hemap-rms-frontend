@@ -1,67 +1,67 @@
 import { useCallback } from "react";
 
 import {
-
     useDispatch,
     useSelector
-
 } from "react-redux";
 
 import {
-
     fetchUsers,
     fetchUser,
-    fetchUserSummary,
-    fetchUserStatistics,
 
     createUser,
     updateUser,
     deleteUser,
 
-    refreshUsers,
+    activateUser,
+    deactivateUser,
 
     setUserFilters,
-    setPaginationModel
-
-} from "../../../store/slices/userSlice";
+    setPaginationModel,
+    clearSelectedUser
+} from "../../../store/slices/userSlice.js";
 
 /*
 |--------------------------------------------------------------------------
 | User Hook
 |--------------------------------------------------------------------------
+|
+| Central hook for User Management.
+|
+| Components should NEVER dispatch Redux actions directly.
+|
 */
 
 export default function useUser() {
 
     const dispatch = useDispatch();
 
-    const {
+    /*
+    |--------------------------------------------------------------------------
+    | Redux State
+    |--------------------------------------------------------------------------
+    */
 
+    const {
         users,
         total,
 
         selectedUser,
 
-        summary,
-        statistics,
-
         filters,
         paginationModel,
 
         loading,
-        refreshing,
         error,
         lastUpdated
 
     } = useSelector(
-
         state => state.users
-
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Loaders
+    | Load Users
     |--------------------------------------------------------------------------
     */
 
@@ -69,18 +69,16 @@ export default function useUser() {
 
         (params = filters) => {
 
-            dispatch(
+            return dispatch(
 
                 fetchUsers({
 
                     ...params,
 
                     page:
-
                         paginationModel.page + 1,
 
                     limit:
-
                         paginationModel.pageSize
 
                 })
@@ -90,36 +88,28 @@ export default function useUser() {
         },
 
         [
-
             dispatch,
-
             filters,
-
             paginationModel
-
         ]
 
     );
 
-    const refresh = useCallback(
+    /*
+    |--------------------------------------------------------------------------
+    | User Details
+    |--------------------------------------------------------------------------
+    */
 
-        () => dispatch(refreshUsers()),
+    const viewUser = useCallback(
 
-        [dispatch]
+        userId => {
 
-    );
+            return dispatch(
+                fetchUser(userId)
+            );
 
-    const loadSummary = useCallback(
-
-        () => dispatch(fetchUserSummary()),
-
-        [dispatch]
-
-    );
-
-    const loadStatistics = useCallback(
-
-        () => dispatch(fetchUserStatistics()),
+        },
 
         [dispatch]
 
@@ -127,49 +117,38 @@ export default function useUser() {
 
     /*
     |--------------------------------------------------------------------------
-    | User Actions
+    | Create User
     |--------------------------------------------------------------------------
     */
 
-    const viewUser = useCallback(
-
-        userId =>
-
-            dispatch(
-
-                fetchUser(userId)
-
-            ),
-
-        [dispatch]
-
-    );
-
     const createNewUser = useCallback(
 
-        payload =>
+        payload => {
 
-            dispatch(
-
+            return dispatch(
                 createUser(payload)
+            );
 
-            ),
+        },
 
         [dispatch]
 
     );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update User
+    |--------------------------------------------------------------------------
+    */
 
     const updateExistingUser = useCallback(
 
         (
-
             userId,
-
             payload
+        ) => {
 
-        ) =>
-
-            dispatch(
+            return dispatch(
 
                 updateUser({
 
@@ -179,21 +158,89 @@ export default function useUser() {
 
                 })
 
-            ),
+            );
+
+        },
 
         [dispatch]
 
     );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Activate User
+    |--------------------------------------------------------------------------
+    */
+
+    const activateExistingUser = useCallback(
+
+        userId => {
+
+            return dispatch(
+                activateUser(userId)
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deactivate User
+    |--------------------------------------------------------------------------
+    */
+
+    const deactivateExistingUser = useCallback(
+
+        userId => {
+
+            return dispatch(
+                deactivateUser(userId)
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete User
+    |--------------------------------------------------------------------------
+    */
+
     const removeUser = useCallback(
 
-        userId =>
+        userId => {
+
+            return dispatch(
+                deleteUser(userId)
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Selected User
+    |--------------------------------------------------------------------------
+    */
+
+    const clearSelected = useCallback(
+
+        () => {
 
             dispatch(
+                clearSelectedUser()
+            );
 
-                deleteUser(userId)
-
-            ),
+        },
 
         [dispatch]
 
@@ -210,33 +257,7 @@ export default function useUser() {
         newFilters => {
 
             dispatch(
-
-                setUserFilters(
-
-                    newFilters
-
-                )
-
-            );
-
-        },
-
-        [dispatch]
-
-    );
-
-    const updatePagination = useCallback(
-
-        model => {
-
-            dispatch(
-
-                setPaginationModel(
-
-                    model
-
-                )
-
+                setUserFilters(newFilters)
             );
 
         },
@@ -247,7 +268,27 @@ export default function useUser() {
 
     /*
     |--------------------------------------------------------------------------
-    | Hook API
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    const updatePagination = useCallback(
+
+        model => {
+
+            dispatch(
+                setPaginationModel(model)
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Hook API
     |--------------------------------------------------------------------------
     */
 
@@ -258,38 +299,37 @@ export default function useUser() {
 
         selectedUser,
 
-        summary,
-        statistics,
-
         filters,
         paginationModel,
 
         loading,
-        refreshing,
         error,
         lastUpdated,
 
         reload,
-        refresh,
-
-        loadSummary,
-        loadStatistics,
 
         viewUser,
 
         createUser:
-
             createNewUser,
 
         updateUser:
-
             updateExistingUser,
 
-        deleteUser:
+        activateUser:
+            activateExistingUser,
 
+        deactivateUser:
+            deactivateExistingUser,
+
+        deleteUser:
             removeUser,
 
+        clearSelectedUser:
+            clearSelected,
+
         updateFilters,
+
         updatePagination
 
     };

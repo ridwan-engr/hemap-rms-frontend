@@ -1,10 +1,13 @@
 import {
+    Box,
     Grid,
     LinearProgress,
     Paper,
     Stack,
     Typography
 } from "@mui/material";
+
+import useDashboard from "../hooks/useDashboard";
 
 const metrics = [
 
@@ -34,29 +37,35 @@ const metrics = [
 
 ];
 
-export default function DashboardReliability({
+export default function DashboardReliability() {
 
-    reliability,
+    const {
 
-    loading
+        reliability,
 
-}) {
+        loading
 
-    const availability =
+    } = useDashboard();
+
+    const availability = Number(
 
         reliability?.availability ??
 
         reliability?.availabilityIndex ??
 
-        0;
+        0
 
-    const resilience =
+    );
+
+    const resilience = Number(
 
         reliability?.resilience ??
 
         reliability?.resilienceIndex ??
 
-        0;
+        0
+
+    );
 
     return (
 
@@ -98,7 +107,7 @@ export default function DashboardReliability({
 
                 {
 
-                    metrics.map(metric => (
+                    metrics.map((metric) => (
 
                         <Grid
 
@@ -260,7 +269,7 @@ function MetricCard({
 
                     unit && (
 
-                        <Typography
+                        <Box
 
                             component="span"
 
@@ -278,7 +287,7 @@ function MetricCard({
 
                             {unit}
 
-                        </Typography>
+                        </Box>
 
                     )
 
@@ -300,6 +309,20 @@ function ProgressMetric({
 
 }) {
 
+    const percentage = Math.max(
+
+        0,
+
+        Math.min(
+
+            100,
+
+            Number(value) || 0
+
+        )
+
+    );
+
     return (
 
         <Stack spacing={1}>
@@ -320,17 +343,7 @@ function ProgressMetric({
 
                 variant="determinate"
 
-                value={
-
-                    Math.max(
-
-                        0,
-
-                        Math.min(100, value)
-
-                    )
-
-                }
+                value={percentage}
 
                 sx={{
 
@@ -348,7 +361,7 @@ function ProgressMetric({
 
             >
 
-                {value}%
+                {percentage}%
 
             </Typography>
 

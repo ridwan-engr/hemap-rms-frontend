@@ -7,6 +7,8 @@ import {
     Typography
 } from "@mui/material";
 
+import useDashboard from "../hooks/useDashboard";
+
 function Recommendation({
 
     title,
@@ -14,12 +16,10 @@ function Recommendation({
     value,
 
     color = "primary"
-
+    
 }) {
 
-    return (
-
-        <Paper
+    return (<Paper
             variant="outlined"
             sx={{
                 p: 2,
@@ -59,13 +59,18 @@ function Recommendation({
 
 }
 
-export default function DashboardOptimization({
+export default function DashboardOptimization() {
 
-    optimization,
+    const {
 
-    loading
+        dashboard,
 
-}) {
+        loading
+
+    } = useDashboard();
+
+    const optimization =
+        dashboard?.optimization ?? null;
 
     if (loading) {
 
@@ -112,6 +117,8 @@ export default function DashboardOptimization({
         );
 
     }
+
+    // ...rest of component unchanged
 
     return (
 

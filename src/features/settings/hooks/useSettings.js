@@ -1,39 +1,44 @@
 import { useCallback } from "react";
 
 import {
-
     useDispatch,
     useSelector
-
 } from "react-redux";
 
 import {
-
     fetchSettings,
     fetchSetting,
-    fetchSettingByKey,
 
     createNewSetting,
     updateExistingSetting,
-    updateExistingSettingByKey,
-
     deleteExistingSetting,
-    initializeSystemDefaults,
 
     setCategory,
     clearSelectedSetting
 
-} from "../../../store/slices/settingsSlice";
+} from "../../../store/slices/settingsSlice.js";
 
 /*
 |--------------------------------------------------------------------------
 | useSettings
+|--------------------------------------------------------------------------
+|
+| Central hook for System Settings.
+|
+| Components should NEVER dispatch Redux actions directly.
+|
 |--------------------------------------------------------------------------
 */
 
 export default function useSettings() {
 
     const dispatch = useDispatch();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redux State
+    |--------------------------------------------------------------------------
+    */
 
     const {
 
@@ -65,11 +70,15 @@ export default function useSettings() {
 
     const reload = useCallback(
 
-        () => dispatch(
+        () => {
 
-            fetchSettings()
+            return dispatch(
 
-        ),
+                fetchSettings()
+
+            );
+
+        },
 
         [
 
@@ -81,39 +90,21 @@ export default function useSettings() {
 
     /*
     |--------------------------------------------------------------------------
-    | Single Setting
+    | Load Single Setting
     |--------------------------------------------------------------------------
     */
 
     const loadSetting = useCallback(
 
-        settingId => dispatch(
+        settingId => {
 
-            fetchSetting(settingId)
+            return dispatch(
 
-        ),
+                fetchSetting(settingId)
 
-        [
+            );
 
-            dispatch
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load By Key
-    |--------------------------------------------------------------------------
-    */
-
-    const loadSettingByKey = useCallback(
-
-        key => dispatch(
-
-            fetchSettingByKey(key)
-
-        ),
+        },
 
         [
 
@@ -131,11 +122,15 @@ export default function useSettings() {
 
     const createSetting = useCallback(
 
-        payload => dispatch(
+        payload => {
 
-            createNewSetting(payload)
+            return dispatch(
 
-        ),
+                createNewSetting(payload)
+
+            );
+
+        },
 
         [
 
@@ -155,55 +150,25 @@ export default function useSettings() {
 
         (
 
-            id,
+            settingId,
 
             payload
 
-        ) => dispatch(
+        ) => {
 
-            updateExistingSetting({
+            return dispatch(
 
-                id,
+                updateExistingSetting({
 
-                payload
+                    settingId,
 
-            })
+                    payload
 
-        ),
+                })
 
-        [
+            );
 
-            dispatch
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update By Key
-    |--------------------------------------------------------------------------
-    */
-
-    const updateSettingByKey = useCallback(
-
-        (
-
-            key,
-
-            payload
-
-        ) => dispatch(
-
-            updateExistingSettingByKey({
-
-                key,
-
-                payload
-
-            })
-
-        ),
+        },
 
         [
 
@@ -221,33 +186,19 @@ export default function useSettings() {
 
     const deleteSetting = useCallback(
 
-        id => dispatch(
+        settingId => {
 
-            deleteExistingSetting(id)
+            return dispatch(
 
-        ),
+                deleteExistingSetting(
 
-        [
+                    settingId
 
-            dispatch
+                )
 
-        ]
+            );
 
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initialize Defaults
-    |--------------------------------------------------------------------------
-    */
-
-    const initializeDefaults = useCallback(
-
-        () => dispatch(
-
-            initializeSystemDefaults()
-
-        ),
+        },
 
         [
 
@@ -265,11 +216,15 @@ export default function useSettings() {
 
     const updateCategory = useCallback(
 
-        value => dispatch(
+        value => {
 
-            setCategory(value)
+            dispatch(
 
-        ),
+                setCategory(value)
+
+            );
+
+        },
 
         [
 
@@ -287,11 +242,15 @@ export default function useSettings() {
 
     const clearSelection = useCallback(
 
-        () => dispatch(
+        () => {
 
-            clearSelectedSetting()
+            dispatch(
 
-        ),
+                clearSelectedSetting()
+
+            );
+
+        },
 
         [
 
@@ -305,6 +264,10 @@ export default function useSettings() {
     |--------------------------------------------------------------------------
     | Category Filter
     |--------------------------------------------------------------------------
+    |
+    | Category filtering happens locally because
+    | the API exposes only GET /settings.
+    |
     */
 
     const filteredSettings =
@@ -321,7 +284,17 @@ export default function useSettings() {
 
             );
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public Hook API
+    |--------------------------------------------------------------------------
+    */
+
     return {
+
+        /*
+        | State
+        */
 
         settings,
 
@@ -339,21 +312,23 @@ export default function useSettings() {
 
         category,
 
+        /*
+        | Operations
+        */
+
         reload,
 
         loadSetting,
-
-        loadSettingByKey,
 
         createSetting,
 
         updateSetting,
 
-        updateSettingByKey,
-
         deleteSetting,
 
-        initializeDefaults,
+        /*
+        | Local Redux Controls
+        */
 
         updateCategory,
 

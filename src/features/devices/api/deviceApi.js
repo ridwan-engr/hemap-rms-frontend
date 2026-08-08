@@ -1,263 +1,139 @@
 import apiClient from "../../../services/api/apiClient";
 
-/*
-|--------------------------------------------------------------------------
-| Device API
-|--------------------------------------------------------------------------
-|
-| Centralized API service for Device Management.
-| All HTTP communication related to devices is handled here.
-|
-*/
+/**
+ * Device API
+ *
+ * Centralized API service for Device Management.
+ * Components and hooks should not call axios directly.
+ */
 
-/*
-|--------------------------------------------------------------------------
-| Device List
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Get all devices
+ *
+ * Backend:
+ * GET /devices
+ *
+ * @param {Object} params
+ * @returns {Promise<Object>}
+ */
 export async function getDevices(params = {}) {
-
     const { data } = await apiClient.get(
-
         "/devices",
-
         {
-
             params
-
         }
-
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Single Device
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Get device by ID
+ *
+ * Backend:
+ * GET /devices/:id
+ *
+ * @param {String} deviceId
+ * @returns {Promise<Object>}
+ */
 export async function getDeviceById(deviceId) {
+    if (!deviceId) {
+        throw new Error("deviceId is required");
+    }
 
     const { data } = await apiClient.get(
-
         `/devices/${deviceId}`
-
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard Summary
-|--------------------------------------------------------------------------
-*/
-
-export async function getDeviceSummary(params = {}) {
-
-    const { data } = await apiClient.get(
-
-        "/devices/summary",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Device Statistics
-|--------------------------------------------------------------------------
-*/
-
-export async function getDeviceStatistics(params = {}) {
-
-    const { data } = await apiClient.get(
-
-        "/devices/statistics",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Device Health
-|--------------------------------------------------------------------------
-*/
-
-export async function getDeviceHealth(params = {}) {
-
-    const { data } = await apiClient.get(
-
-        "/devices/health",
-
-        {
-
-            params
-
-        }
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Create Device
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Create device
+ *
+ * Backend:
+ * POST /devices
+ *
+ * Authorization:
+ * Administrator / Engineer
+ *
+ * @param {Object} payload
+ * @returns {Promise<Object>}
+ */
 export async function createDevice(payload) {
+    if (!payload || typeof payload !== "object") {
+        throw new Error("Device payload is required");
+    }
 
     const { data } = await apiClient.post(
-
         "/devices",
-
         payload
-
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Update Device
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Update device
+ *
+ * Backend:
+ * PUT /devices/:id
+ *
+ * Authorization:
+ * Administrator / Engineer
+ *
+ * @param {String} deviceId
+ * @param {Object} payload
+ * @returns {Promise<Object>}
+ */
 export async function updateDevice(
-
     deviceId,
-
     payload
-
 ) {
+    if (!deviceId) {
+        throw new Error("deviceId is required");
+    }
+
+    if (!payload || typeof payload !== "object") {
+        throw new Error("Device payload is required");
+    }
 
     const { data } = await apiClient.put(
-
         `/devices/${deviceId}`,
-
         payload
-
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Delete Device
-|--------------------------------------------------------------------------
-*/
-
+/**
+ * Delete device
+ *
+ * Backend:
+ * DELETE /devices/:id
+ *
+ * Authorization:
+ * Administrator
+ *
+ * @param {String} deviceId
+ * @returns {Promise<Object>}
+ */
 export async function deleteDevice(deviceId) {
+    if (!deviceId) {
+        throw new Error("deviceId is required");
+    }
 
     const { data } = await apiClient.delete(
-
         `/devices/${deviceId}`
-
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Refresh Devices
-|--------------------------------------------------------------------------
-*/
-
-export async function refreshDevices(params = {}) {
-
-    const { data } = await apiClient.post(
-
-        "/devices/refresh",
-
-        params
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Firmware Versions
-|--------------------------------------------------------------------------
-*/
-
-export async function getFirmwareVersions() {
-
-    const { data } = await apiClient.get(
-
-        "/devices/firmware"
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Device Types
-|--------------------------------------------------------------------------
-*/
-
-export async function getDeviceTypes() {
-
-    const { data } = await apiClient.get(
-
-        "/devices/types"
-
-    );
-
-    return data;
-
-}
-
-/*
-|--------------------------------------------------------------------------
-| Manufacturers
-|--------------------------------------------------------------------------
-*/
-
-export async function getManufacturers() {
-
-    const { data } = await apiClient.get(
-
-        "/devices/manufacturers"
-
-    );
-
-    return data;
-
-}
+export default {
+    getDevices,
+    getDeviceById,
+    createDevice,
+    updateDevice,
+    deleteDevice
+};

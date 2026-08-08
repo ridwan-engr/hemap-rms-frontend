@@ -9,17 +9,27 @@ import {
     Button
 } from "@mui/material";
 
-import {
-    getRoles,
-    getSites
-} from "../api/userApi";
-
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
 | User Filter
 |--------------------------------------------------------------------------
+|
+| Uses the existing User API contract through useUser().
+|
+| Supported API:
+|
+| GET /users
+|
+| Query parameters:
+| - search
+| - role
+| - site
+| - isActive
+|
+| No separate role/site lookup endpoints are assumed.
+|
 */
 
 export default function UserFilter() {
@@ -30,19 +40,26 @@ export default function UserFilter() {
         reload
     } = useUser();
 
-    const [roles, setRoles] = useState([]);
-    const [sites, setSites] = useState([]);
+    /*
+    |--------------------------------------------------------------------------
+    | Local Filter State
+    |--------------------------------------------------------------------------
+    */
 
     const [localFilters, setLocalFilters] = useState({
 
-        search: filters.search || "",
+        search:
+            filters?.search || "",
 
-        role: filters.role || "",
+        role:
+            filters?.role || "",
 
-        site: filters.site || "",
+        site:
+            filters?.site || "",
 
         isActive:
-            filters.isActive === undefined
+            filters?.isActive === undefined ||
+            filters?.isActive === null
                 ? ""
                 : filters.isActive
 
@@ -50,47 +67,32 @@ export default function UserFilter() {
 
     /*
     |--------------------------------------------------------------------------
-    | Load Lookups
+    | Synchronize Local Filters With Redux
     |--------------------------------------------------------------------------
     */
 
     useEffect(() => {
 
-        async function loadLookups() {
+        setLocalFilters({
 
-            try {
+            search:
+                filters?.search || "",
 
-                const [
+            role:
+                filters?.role || "",
 
-                    roleData,
+            site:
+                filters?.site || "",
 
-                    siteData
+            isActive:
+                filters?.isActive === undefined ||
+                filters?.isActive === null
+                    ? ""
+                    : filters.isActive
 
-                ] = await Promise.all([
+        });
 
-                    getRoles(),
-
-                    getSites()
-
-                ]);
-
-                setRoles(roleData || []);
-
-                setSites(siteData || []);
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
-
-        loadLookups();
-
-    }, []);
+    }, [filters]);
 
     /*
     |--------------------------------------------------------------------------
@@ -101,11 +103,8 @@ export default function UserFilter() {
     const handleChange = event => {
 
         const {
-
             name,
-
             value
-
         } = event.target;
 
         setLocalFilters(previous => ({
@@ -126,9 +125,29 @@ export default function UserFilter() {
 
     const handleSearch = () => {
 
-        updateFilters(localFilters);
+        const nextFilters = {
 
-        reload(localFilters);
+            ...localFilters,
+
+            /*
+            |--------------------------------------------------------------
+            | Convert status selection to the appropriate query value
+            |--------------------------------------------------------------
+            */
+
+            ...(localFilters.isActive === ""
+                ? {}
+                : {
+                    isActive:
+                        localFilters.isActive === true ||
+                        localFilters.isActive === "true"
+                })
+
+        };
+
+        updateFilters(nextFilters);
+
+        reload(nextFilters);
 
     };
 
@@ -140,7 +159,7 @@ export default function UserFilter() {
 
     const handleReset = () => {
 
-        const cleared = {
+        const clearedFilters = {
 
             search: "",
 
@@ -152,13 +171,19 @@ export default function UserFilter() {
 
         };
 
-        setLocalFilters(cleared);
+        setLocalFilters(clearedFilters);
 
-        updateFilters(cleared);
+        updateFilters(clearedFilters);
 
-        reload(cleared);
+        reload(clearedFilters);
 
     };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -171,7 +196,14 @@ export default function UserFilter() {
                     spacing={2}
                 >
 
-                    <Grid size={{ xs: 12, md: 3 }}>
+                    {/* Search */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 3
+                        }}
+                    >
 
                         <TextField
 
@@ -181,9 +213,13 @@ export default function UserFilter() {
 
                             name="search"
 
-                            value={localFilters.search}
+                            value={
+                                localFilters.search
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                             placeholder="Name or Email"
 
@@ -191,7 +227,15 @@ export default function UserFilter() {
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 3 }}>
+
+                    {/* Role */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 3
+                        }}
+                    >
 
                         <TextField
 
@@ -203,9 +247,13 @@ export default function UserFilter() {
 
                             name="role"
 
-                            value={localFilters.role}
+                            value={
+                                localFilters.role
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         >
 
@@ -215,79 +263,69 @@ export default function UserFilter() {
 
                             </MenuItem>
 
-                            {
+                            <MenuItem value="ADMIN">
 
-                                roles.map(role => (
+                                Administrator
 
-                                    <MenuItem
+                            </MenuItem>
 
-                                        key={role._id}
+                            <MenuItem value="SUPERVISOR">
 
-                                        value={role._id}
+                                Supervisor
 
-                                    >
+                            </MenuItem>
 
-                                        {role.name}
+                            <MenuItem value="ENGINEER">
 
-                                    </MenuItem>
+                                Engineer
 
-                                ))
-
-                            }
+                            </MenuItem>
 
                         </TextField>
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 3 }}>
+
+                    {/* Site */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 3
+                        }}
+                    >
 
                         <TextField
 
                             fullWidth
 
-                            select
-
                             label="Assigned Site"
 
                             name="site"
 
-                            value={localFilters.site}
-
-                            onChange={handleChange}
-
-                        >
-
-                            <MenuItem value="">
-
-                                All Sites
-
-                            </MenuItem>
-
-                            {
-
-                                sites.map(site => (
-
-                                    <MenuItem
-
-                                        key={site._id}
-
-                                        value={site._id}
-
-                                    >
-
-                                        {site.siteName}
-
-                                    </MenuItem>
-
-                                ))
-
+                            value={
+                                localFilters.site
                             }
 
-                        </TextField>
+                            onChange={
+                                handleChange
+                            }
+
+                            placeholder="Site ID"
+
+                        />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 3 }}>
+
+                    {/* Status */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 3
+                        }}
+                    >
 
                         <TextField
 
@@ -299,9 +337,13 @@ export default function UserFilter() {
 
                             name="isActive"
 
-                            value={localFilters.isActive}
+                            value={
+                                localFilters.isActive
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         >
 
@@ -311,13 +353,13 @@ export default function UserFilter() {
 
                             </MenuItem>
 
-                            <MenuItem value={true}>
+                            <MenuItem value="true">
 
                                 Active
 
                             </MenuItem>
 
-                            <MenuItem value={false}>
+                            <MenuItem value="false">
 
                                 Inactive
 
@@ -327,9 +369,14 @@ export default function UserFilter() {
 
                     </Grid>
 
+
+                    {/* Actions */}
+
                     <Grid
 
-                        size={{ xs: 12 }}
+                        size={{
+                            xs: 12
+                        }}
 
                         display="flex"
 
@@ -343,7 +390,9 @@ export default function UserFilter() {
 
                             variant="outlined"
 
-                            onClick={handleReset}
+                            onClick={
+                                handleReset
+                            }
 
                         >
 
@@ -351,11 +400,14 @@ export default function UserFilter() {
 
                         </Button>
 
+
                         <Button
 
                             variant="contained"
 
-                            onClick={handleSearch}
+                            onClick={
+                                handleSearch
+                            }
 
                         >
 

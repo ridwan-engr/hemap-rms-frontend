@@ -1,0 +1,75 @@
+.solar-card{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.solar-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.solar-header span{
+
+    color:#198754;
+
+    font-weight:600;
+
+}
+
+.solar-power{
+
+    text-align:center;
+
+    margin-bottom:25px;
+
+}
+
+.solar-power h1{
+
+    color:#f59e0b;
+
+    font-size:48px;
+
+}
+
+.solar-details{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+}
+
+.solar-details label{
+
+    display:block;
+
+    color:#666;
+
+    font-size:13px;
+
+    margin-bottom:4px;
+
+}
+
+.solar-details strong{
+
+    font-size:18px;
+
+}

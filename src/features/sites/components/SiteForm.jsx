@@ -1,25 +1,18 @@
 import { useEffect, useState } from "react";
 
 import {
-
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-
     Grid,
-
     TextField,
-
     Button,
-
     MenuItem,
-
     CircularProgress
-
 } from "@mui/material";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -28,23 +21,14 @@ import useSite from "../hooks/useSite";
 */
 
 const INITIAL_FORM = {
-
     siteCode: "",
-
     siteName: "",
-
     state: "",
-
     technology: "",
-
     powerSource: "",
-
     latitude: "",
-
     longitude: "",
-
     status: "Healthy"
-
 };
 
 /*
@@ -54,52 +38,66 @@ const INITIAL_FORM = {
 */
 
 export default function SiteForm({
-
     open,
-
     onClose,
-
     site = null
-
 }) {
 
     const {
-
         createSite,
-
         updateSite,
-
         loading
-
     } = useSite();
 
-    const [form, setForm] = useState(INITIAL_FORM);
+    const [form, setForm] = useState(
+        INITIAL_FORM
+    );
 
     /*
     |--------------------------------------------------------------------------
-    | Populate Form (Edit Mode)
+    | Populate Form
     |--------------------------------------------------------------------------
     */
 
     useEffect(() => {
 
-        if (site) {
+        if (!site) {
 
             setForm({
-
-                ...INITIAL_FORM,
-
-                ...site
-
+                ...INITIAL_FORM
             });
 
-        }
-
-        else {
-
-            setForm(INITIAL_FORM);
+            return;
 
         }
+
+        setForm({
+
+            siteCode:
+                site.siteCode ?? "",
+
+            siteName:
+                site.siteName ?? "",
+
+            state:
+                site.state ?? "",
+
+            technology:
+                site.technology ?? "",
+
+            powerSource:
+                site.powerSource ?? "",
+
+            latitude:
+                site.latitude ?? "",
+
+            longitude:
+                site.longitude ?? "",
+
+            status:
+                site.status ?? "Healthy"
+
+        });
 
     }, [site]);
 
@@ -112,77 +110,108 @@ export default function SiteForm({
     const handleChange = event => {
 
         const {
-
             name,
-
             value
-
         } = event.target;
 
         setForm(previous => ({
-
             ...previous,
-
             [name]: value
-
         }));
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Save
+    | Submit
     |--------------------------------------------------------------------------
     */
 
     const handleSubmit = async () => {
 
-        if (site?.id) {
+        try {
 
-            await updateSite(
+            const payload = {
+                ...form,
 
-                site.id,
+                latitude:
+                    form.latitude === ""
+                        ? null
+                        : Number(form.latitude),
 
-                form
+                longitude:
+                    form.longitude === ""
+                        ? null
+                        : Number(form.longitude)
+            };
 
+            const siteId =
+                site?._id ||
+                site?.id;
+
+            let result;
+
+            if (siteId) {
+
+                result = await updateSite(
+                    siteId,
+                    payload
+                );
+
+            } else {
+
+                result = await createSite(
+                    payload
+                );
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Only close after successful Redux thunk
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                result?.meta?.requestStatus === "fulfilled"
+            ) {
+
+                onClose();
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Site save failed:",
+                error
             );
 
         }
 
-        else {
-
-            await createSite(form);
-
-        }
-
-        onClose();
-
     };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
         <Dialog
-
             open={open}
-
             onClose={onClose}
-
             fullWidth
-
             maxWidth="md"
-
         >
 
             <DialogTitle>
 
                 {
-
                     site
-
                         ? "Edit Site"
-
                         : "Create Site"
-
                 }
 
             </DialogTitle>
@@ -190,31 +219,20 @@ export default function SiteForm({
             <DialogContent>
 
                 <Grid
-
                     container
-
                     spacing={2}
-
                     sx={{ mt: 1 }}
-
                 >
 
                     <Grid size={{ xs: 12, md: 6 }}>
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             label="Site Code"
-
                             name="siteCode"
-
                             value={form.siteCode}
-
                             onChange={handleChange}
-
                         />
 
                     </Grid>
@@ -222,19 +240,12 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 6 }}>
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             label="Site Name"
-
                             name="siteName"
-
                             value={form.siteName}
-
                             onChange={handleChange}
-
                         />
 
                     </Grid>
@@ -242,17 +253,11 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 6 }}>
 
                         <TextField
-
                             fullWidth
-
                             label="State"
-
                             name="state"
-
                             value={form.state}
-
                             onChange={handleChange}
-
                         />
 
                     </Grid>
@@ -260,28 +265,29 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 6 }}>
 
                         <TextField
-
                             select
-
                             fullWidth
-
                             label="Technology"
-
                             name="technology"
-
                             value={form.technology}
-
                             onChange={handleChange}
-
                         >
 
-                            <MenuItem value="2G">2G</MenuItem>
+                            <MenuItem value="2G">
+                                2G
+                            </MenuItem>
 
-                            <MenuItem value="3G">3G</MenuItem>
+                            <MenuItem value="3G">
+                                3G
+                            </MenuItem>
 
-                            <MenuItem value="4G">4G</MenuItem>
+                            <MenuItem value="4G">
+                                4G
+                            </MenuItem>
 
-                            <MenuItem value="5G">5G</MenuItem>
+                            <MenuItem value="5G">
+                                5G
+                            </MenuItem>
 
                         </TextField>
 
@@ -290,17 +296,11 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 6 }}>
 
                         <TextField
-
                             fullWidth
-
                             label="Power Source"
-
                             name="powerSource"
-
                             value={form.powerSource}
-
                             onChange={handleChange}
-
                         />
 
                     </Grid>
@@ -308,17 +308,17 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 3 }}>
 
                         <TextField
-
                             fullWidth
-
+                            type="number"
                             label="Latitude"
-
                             name="latitude"
-
                             value={form.latitude}
-
                             onChange={handleChange}
-
+                            slotProps={{
+                                htmlInput: {
+                                    step: "any"
+                                }
+                            }}
                         />
 
                     </Grid>
@@ -326,17 +326,17 @@ export default function SiteForm({
                     <Grid size={{ xs: 12, md: 3 }}>
 
                         <TextField
-
                             fullWidth
-
+                            type="number"
                             label="Longitude"
-
                             name="longitude"
-
                             value={form.longitude}
-
                             onChange={handleChange}
-
+                            slotProps={{
+                                htmlInput: {
+                                    step: "any"
+                                }
+                            }}
                         />
 
                     </Grid>
@@ -346,41 +346,28 @@ export default function SiteForm({
                         <TextField
 
                             select
-
+                            
                             fullWidth
-
                             label="Status"
-
                             name="status"
-
                             value={form.status}
-
                             onChange={handleChange}
-
                         >
 
                             <MenuItem value="Healthy">
-
                                 Healthy
-
                             </MenuItem>
 
                             <MenuItem value="Warning">
-
                                 Warning
-
                             </MenuItem>
 
                             <MenuItem value="Critical">
-
                                 Critical
-
                             </MenuItem>
 
                             <MenuItem value="Offline">
-
                                 Offline
-
                             </MenuItem>
 
                         </TextField>
@@ -394,38 +381,31 @@ export default function SiteForm({
             <DialogActions>
 
                 <Button
-
                     onClick={onClose}
-
+                    disabled={loading}
                 >
-
                     Cancel
-
                 </Button>
 
                 <Button
-
                     variant="contained"
-
                     onClick={handleSubmit}
-
                     disabled={loading}
-
                 >
 
-                    {
+                    {loading ? (
 
-                        loading
+                        <CircularProgress
+                            size={20}
+                        />
 
-                            ? <CircularProgress size={20} />
+                    ) : (
 
-                            : site
+                        site
+                            ? "Update"
+                            : "Create"
 
-                                ? "Update"
-
-                                : "Create"
-
-                    }
+                    )}
 
                 </Button>
 

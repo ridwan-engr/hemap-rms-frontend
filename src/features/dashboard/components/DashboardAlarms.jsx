@@ -1,13 +1,21 @@
 import {
     Chip,
+    Divider,
     List,
     ListItem,
     ListItemText,
     Paper,
     Stack,
-    Typography,
-    Divider
+    Typography
 } from "@mui/material";
+
+import useDashboard from "../hooks/useDashboard";
+
+/*
+|--------------------------------------------------------------------------
+| Severity Color
+|--------------------------------------------------------------------------
+*/
 
 function getSeverityColor(severity) {
 
@@ -32,28 +40,48 @@ function getSeverityColor(severity) {
 
 }
 
-export default function DashboardAlarms({
+/*
+|--------------------------------------------------------------------------
+| Dashboard Alarms
+|--------------------------------------------------------------------------
+*/
 
-    alarms = [],
+export default function DashboardAlarms() {
 
-    loading
+    const {
 
-}) {
+        alarms,
+
+        loading
+
+    } = useDashboard();
+
+    const activeAlarms = alarms ?? [];
 
     return (
 
         <Paper
+
             elevation={1}
+
             sx={{
+
                 p: 3,
+
                 borderRadius: 3
+
             }}
+
         >
 
             <Typography
+
                 variant="h6"
+
                 fontWeight={700}
+
                 mb={3}
+
             >
 
                 Active Alarms
@@ -70,7 +98,7 @@ export default function DashboardAlarms({
 
                     </Typography>
 
-                ) : alarms.length === 0 ? (
+                ) : activeAlarms.length === 0 ? (
 
                     <Typography color="text.secondary">
 
@@ -84,47 +112,89 @@ export default function DashboardAlarms({
 
                         {
 
-                            alarms.map((alarm) => (
+                            activeAlarms.map((alarm, index) => (
 
-                                <div key={alarm._id ?? alarm.vrmAlarmId}>
+                                <div
+
+                                    key={
+                                        alarm._id ??
+                                        alarm.vrmAlarmId ??
+                                        `${alarm.name}-${index}`
+                                    }
+
+                                >
 
                                     <ListItem
+
                                         disableGutters
+
                                         sx={{
+
                                             py: 2
+
                                         }}
+
                                     >
 
                                         <Stack
+
                                             width="100%"
+
                                             spacing={1}
+
                                         >
 
                                             <Stack
+
                                                 direction="row"
+
                                                 justifyContent="space-between"
+
                                                 alignItems="center"
+
                                             >
 
                                                 <Typography
+
                                                     fontWeight={600}
+
                                                 >
 
-                                                    {alarm.name}
+                                                    {
+
+                                                        alarm.name ??
+
+                                                        "Unnamed Alarm"
+
+                                                    }
 
                                                 </Typography>
 
                                                 <Chip
+
                                                     size="small"
-                                                    color={getSeverityColor(alarm.severity)}
-                                                    label={alarm.severity}
+
+                                                    color={
+                                                        getSeverityColor(
+                                                            alarm.severity
+                                                        )
+                                                    }
+
+                                                    label={
+                                                        alarm.severity ??
+                                                        "UNKNOWN"
+                                                    }
+
                                                 />
 
                                             </Stack>
 
                                             <ListItemText
 
-                                                primary={alarm.message}
+                                                primary={
+                                                    alarm.message ??
+                                                    "No description available."
+                                                }
 
                                                 secondary={
 
@@ -136,7 +206,7 @@ export default function DashboardAlarms({
 
                                                         ).toLocaleString()
 
-                                                        : ""
+                                                        : null
 
                                                 }
 

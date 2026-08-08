@@ -1,30 +1,26 @@
 import {
-
     Card,
     CardContent,
     Typography,
     Skeleton
-
 } from "@mui/material";
 
 import {
-
     MapContainer,
     TileLayer,
     Marker,
     Popup
-
 } from "react-leaflet";
 
 import L from "leaflet";
 
 import "leaflet/dist/leaflet.css";
 
-import useSite from "../hooks/useSite";
+import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
-| Fix Leaflet Marker Icons
+| Leaflet Marker Icons
 |--------------------------------------------------------------------------
 */
 
@@ -33,15 +29,12 @@ delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
 
     iconRetinaUrl:
-
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
 
     iconUrl:
-
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
 
     shadowUrl:
-
         "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 
 });
@@ -53,11 +46,8 @@ L.Icon.Default.mergeOptions({
 */
 
 const DEFAULT_CENTER = [
-
     9.0820,
-
     8.6753
-
 ];
 
 /*
@@ -69,11 +59,8 @@ const DEFAULT_CENTER = [
 export default function SiteMap() {
 
     const {
-
-        locations,
-
+        sites = [],
         loading
-
     } = useSite();
 
     if (loading) {
@@ -85,21 +72,14 @@ export default function SiteMap() {
                 <CardContent>
 
                     <Skeleton
-
                         variant="text"
-
                         width={180}
-
                         height={40}
-
                     />
 
                     <Skeleton
-
                         variant="rounded"
-
                         height={500}
-
                     />
 
                 </CardContent>
@@ -110,6 +90,31 @@ export default function SiteMap() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Only sites with valid coordinates
+    |--------------------------------------------------------------------------
+    */
+
+    const mappedSites = sites.filter(site => {
+
+        const latitude =
+            Number(
+                site.location?.latitude
+            );
+
+        const longitude =
+            Number(
+                site.location?.longitude
+            );
+
+        return (
+            Number.isFinite(latitude) &&
+            Number.isFinite(longitude)
+        );
+
+    });
+
     return (
 
         <Card>
@@ -117,17 +122,11 @@ export default function SiteMap() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                     gutterBottom
-
                 >
-
                     Site Locations
-
                 </Typography>
 
                 <MapContainer
@@ -137,92 +136,79 @@ export default function SiteMap() {
                     zoom={6}
 
                     style={{
-
                         height: "500px",
-
                         width: "100%",
-
                         borderRadius: 8
-
                     }}
 
                 >
 
                     <TileLayer
 
-                        attribution='&copy; OpenStreetMap contributors'
+                        attribution="
+                            &copy; OpenStreetMap contributors
+                        "
 
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        url="
+                            https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+                        "
 
                     />
 
-                    {
+                    {mappedSites.map(site => (
 
-                        locations.map(site => (
+                        <Marker
 
-                            <Marker
+                            key={site._id}
 
-                                key={site.id}
+                            position={[
+                                Number(
+                                    site.location.latitude
+                                ),
+                                Number(
+                                    site.location.longitude
+                                )
+                            ]}
 
-                                position={[
+                        >
 
-                                    site.latitude,
+                            <Popup>
 
-                                    site.longitude
+                                <Typography
+                                    fontWeight={700}
+                                >
+                                    {site.name}
+                                </Typography>
 
-                                ]}
+                                <Typography
+                                    variant="body2"
+                                >
+                                    Site ID: {site.siteCode}
+                                </Typography>
 
-                            >
+                                <Typography
+                                    variant="body2"
+                                >
+                                    State: {
+                                        site.location?.state ??
+                                        "N/A"
+                                    }
+                                </Typography>
 
-                                <Popup>
+                                <Typography
+                                    variant="body2"
+                                >
+                                    Status: {
+                                        site.status ??
+                                        "UNKNOWN"
+                                    }
+                                </Typography>
 
-                                    <Typography
+                            </Popup>
 
-                                        fontWeight={700}
+                        </Marker>
 
-                                    >
-
-                                        {site.siteName}
-
-                                    </Typography>
-
-                                    <Typography
-
-                                        variant="body2"
-
-                                    >
-
-                                        Site ID: {site.siteCode}
-
-                                    </Typography>
-
-                                    <Typography
-
-                                        variant="body2"
-
-                                    >
-
-                                        State: {site.state}
-
-                                    </Typography>
-
-                                    <Typography
-
-                                        variant="body2"
-
-                                    >
-
-                                        Status: {site.status}
-
-                                    </Typography>
-
-                                </Popup>
-
-                            </Marker>
-
-                        ))
-
-                    }
+                    ))}
 
                 </MapContainer>
 

@@ -40,3 +40,19 @@ textarea,
 select {
     font: inherit;
 }
+
+
+
+.dashboard-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(420px,1fr));
+
+    gap:24px;
+
+    margin-top:24px;
+
+}
+
+

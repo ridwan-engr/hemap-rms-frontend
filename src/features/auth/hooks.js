@@ -2,64 +2,33 @@ import { useDispatch, useSelector } from "react-redux";
 
 import {
 
-    loginStart,
-    loginSuccess,
-    loginFailure,
+    login,
+
     logout
 
-} from "./authSlice.js";
-
-import * as api from "./api";
+} from "../../store/slices/authSlice";
 
 export function useAuth() {
 
     const dispatch = useDispatch();
 
     const auth = useSelector(
+
         state => state.auth
+
     );
 
     async function signIn(credentials) {
 
-        dispatch(loginStart());
+        return dispatch(
 
-        try {
+            login(credentials)
 
-            const response =
-                await api.login(credentials);
-
-            localStorage.setItem(
-                "token",
-                response.token
-            );
-
-            dispatch(
-                loginSuccess(response)
-            );
-
-        }
-
-        catch (error) {
-
-            dispatch(
-
-                loginFailure(
-
-                    error.response?.data?.message ||
-
-                    "Login failed"
-
-                )
-
-            );
-
-        }
+        );
 
     }
 
     function signOut() {
-
-        localStorage.removeItem("token");
 
         dispatch(logout());
 

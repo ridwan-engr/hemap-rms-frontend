@@ -1,113 +1,93 @@
 import apiClient from "../../../services/api/apiClient";
 
-/*
-|--------------------------------------------------------------------------
-| Audit Logs
-|--------------------------------------------------------------------------
-*/
+/**
+ * Audit API
+ *
+ * All audit-log REST requests originate here.
+ * Components and hooks should never call axios directly.
+ */
 
+/**
+ * Get Audit Logs
+ *
+ * Backend:
+ * GET /audit
+ */
 export async function getAuditLogs(params = {}) {
-
     const { data } = await apiClient.get(
-
         "/audit",
-
         {
-
             params
-
         }
-
     );
 
     return data;
-
 }
 
-export async function getAuditLog(auditId) {
-
+/**
+ * Export Audit Logs
+ *
+ * Backend:
+ * GET /audit/export
+ */
+export async function exportAuditLogs(params = {}) {
     const { data } = await apiClient.get(
-
-        `/audit/${auditId}`
-
+        "/audit/export",
+        {
+            params
+        }
     );
 
     return data;
-
 }
 
+/**
+ * Get Audit Log By ID
+ *
+ * Backend:
+ * GET /audit/:auditLogId
+ */
+export async function getAuditLog(auditLogId) {
+    const { data } = await apiClient.get(
+        `/audit/${auditLogId}`
+    );
+
+    return data;
+}
+
+/**
+ * Create Audit Log
+ *
+ * Backend:
+ * POST /audit
+ */
 export async function createAuditLog(payload) {
-
     const { data } = await apiClient.post(
-
         "/audit",
-
         payload
-
     );
 
     return data;
-
 }
 
-export async function updateAuditLog(
-
-    auditId,
-
-    payload
-
-) {
-
-    const { data } = await apiClient.put(
-
-        `/audit/${auditId}`,
-
-        payload
-
-    );
-
-    return data;
-
-}
-
-export async function deleteAuditLog(auditId) {
-
+/**
+ * Delete Audit Log
+ *
+ * Backend:
+ * DELETE /audit/:auditLogId
+ */
+export async function deleteAuditLog(auditLogId) {
     const { data } = await apiClient.delete(
-
-        `/audit/${auditId}`
-
+        `/audit/${auditLogId}`
     );
 
     return data;
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
-*/
-
-export async function getAuditSummary() {
-
-    const { data } = await apiClient.get(
-
-        "/audit/summary"
-
-    );
-
-    return data;
-
-}
-
-export async function getAuditStatistics() {
-
-    const { data } = await apiClient.get(
-
-        "/audit/statistics"
-
-    );
-
-    return data;
-
-}
+export default {
+    getAuditLogs,
+    exportAuditLogs,
+    getAuditLog,
+    createAuditLog,
+    deleteAuditLog
+};

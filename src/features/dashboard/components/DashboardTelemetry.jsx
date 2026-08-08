@@ -3,8 +3,11 @@ import {
     Paper,
     Stack,
     Typography,
-    Divider
+    Divider,
+    Box
 } from "@mui/material";
+
+import useDashboard from "../hooks/useDashboard";
 
 const telemetryItems = [
 
@@ -76,38 +79,33 @@ const telemetryItems = [
 
 ];
 
-export default function DashboardTelemetry({
+export default function DashboardTelemetry() {
 
-    telemetry,
+    const {
 
-    loading
+        dashboard,
 
-}) {
+        loading
+
+    } = useDashboard();
+
+    const telemetry =
+        dashboard?.telemetry ?? {};
 
     return (
 
         <Paper
-
             elevation={1}
-
             sx={{
-
                 p: 3,
-
                 borderRadius: 3
-
             }}
-
         >
 
             <Typography
-
                 variant="h6"
-
                 fontWeight={700}
-
                 mb={3}
-
             >
 
                 Live Telemetry
@@ -115,31 +113,21 @@ export default function DashboardTelemetry({
             </Typography>
 
             <Grid
-
                 container
-
                 spacing={2}
-
             >
 
                 {
 
-                    telemetryItems.map(item => (
+                    telemetryItems.map((item) => (
 
                         <Grid
-
                             key={item.key}
-
                             size={{
-
                                 xs: 12,
-
                                 sm: 6,
-
                                 md: 4
-
                             }}
-
                         >
 
                             <TelemetryCard
@@ -147,13 +135,9 @@ export default function DashboardTelemetry({
                                 label={item.label}
 
                                 value={
-
                                     loading
-
                                         ? "--"
-
                                         : telemetry?.[item.key] ?? 0
-
                                 }
 
                                 unit={item.unit}
@@ -187,29 +171,19 @@ function TelemetryCard({
     return (
 
         <Paper
-
             variant="outlined"
-
             sx={{
-
                 p: 2,
-
                 borderRadius: 2,
-
                 height: "100%"
-
             }}
-
         >
 
             <Stack spacing={1}>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
 
                     {label}
@@ -219,34 +193,24 @@ function TelemetryCard({
                 <Divider />
 
                 <Typography
-
                     variant="h5"
-
                     fontWeight={700}
-
                 >
 
                     {value}
 
-                    <Typography
-
+                    <Box
                         component="span"
-
                         sx={{
-
                             ml: 1,
-
                             fontSize: 15,
-
                             color: "text.secondary"
-
                         }}
-
                     >
 
                         {unit}
 
-                    </Typography>
+                    </Box>
 
                 </Typography>
 

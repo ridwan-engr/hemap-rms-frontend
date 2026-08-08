@@ -12,10 +12,11 @@ import {
     BatteryChargingFull,
     Savings,
     Co2,
-    RenewableEnergy,
     LocalGasStation,
     CheckCircle
 } from "@mui/icons-material";
+
+import SolarPowerIcon from "@mui/icons-material/SolarPower";
 
 import useOptimization from "../hooks/useOptimization";
 
@@ -182,7 +183,7 @@ export default function DispatchSummary({
 
                 <SummaryCard
 
-                    icon={<RenewableEnergy color="success" />}
+                    icon={<SolarPowerIcon color="success" />}
 
                     title="Renewable Contribution"
 

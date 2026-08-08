@@ -1,72 +1,58 @@
 import { useEffect, useState } from "react";
 
 import {
-
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-
     Grid,
-
     TextField,
-
     Button,
-
     MenuItem,
-
     FormControlLabel,
-
-    Switch,
-
-    Checkbox,
-
-    ListItemText,
-
-    OutlinedInput
-
+    Switch
 } from "@mui/material";
 
-import {
-
-    getRoles,
-    getSites
-
-} from "../api/userApi";
-
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
 | User Form
 |--------------------------------------------------------------------------
+|
+| Uses the existing User API through useUser().
+|
+| Supported API:
+|
+| POST  /users
+| PUT   /users/:id
+| PATCH /users/:id/activate
+| PATCH /users/:id/deactivate
+|
+| Role and site lookup endpoints are NOT assumed here because the
+| current userApi.js does not expose getRoles() or getSites().
+|
 */
 
 export default function UserForm({
-
     open,
-
     onClose,
-
     initialValues = null
-
 }) {
 
     const {
-
         createUser,
-
         updateUser,
-
         reload
-
     } = useUser();
 
-    const [roles, setRoles] = useState([]);
-
-    const [sites, setSites] = useState([]);
-
     const isEdit = Boolean(initialValues);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Form State
+    |--------------------------------------------------------------------------
+    */
 
     const [form, setForm] = useState({
 
@@ -94,51 +80,7 @@ export default function UserForm({
 
     /*
     |--------------------------------------------------------------------------
-    | Load Lookups
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(() => {
-
-        async function loadLookups() {
-
-            try {
-
-                const [
-
-                    roleData,
-
-                    siteData
-
-                ] = await Promise.all([
-
-                    getRoles(),
-
-                    getSites()
-
-                ]);
-
-                setRoles(roleData || []);
-
-                setSites(siteData || []);
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-
-            }
-
-        }
-
-        loadLookups();
-
-    }, []);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Populate Edit Form
+    | Populate Form
     |--------------------------------------------------------------------------
     */
 
@@ -146,33 +88,65 @@ export default function UserForm({
 
         if (!initialValues) {
 
+            setForm({
+
+                firstName: "",
+
+                lastName: "",
+
+                email: "",
+
+                phone: "",
+
+                role: "",
+
+                assignedSites: [],
+
+                avatar: "",
+
+                isActive: true,
+
+                password: "",
+
+                confirmPassword: ""
+
+            });
+
             return;
 
         }
 
         setForm({
 
-            firstName: initialValues.firstName || "",
+            firstName:
+                initialValues.firstName || "",
 
-            lastName: initialValues.lastName || "",
+            lastName:
+                initialValues.lastName || "",
 
-            email: initialValues.email || "",
+            email:
+                initialValues.email || "",
 
-            phone: initialValues.phone || "",
+            phone:
+                initialValues.phone || "",
 
-            role: initialValues.role?._id || initialValues.role || "",
+            role:
+                initialValues.role?._id ||
+                initialValues.role ||
+                "",
 
             assignedSites:
-
                 initialValues.assignedSites?.map(
-
-                    site => site._id || site
-
+                    site =>
+                        site?._id ||
+                        site
                 ) || [],
 
-            avatar: initialValues.avatar || "",
+            avatar:
+                initialValues.avatar || "",
 
-            isActive: initialValues.isActive,
+            isActive:
+                initialValues.isActive !== false,
 
             password: "",
 
@@ -180,22 +154,19 @@ export default function UserForm({
 
         });
 
-    }, [initialValues]);
+    }, [initialValues, open]);
 
     /*
     |--------------------------------------------------------------------------
-    | Change
+    | Change Handler
     |--------------------------------------------------------------------------
     */
 
     const handleChange = event => {
 
         const {
-
             name,
-
             value
-
         } = event.target;
 
         setForm(previous => ({
@@ -203,6 +174,34 @@ export default function UserForm({
             ...previous,
 
             [name]: value
+
+        }));
+
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Assigned Sites
+    |--------------------------------------------------------------------------
+    |
+    | Since userApi.js has no getSites(), site IDs can be entered directly.
+    | If the parent already supplies available sites, this component can
+    | later be upgraded to a site selector without changing the API layer.
+    |
+    */
+
+    const handleAssignedSitesChange = event => {
+
+        const value = event.target.value;
+
+        setForm(previous => ({
+
+            ...previous,
+
+            assignedSites:
+                typeof value === "string"
+                    ? value.split(",")
+                    : value
 
         }));
 
@@ -218,53 +217,157 @@ export default function UserForm({
 
         try {
 
-            const payload = {
+            /*
+            |------------------------------------------------------------------
+            | Validate required fields
+            |------------------------------------------------------------------
+            */
 
-                firstName: form.firstName,
+            if (!form.firstName.trim()) {
 
-                lastName: form.lastName,
+                alert("First name is required.");
 
-                email: form.email,
+                return;
 
-                phone: form.phone,
+            }
 
-                role: form.role,
+            if (!form.lastName.trim()) {
 
-                assignedSites: form.assignedSites,
+                alert("Last name is required.");
 
-                avatar: form.avatar,
+                return;
 
-                isActive: form.isActive
+            }
 
-            };
+            if (!form.email.trim()) {
+
+                alert("Email is required.");
+
+                return;
+
+            }
+
+            if (!form.role) {
+
+                alert("Role is required.");
+
+                return;
+
+            }
+
+            /*
+            |------------------------------------------------------------------
+            | Create
+            |------------------------------------------------------------------
+            */
 
             if (!isEdit) {
 
-                if (form.password !== form.confirmPassword) {
+                if (!form.password) {
 
-                    alert("Passwords do not match.");
+                    alert("Password is required.");
 
                     return;
 
                 }
 
-                payload.password = form.password;
+                if (
+                    form.password !==
+                    form.confirmPassword
+                ) {
+
+                    alert(
+                        "Passwords do not match."
+                    );
+
+                    return;
+
+                }
+
+                const payload = {
+
+                    firstName:
+                        form.firstName.trim(),
+
+                    lastName:
+                        form.lastName.trim(),
+
+                    email:
+                        form.email.trim(),
+
+                    phone:
+                        form.phone.trim(),
+
+                    role:
+                        form.role,
+
+                    assignedSites:
+                        form.assignedSites,
+
+                    avatar:
+                        form.avatar.trim(),
+
+                    isActive:
+                        form.isActive,
+
+                    password:
+                        form.password
+
+                };
 
                 await createUser(payload);
 
             }
 
+            /*
+            |------------------------------------------------------------------
+            | Update
+            |------------------------------------------------------------------
+            */
+
             else {
+
+                const payload = {
+
+                    firstName:
+                        form.firstName.trim(),
+
+                    lastName:
+                        form.lastName.trim(),
+
+                    email:
+                        form.email.trim(),
+
+                    phone:
+                        form.phone.trim(),
+
+                    role:
+                        form.role,
+
+                    assignedSites:
+                        form.assignedSites,
+
+                    avatar:
+                        form.avatar.trim()
+
+                };
 
                 await updateUser(
 
-                    initialValues._id,
+                    initialValues._id ||
+                    initialValues.id,
 
                     payload
 
                 );
 
             }
+
+            /*
+            |------------------------------------------------------------------
+            | Reload User List
+            |------------------------------------------------------------------
+            */
 
             reload();
 
@@ -274,11 +377,20 @@ export default function UserForm({
 
         catch (error) {
 
-            console.error(error);
+            console.error(
+                "User form submission failed:",
+                error
+            );
 
         }
 
     };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -297,76 +409,128 @@ export default function UserForm({
             <DialogTitle>
 
                 {
-
                     isEdit
-
                         ? "Edit User"
-
                         : "Create User"
-
                 }
 
             </DialogTitle>
 
+
             <DialogContent>
 
-                <Grid container spacing={2} sx={{ mt: 1 }}>
+                <Grid
+                    container
+                    spacing={2}
+                    sx={{ mt: 1 }}
+                >
 
-                    <Grid size={{ xs:12, md:6 }}>
+                    {/* First Name */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
                             fullWidth
+
+                            required
 
                             label="First Name"
 
                             name="firstName"
 
-                            value={form.firstName}
+                            value={
+                                form.firstName
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs:12, md:6 }}>
+
+                    {/* Last Name */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
                             fullWidth
+
+                            required
 
                             label="Last Name"
 
                             name="lastName"
 
-                            value={form.lastName}
+                            value={
+                                form.lastName
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs:12, md:6 }}>
+
+                    {/* Email */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
                             fullWidth
 
+                            required
+
+                            type="email"
+
                             label="Email"
 
                             name="email"
 
-                            value={form.email}
+                            value={
+                                form.email
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs:12, md:6 }}>
+
+                    {/* Phone */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
@@ -376,19 +540,33 @@ export default function UserForm({
 
                             name="phone"
 
-                            value={form.phone}
+                            value={
+                                form.phone
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs:12, md:6 }}>
+
+                    {/* Role */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
                             fullWidth
+
+                            required
 
                             select
 
@@ -396,97 +574,88 @@ export default function UserForm({
 
                             name="role"
 
-                            value={form.role}
+                            value={
+                                form.role
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         >
 
-                            {
+                            <MenuItem value="">
 
-                                roles.map(role => (
+                                Select Role
 
-                                    <MenuItem
+                            </MenuItem>
 
-                                        key={role._id}
+                            <MenuItem value="ADMIN">
 
-                                        value={role._id}
+                                Administrator
 
-                                    >
+                            </MenuItem>
 
-                                        {role.name}
+                            <MenuItem value="ENGINEER">
 
-                                    </MenuItem>
+                                Engineer
 
-                                ))
+                            </MenuItem>
 
-                            }
+                            <MenuItem value="SUPERVISOR">
+
+                                Supervisor
+
+                            </MenuItem>
 
                         </TextField>
 
                     </Grid>
 
-                    <Grid size={{ xs:12, md:6 }}>
+
+                    {/* Assigned Sites */}
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <TextField
 
-                            select
-
                             fullWidth
 
-                            SelectProps={{
-
-                                multiple: true
-
-                            }}
-
-                            input={<OutlinedInput />}
-
-                            label="Assigned Sites"
+                            label="Assigned Site IDs"
 
                             name="assignedSites"
 
-                            value={form.assignedSites}
-
-                            onChange={handleChange}
-
-                        >
-
-                            {
-
-                                sites.map(site => (
-
-                                    <MenuItem
-
-                                        key={site._id}
-
-                                        value={site._id}
-
-                                    >
-
-                                        <Checkbox
-
-                                            checked={form.assignedSites.includes(site._id)}
-
-                                        />
-
-                                        <ListItemText
-
-                                            primary={site.siteName}
-
-                                        />
-
-                                    </MenuItem>
-
-                                ))
-
+                            value={
+                                form.assignedSites.join(
+                                    ", "
+                                )
                             }
 
-                        </TextField>
+                            onChange={handleAssignedSitesChange}
+
+                            placeholder="MongoDB Site IDs, comma separated"
+
+                            helperText={
+                                "Enter site IDs separated by commas"
+                            }
+
+                        />
 
                     </Grid>
 
-                    <Grid size={{ xs:12 }}>
+
+                    {/* Avatar */}
+
+                    <Grid
+                        size={{
+                            xs: 12
+                        }}
+                    >
 
                         <TextField
 
@@ -496,67 +665,100 @@ export default function UserForm({
 
                             name="avatar"
 
-                            value={form.avatar}
+                            value={
+                                form.avatar
+                            }
 
-                            onChange={handleChange}
+                            onChange={
+                                handleChange
+                            }
 
                         />
 
                     </Grid>
 
-                    {
 
-                        !isEdit && (
+                    {/* Password */}
 
-                            <>
+                    {!isEdit && (
 
-                                <Grid size={{ xs:12, md:6 }}>
+                        <>
 
-                                    <TextField
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}
+                            >
 
-                                        fullWidth
+                                <TextField
 
-                                        type="password"
+                                    fullWidth
 
-                                        label="Password"
+                                    required
 
-                                        name="password"
+                                    type="password"
 
-                                        value={form.password}
+                                    label="Password"
 
-                                        onChange={handleChange}
+                                    name="password"
 
-                                    />
+                                    value={
+                                        form.password
+                                    }
 
-                                </Grid>
+                                    onChange={
+                                        handleChange
+                                    }
 
-                                <Grid size={{ xs:12, md:6 }}>
+                                />
 
-                                    <TextField
+                            </Grid>
 
-                                        fullWidth
 
-                                        type="password"
+                            <Grid
+                                size={{
+                                    xs: 12,
+                                    md: 6
+                                }}
+                            >
 
-                                        label="Confirm Password"
+                                <TextField
 
-                                        name="confirmPassword"
+                                    fullWidth
 
-                                        value={form.confirmPassword}
+                                    required
 
-                                        onChange={handleChange}
+                                    type="password"
 
-                                    />
+                                    label="Confirm Password"
 
-                                </Grid>
+                                    name="confirmPassword"
 
-                            </>
+                                    value={
+                                        form.confirmPassword
+                                    }
 
-                        )
+                                    onChange={
+                                        handleChange
+                                    }
 
-                    }
+                                />
 
-                    <Grid size={{ xs:12 }}>
+                            </Grid>
+
+                        </>
+
+                    )}
+
+
+                    {/* Active */}
+
+                    <Grid
+                        size={{
+                            xs: 12
+                        }}
+                    >
 
                         <FormControlLabel
 
@@ -564,18 +766,21 @@ export default function UserForm({
 
                                 <Switch
 
-                                    checked={form.isActive}
+                                    checked={
+                                        form.isActive
+                                    }
 
-                                    onChange={event =>
-
-                                        setForm(previous => ({
-
-                                            ...previous,
-
-                                            isActive: event.target.checked
-
-                                        }))
-
+                                    onChange={
+                                        event =>
+                                            setForm(
+                                                previous => ({
+                                                    ...previous,
+                                                    isActive:
+                                                        event
+                                                            .target
+                                                            .checked
+                                                })
+                                            )
                                     }
 
                                 />
@@ -592,30 +797,32 @@ export default function UserForm({
 
             </DialogContent>
 
+
             <DialogActions>
 
-                <Button onClick={onClose}>
+                <Button
+                    onClick={onClose}
+                >
 
                     Cancel
 
                 </Button>
 
+
                 <Button
 
                     variant="contained"
 
-                    onClick={handleSubmit}
+                    onClick={
+                        handleSubmit
+                    }
 
                 >
 
                     {
-
                         isEdit
-
                             ? "Update"
-
                             : "Create"
-
                     }
 
                 </Button>

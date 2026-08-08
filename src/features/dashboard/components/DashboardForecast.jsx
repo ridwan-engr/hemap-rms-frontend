@@ -1,10 +1,13 @@
 import {
+    Box,
+    Chip,
     Grid,
     Paper,
     Stack,
-    Typography,
-    Chip
+    Typography
 } from "@mui/material";
+
+import useDashboard from "../hooks/useDashboard";
 
 const forecastItems = [
 
@@ -40,23 +43,30 @@ const forecastItems = [
 
 ];
 
-export default function DashboardForecast({
+export default function DashboardForecast() {
 
-    forecasts,
+    const {
 
-    loading
+        forecast,
 
-}) {
+        loading
+
+    } = useDashboard();
 
     if (loading) {
 
         return (
 
             <Paper
+
                 sx={{
+
                     p: 3,
+
                     borderRadius: 3
+
                 }}
+
             >
 
                 <Typography>
@@ -71,15 +81,20 @@ export default function DashboardForecast({
 
     }
 
-    if (!forecasts) {
+    if (!forecast) {
 
         return (
 
             <Paper
+
                 sx={{
+
                     p: 3,
+
                     borderRadius: 3
+
                 }}
+
             >
 
                 <Typography>
@@ -134,9 +149,10 @@ export default function DashboardForecast({
 
                 {
 
-                    forecastItems.map(item => {
+                    forecastItems.map((item) => {
 
-                        const forecast = forecasts[item.key];
+                        const prediction =
+                            forecast?.[item.key];
 
                         return (
 
@@ -160,7 +176,7 @@ export default function DashboardForecast({
 
                                     title={item.title}
 
-                                    forecast={forecast}
+                                    forecast={prediction}
 
                                     unit={item.unit}
 
@@ -238,7 +254,7 @@ function ForecastCard({
 
                     }
 
-                    <Typography
+                    <Box
 
                         component="span"
 
@@ -254,9 +270,15 @@ function ForecastCard({
 
                     >
 
-                        {forecast?.unit ?? unit}
+                        {
 
-                    </Typography>
+                            forecast?.unit ??
+
+                            unit
+
+                        }
+
+                    </Box>
 
                 </Typography>
 
@@ -304,7 +326,7 @@ function ForecastCard({
 
                             :
 
-                            ""
+                            "--"
 
                     }
 

@@ -8,7 +8,7 @@ import {
     Skeleton
 } from "@mui/material";
 
-import useDashboard from "../hooks/useDashboard";
+import useDashboard from "../hooks/useDashboard.js";
 
 /*
 |--------------------------------------------------------------------------

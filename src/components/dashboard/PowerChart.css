@@ -1,0 +1,25 @@
+.power-chart{
+
+    background:#fff;
+
+    padding:24px;
+
+    border-radius:12px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+    margin-top:25px;
+
+}
+
+.chart-header{
+
+    margin-bottom:20px;
+
+}
+
+.chart-header h3{
+
+    margin:0;
+
+}

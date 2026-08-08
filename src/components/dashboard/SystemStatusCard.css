@@ -1,0 +1,97 @@
+.system-status-card{
+
+    background:#fff;
+
+    border-radius:12px;
+
+    padding:24px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.08);
+
+}
+
+.card-title{
+
+    margin-bottom:20px;
+
+}
+
+.status-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+
+    gap:18px;
+
+}
+
+.status-item{
+
+    border-radius:10px;
+
+    padding:18px;
+
+    text-align:center;
+
+    color:#fff;
+
+}
+
+.status-item span{
+
+    display:block;
+
+    font-size:13px;
+
+    margin-bottom:8px;
+
+}
+
+.status-item strong{
+
+    font-size:18px;
+
+}
+
+.status-item.success{
+
+    background:#2e7d32;
+
+}
+
+.status-item.warning{
+
+    background:#f9a825;
+
+}
+
+.status-item.danger{
+
+    background:#c62828;
+
+}
+
+.last-sync{
+
+    margin-top:25px;
+
+    border-top:1px solid #eee;
+
+    padding-top:15px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    color:#555;
+
+}
+
+.last-sync strong{
+
+    color:#222;
+
+}

@@ -1,187 +1,208 @@
-import api from "../../../api/axios";
+import apiClient from "../../../services/api/apiClient";
 
-/*
-|--------------------------------------------------------------------------
-| Optimization Summary
-|--------------------------------------------------------------------------
-*/
+/**
+ * Optimization API
+ *
+ * Centralized API service for optimization results.
+ * Components and hooks should never call axios directly.
+ */
 
-export async function getOptimizationSummary(filters = {}) {
+/**
+ * Get latest optimization for a site
+ *
+ * Backend:
+ * GET /optimization/latest/:siteId
+ *
+ * @param {String} siteId
+ * @returns {Promise<Object>}
+ */
+export async function getLatestOptimization(siteId) {
+    if (!siteId) {
+        throw new Error("siteId is required");
+    }
 
-    const response = await api.get(
-
-        "/dashboard/optimization",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/latest/${siteId}`
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Economic Dispatch
-|--------------------------------------------------------------------------
-*/
-
-export async function getEconomicDispatch(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/economic-dispatch",
-
+/**
+ * Get optimization history
+ *
+ * Backend:
+ * GET /optimization/history
+ *
+ * @param {Object} params
+ * @returns {Promise<Object>}
+ */
+export async function getOptimizationHistory(params = {}) {
+    const { data } = await apiClient.get(
+        "/optimization/history",
         {
-
-            params: filters
-
+            params
         }
-
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Battery Schedule
-|--------------------------------------------------------------------------
-*/
+/**
+ * Get optimization by ID
+ *
+ * Backend:
+ * GET /optimization/:id
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getOptimization(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
 
-export async function getBatterySchedule(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/battery-schedule",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}`
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Generator Schedule
-|--------------------------------------------------------------------------
-*/
+/**
+ * Get dispatch schedule
+ *
+ * Backend:
+ * GET /optimization/:id/dispatch
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getDispatchSchedule(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
 
-export async function getGeneratorSchedule(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/generator-schedule",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/dispatch`
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Renewable Contribution
-|--------------------------------------------------------------------------
-*/
+/**
+ * Get energy summary
+ *
+ * Backend:
+ * GET /optimization/:id/energy
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getEnergySummary(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
 
-export async function getRenewableContribution(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/renewable-contribution",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/energy`
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Cost Savings
-|--------------------------------------------------------------------------
-*/
+/**
+ * Get economics
+ *
+ * Backend:
+ * GET /optimization/:id/economics
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getEconomics(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
 
-export async function getCostSavings(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/cost-savings",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/economics`
     );
 
-    return response.data.data;
-
+    return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Recommendations
-|--------------------------------------------------------------------------
-*/
+/**
+ * Get emissions
+ *
+ * Backend:
+ * GET /optimization/:id/emissions
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getEmissions(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
 
-export async function getRecommendations(filters = {}) {
-
-    const response = await api.get(
-
-        "/optimization/recommendations",
-
-        {
-
-            params: filters
-
-        }
-
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/emissions`
     );
 
-    return response.data.data;
+    return data;
+}
 
+/**
+ * Get reliability metrics
+ *
+ * Backend:
+ * GET /optimization/:id/reliability
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getReliability(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
+
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/reliability`
+    );
+
+    return data;
+}
+
+/**
+ * Get solver information
+ *
+ * Backend:
+ * GET /optimization/:id/solver
+ *
+ * @param {String} optimizationId
+ * @returns {Promise<Object>}
+ */
+export async function getSolver(optimizationId) {
+    if (!optimizationId) {
+        throw new Error("optimizationId is required");
+    }
+
+    const { data } = await apiClient.get(
+        `/optimization/${optimizationId}/solver`
+    );
+
+    return data;
 }
 
 export default {
-
-    getOptimizationSummary,
-
-    getEconomicDispatch,
-
-    getBatterySchedule,
-
-    getGeneratorSchedule,
-
-    getRenewableContribution,
-
-    getCostSavings,
-
-    getRecommendations
-
+    getLatestOptimization,
+    getOptimizationHistory,
+    getOptimization,
+    getDispatchSchedule,
+    getEnergySummary,
+    getEconomics,
+    getEmissions,
+    getReliability,
+    getSolver
 };

@@ -8,17 +8,34 @@ import apiClient from "./api/apiClient.js";
 
 export async function loginUser(credentials) {
 
-    console.log("✓ authService.js loaded");
-    console.log("Credentials:", credentials);
-
     const response = await apiClient.post(
+
         "/auth/login",
+
         credentials
+
     );
 
-    console.log("Response:", response);
+    return response.data;
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Logout
+|--------------------------------------------------------------------------
+*/
+
+export async function logoutUser() {
+
+    const response = await apiClient.post(
+
+        "/auth/logout"
+
+    );
 
     return response.data;
+
 }
 
 /*
@@ -27,14 +44,22 @@ export async function loginUser(credentials) {
 |--------------------------------------------------------------------------
 */
 
-export async function refreshToken(refreshToken) {
+export async function refreshUserToken(refreshToken) {
 
     const response = await apiClient.post(
+
         "/auth/refresh",
-        { refreshToken }
+
+        {
+
+            refreshToken
+
+        }
+
     );
 
     return response.data;
+
 }
 
 /*
@@ -46,14 +71,23 @@ export async function refreshToken(refreshToken) {
 export async function getCurrentUser() {
 
     const response = await apiClient.get(
+
         "/auth/me"
+
     );
 
     return response.data;
+
 }
 
 export default {
+
     loginUser,
-    refreshToken,
+
+    logoutUser,
+
+    refreshUserToken,
+
     getCurrentUser
+
 };
