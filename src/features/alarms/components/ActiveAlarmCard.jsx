@@ -23,53 +23,37 @@ import useAlarm from "../hooks/useAlarm";
 */
 
 function AlarmItem({
-
     title,
-
     value,
-
     color,
-
     icon
-
 }) {
 
     return (
 
         <Stack
-
             spacing={1}
-
-            alignItems="center"
-
+            sx={{
+                alignItems: "center",
+                textAlign: "center"
+            }}
         >
 
             {icon}
 
             <Typography
-
                 variant="body2"
-
                 color="text.secondary"
-
             >
-
                 {title}
-
             </Typography>
 
             <Typography
-
                 variant="h5"
-
                 fontWeight={700}
-
                 color={color}
-
             >
-
-                {value}
-
+                {value ?? 0}
             </Typography>
 
         </Stack>
@@ -87,16 +71,18 @@ function AlarmItem({
 export default function ActiveAlarmCard() {
 
     const {
-
         activeSummary,
-
-        loading,
-
+        loadingSummary,
         error
-
     } = useAlarm();
 
-    if (loading) {
+    /*
+    |--------------------------------------------------------------------------
+    | Loading State
+    |--------------------------------------------------------------------------
+    */
+
+    if (loadingSummary) {
 
         return (
 
@@ -105,17 +91,11 @@ export default function ActiveAlarmCard() {
                 <CardContent>
 
                     <Stack
-
-                        justifyContent="center"
-
-                        alignItems="center"
-
                         sx={{
-
-                            minHeight: 280
-
+                            minHeight: 280,
+                            justifyContent: "center",
+                            alignItems: "center"
                         }}
-
                     >
 
                         <CircularProgress />
@@ -130,6 +110,12 @@ export default function ActiveAlarmCard() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Error State
+    |--------------------------------------------------------------------------
+    */
+
     if (error) {
 
         return (
@@ -139,9 +125,7 @@ export default function ActiveAlarmCard() {
                 <CardContent>
 
                     <Typography color="error">
-
                         {error}
-
                     </Typography>
 
                 </CardContent>
@@ -152,6 +136,12 @@ export default function ActiveAlarmCard() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <Card>
@@ -159,165 +149,156 @@ export default function ActiveAlarmCard() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Active Alarm Summary
-
                 </Typography>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
-
                     Current Network Alarm Status
-
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <Grid
-
                     container
-
                     spacing={3}
-
                 >
 
-                    <Grid size={{ xs: 6 }}>
+                    {/* Critical */}
+
+                    <Grid
+                        size={{
+                            xs: 6
+                        }}
+                    >
 
                         <AlarmItem
-
                             title="Critical"
-
-                            value={activeSummary?.critical ?? 0}
-
+                            value={
+                                activeSummary?.critical ??
+                                activeSummary?.Critical ??
+                                0
+                            }
                             color="error.main"
-
                             icon={
-
                                 <ErrorIcon
-
                                     color="error"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6 }}>
+                    {/* Major */}
+
+                    <Grid
+                        size={{
+                            xs: 6
+                        }}
+                    >
 
                         <AlarmItem
-
                             title="Major"
-
-                            value={activeSummary?.major ?? 0}
-
+                            value={
+                                activeSummary?.major ??
+                                activeSummary?.Major ??
+                                0
+                            }
                             color="warning.main"
-
                             icon={
-
                                 <WarningAmberIcon
-
                                     color="warning"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6 }}>
+                    {/* Minor */}
+
+                    <Grid
+                        size={{
+                            xs: 6
+                        }}
+                    >
 
                         <AlarmItem
-
                             title="Minor"
-
-                            value={activeSummary?.minor ?? 0}
-
+                            value={
+                                activeSummary?.minor ??
+                                activeSummary?.Minor ??
+                                0
+                            }
                             color="info.main"
-
                             icon={
-
                                 <ReportProblemIcon
-
                                     color="info"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6 }}>
+                    {/* Warning */}
+
+                    <Grid
+                        size={{
+                            xs: 6
+                        }}
+                    >
 
                         <AlarmItem
-
                             title="Warning"
-
-                            value={activeSummary?.warning ?? 0}
-
-                            color="secondary.main"
-
-                            icon={
-
-                                <NotificationsIcon
-
-                                    color="secondary"
-
-                                    fontSize="large"
-
-                                />
-
+                            value={
+                                activeSummary?.warning ??
+                                activeSummary?.Warning ??
+                                0
                             }
-
+                            color="secondary.main"
+                            icon={
+                                <NotificationsIcon
+                                    color="secondary"
+                                    fontSize="large"
+                                />
+                            }
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12 }}>
+                    {/* Cleared Today */}
+
+                    <Grid
+                        size={{
+                            xs: 12
+                        }}
+                    >
 
                         <AlarmItem
-
                             title="Cleared Today"
-
-                            value={activeSummary?.cleared ?? 0}
-
-                            color="success.main"
-
-                            icon={
-
-                                <CheckCircleIcon
-
-                                    color="success"
-
-                                    fontSize="large"
-
-                                />
-
+                            value={
+                                activeSummary?.cleared ??
+                                activeSummary?.clearedToday ??
+                                0
                             }
-
+                            color="success.main"
+                            icon={
+                                <CheckCircleIcon
+                                    color="success"
+                                    fontSize="large"
+                                />
+                            }
                         />
 
                     </Grid>

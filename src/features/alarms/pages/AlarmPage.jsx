@@ -1,144 +1,136 @@
 import {
-
     Grid,
-
     Stack,
-
     Typography
-
 } from "@mui/material";
 
-import ActiveAlarmCard from "../components/ActiveAlarmCard";
+import {
+    useEffect
+} from "react";
 
-import AlarmStatistics from "../components/AlarmStatistics";
+import useAlarm from "../hooks/useAlarm.js";
 
-import AlarmSeverityChart from "../components/AlarmSeverityChart";
-
-import AlarmTrendChart from "../components/AlarmTrendChart";
-
-import AlarmFilter from "../components/AlarmFilter";
-
-import AlarmTable from "../components/AlarmTable";
-
-/*
-|--------------------------------------------------------------------------
-| Alarm Page
-|--------------------------------------------------------------------------
-|
-| Main Alarm Management dashboard.
-|
-| Features
-| • Active alarms
-| • Alarm statistics
-| • Alarm severity distribution
-| • Alarm trend analysis
-| • Alarm filtering
-| • Alarm history
-|
-*/
+import ActiveAlarmCard from "../components/ActiveAlarmCard.jsx";
+import AlarmStatistics from "../components/AlarmStatistics.jsx";
+import AlarmSeverityChart from "../components/AlarmSeverityChart.jsx";
+import AlarmTrendChart from "../components/AlarmTrendChart.jsx";
+import AlarmFilter from "../components/AlarmFilter.jsx";
+import AlarmTable from "../components/AlarmTable.jsx";
 
 export default function AlarmPage() {
 
-    return (
+    const {
+        loadActiveAlarms,
+        loadAlarmHistory,
+        loadAlarmStatistics,
+        loadAlarmSummary,
+        filters,
+        paginationModel
+    } = useAlarm();
 
+    useEffect(() => {
+
+        const params = {
+            ...filters,
+
+            page:
+                paginationModel.page + 1,
+
+            limit:
+                paginationModel.pageSize
+        };
+
+        loadActiveAlarms(params);
+
+        loadAlarmHistory(params);
+
+        loadAlarmStatistics(filters);
+
+        loadAlarmSummary(filters);
+
+    }, [
+        loadActiveAlarms,
+        loadAlarmHistory,
+        loadAlarmStatistics,
+        loadAlarmSummary,
+        filters,
+        paginationModel.page,
+        paginationModel.pageSize
+    ]);
+
+    return (
         <Stack spacing={3}>
 
             <Typography
-
                 variant="h4"
-
                 fontWeight={700}
-
             >
-
                 Alarm Management
-
             </Typography>
 
             <AlarmFilter />
 
             <Grid
-
                 container
-
                 spacing={3}
-
             >
 
+                {/* Active Alarms */}
+
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         lg: 4
-
                     }}
-
                 >
-
                     <ActiveAlarmCard />
-
                 </Grid>
 
+                {/* Statistics */}
+
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         lg: 8
-
                     }}
-
                 >
-
                     <AlarmStatistics />
-
                 </Grid>
 
+                {/* Severity */}
+
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         lg: 6
-
                     }}
-
                 >
-
                     <AlarmSeverityChart />
-
                 </Grid>
+
+                {/* Trend */}
 
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         lg: 6
-
                     }}
-
                 >
-
                     <AlarmTrendChart />
-
                 </Grid>
 
-                <Grid size={12}>
+                {/* Alarm Table */}
 
+                <Grid
+                    size={{
+                        xs: 12
+                    }}
+                >
                     <AlarmTable />
-
                 </Grid>
 
             </Grid>
 
         </Stack>
-
     );
-
 }

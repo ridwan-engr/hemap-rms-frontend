@@ -84,6 +84,22 @@ import SettingsPage from "./features/settings/pages/SettingsPage.jsx";
 
 import AlarmPage from "./features/alarms/pages/AlarmPage.jsx";
 
+/*
+|--------------------------------------------------------------------------
+| Installation
+|--------------------------------------------------------------------------
+*/
+
+import InstallationPage from "./features/installation/pages/InstallationPage.jsx";
+
+/*
+|--------------------------------------------------------------------------
+| Statistics
+|--------------------------------------------------------------------------
+*/
+
+import StatisticsPage from "./features/statistics/pages/StatisticsPage.jsx";
+
 export default function App() {
 
     return (
@@ -156,6 +172,16 @@ export default function App() {
                     <Route
                         path="/alarms"
                         element={<AlarmPage />}
+                    />
+
+                    <Route
+                        path="/installations"
+                        element={<InstallationPage />}
+                    />
+
+                    <Route
+                        path="/statistics"
+                        element={<StatisticsPage />}
                     />
 
                 </Route>

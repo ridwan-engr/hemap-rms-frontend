@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState
+} from "react";
 
 import {
     getTelemetry,
@@ -8,84 +13,284 @@ import {
     getDeviceStatus
 } from "../api/telemetryApi";
 
+/*
+|--------------------------------------------------------------------------
+| Normalize API Response
+|--------------------------------------------------------------------------
+*/
+
+function extractData(response, fallback = null) {
+
+    if (response == null) {
+        return fallback;
+    }
+
+    /*
+     * Axios service may already return response.data.
+     *
+     * Supports:
+     *
+     * { data: {...} }
+     * { success: true, data: {...} }
+     * {...}
+     */
+
+    if (
+        response &&
+        typeof response === "object" &&
+        Object.prototype.hasOwnProperty.call(response, "data")
+    ) {
+        return response.data ?? fallback;
+    }
+
+    return response;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Normalize Error
+|--------------------------------------------------------------------------
+*/
+
+function extractError(error, fallbackMessage) {
+
+    return (
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.response?.data ||
+        error?.message ||
+        fallbackMessage
+    );
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| useTelemetry
+|--------------------------------------------------------------------------
+*/
+
 export default function useTelemetry(filters = {}) {
-
-    const [telemetry, setTelemetry] = useState(null);
-
-    const [summary, setSummary] = useState(null);
-
-    const [history, setHistory] = useState([]);
-
-    const [deviceStatus, setDeviceStatus] = useState(null);
-
-    const [loading, setLoading] = useState(true);
-
-    const [error, setError] = useState(null);
 
     /*
     |--------------------------------------------------------------------------
-    | Load Telemetry
+    | Stable Filter Values
     |--------------------------------------------------------------------------
     */
 
-    const loadTelemetry = useCallback(async () => {
+    const siteId = filters?.siteId ?? null;
 
-        try {
+    /*
+     * Only include actual query parameters.
+     *
+     * This prevents a new object reference from causing
+     * unnecessary requests.
+     */
 
-            setLoading(true);
+    const queryParams = useMemo(() => {
 
-            setError(null);
+        return Object.fromEntries(
 
-            /*
-             * Current telemetry
-             */
-            const telemetryResponse =
-                await getTelemetry(filters);
+            Object.entries(filters || {}).filter(
 
-            /*
-             * Telemetry summary
-             */
-            const summaryResponse =
-                await getTelemetrySummary(filters);
+                ([, value]) =>
+                    value !== undefined &&
+                    value !== null &&
+                    value !== ""
 
-            setTelemetry(
-                telemetryResponse?.data ??
-                telemetryResponse ??
-                null
-            );
+            )
 
-            setSummary(
-                summaryResponse?.data ??
-                summaryResponse ??
-                null
-            );
+        );
 
-        }
-        catch (err) {
-
-            console.error(
-                "Telemetry loading failed:",
-                err
-            );
-
-            setError(
-                err.response?.data ??
-                err.message ??
-                "Failed to load telemetry."
-            );
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    }, [filters]);
+    }, [
+        JSON.stringify(filters)
+    ]);
 
     /*
     |--------------------------------------------------------------------------
-    | Initial Load
+    | State
+    |--------------------------------------------------------------------------
+    */
+
+    const [
+        telemetry,
+        setTelemetry
+    ] = useState(null);
+
+    const [
+        summary,
+        setSummary
+    ] = useState(null);
+
+    const [
+        history,
+        setHistory
+    ] = useState([]);
+
+    const [
+        deviceStatus,
+        setDeviceStatus
+    ] = useState(null);
+
+    const [
+        loading,
+        setLoading
+    ] = useState(true);
+
+    const [
+        historyLoading,
+        setHistoryLoading
+    ] = useState(false);
+
+    const [
+        deviceStatusLoading,
+        setDeviceStatusLoading
+    ] = useState(false);
+
+    const [
+        error,
+        setError
+    ] = useState(null);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Current Telemetry
+    |--------------------------------------------------------------------------
+    */
+
+    const loadTelemetry = useCallback(
+
+        async () => {
+
+            try {
+
+                setLoading(true);
+                setError(null);
+
+                /*
+                 * If siteId is supplied, use the installation-specific
+                 * latest endpoint.
+                 */
+
+                if (siteId) {
+
+                    const response =
+                        await getLatestTelemetry(siteId);
+
+                    const data =
+                        extractData(
+                            response,
+                            null
+                        );
+
+                    setTelemetry(data);
+
+                    /*
+                     * Also attempt to load installation status.
+                     */
+
+                    try {
+
+                        const statusResponse =
+                            await getDeviceStatus(siteId);
+
+                        setDeviceStatus(
+
+                            extractData(
+                                statusResponse,
+                                null
+                            )
+
+                        );
+
+                    }
+                    catch (statusError) {
+
+                        console.warn(
+                            "Device status loading failed:",
+                            statusError
+                        );
+
+                    }
+
+                    return data;
+
+                }
+
+                /*
+                 * No siteId:
+                 * use the general telemetry endpoint.
+                 */
+
+                const [
+                    telemetryResponse,
+                    summaryResponse
+                ] = await Promise.all([
+
+                    getTelemetry(queryParams),
+
+                    getTelemetrySummary(queryParams)
+
+                ]);
+
+                const telemetryData =
+                    extractData(
+                        telemetryResponse,
+                        null
+                    );
+
+                const summaryData =
+                    extractData(
+                        summaryResponse,
+                        null
+                    );
+
+                setTelemetry(
+                    telemetryData
+                );
+
+                setSummary(
+                    summaryData
+                );
+
+                return telemetryData;
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Telemetry loading failed:",
+                    error
+                );
+
+                setError(
+                    extractError(
+                        error,
+                        "Failed to load telemetry."
+                    )
+                );
+
+                return null;
+
+            }
+            finally {
+
+                setLoading(false);
+
+            }
+
+        },
+
+        [
+            siteId,
+            queryParams
+        ]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initial / Filter Load
     |--------------------------------------------------------------------------
     */
 
@@ -93,65 +298,90 @@ export default function useTelemetry(filters = {}) {
 
         loadTelemetry();
 
-    }, [loadTelemetry]);
+    }, [
+        loadTelemetry
+    ]);
 
     /*
     |--------------------------------------------------------------------------
-    | Load Historical Telemetry
+    | Historical Telemetry
     |--------------------------------------------------------------------------
     */
 
     const loadHistory = useCallback(
+
         async (params = {}) => {
 
             try {
 
+                setHistoryLoading(true);
+                setError(null);
+
                 const response =
-                    await getTelemetryHistory(params);
+                    await getTelemetryHistory(
+                        params
+                    );
 
                 const data =
-                    response?.data ??
-                    response ??
-                    [];
+                    extractData(
+                        response,
+                        []
+                    );
 
-                setHistory(
+                const normalized =
                     Array.isArray(data)
                         ? data
-                        : data?.data ?? []
+                        : Array.isArray(data?.data)
+                            ? data.data
+                            : Array.isArray(data?.history)
+                                ? data.history
+                                : [];
+
+                setHistory(
+                    normalized
                 );
 
-                return data;
+                return normalized;
 
             }
-            catch (err) {
+            catch (error) {
 
                 console.error(
                     "Telemetry history loading failed:",
-                    err
+                    error
                 );
 
                 setError(
-                    err.response?.data ??
-                    err.message ??
-                    "Failed to load telemetry history."
+                    extractError(
+                        error,
+                        "Failed to load telemetry history."
+                    )
                 );
 
                 return [];
 
             }
+            finally {
+
+                setHistoryLoading(false);
+
+            }
 
         },
+
         []
+
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Load Latest Installation Telemetry
+    | Latest Installation Telemetry
     |--------------------------------------------------------------------------
     */
 
     const loadLatestTelemetry = useCallback(
-        async (installationId) => {
+
+        async installationId => {
 
             if (!installationId) {
 
@@ -160,6 +390,9 @@ export default function useTelemetry(filters = {}) {
             }
 
             try {
+
+                setLoading(true);
+                setError(null);
 
                 const response =
                     await getLatestTelemetry(
@@ -167,44 +400,56 @@ export default function useTelemetry(filters = {}) {
                     );
 
                 const data =
-                    response?.data ??
-                    response ??
-                    null;
+                    extractData(
+                        response,
+                        null
+                    );
 
-                setTelemetry(data);
+                setTelemetry(
+                    data
+                );
 
                 return data;
 
             }
-            catch (err) {
+            catch (error) {
 
                 console.error(
                     "Latest telemetry loading failed:",
-                    err
+                    error
                 );
 
                 setError(
-                    err.response?.data ??
-                    err.message ??
-                    "Failed to load latest telemetry."
+                    extractError(
+                        error,
+                        "Failed to load latest telemetry."
+                    )
                 );
 
                 return null;
 
             }
+            finally {
+
+                setLoading(false);
+
+            }
 
         },
+
         []
+
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Load Device Status
+    | Device Status
     |--------------------------------------------------------------------------
     */
 
     const loadDeviceStatus = useCallback(
-        async (installationId) => {
+
+        async installationId => {
 
             if (!installationId) {
 
@@ -214,40 +459,54 @@ export default function useTelemetry(filters = {}) {
 
             try {
 
+                setDeviceStatusLoading(true);
+                setError(null);
+
                 const response =
                     await getDeviceStatus(
                         installationId
                     );
 
                 const data =
-                    response?.data ??
-                    response ??
-                    null;
+                    extractData(
+                        response,
+                        null
+                    );
 
-                setDeviceStatus(data);
+                setDeviceStatus(
+                    data
+                );
 
                 return data;
 
             }
-            catch (err) {
+            catch (error) {
 
                 console.error(
                     "Device status loading failed:",
-                    err
+                    error
                 );
 
                 setError(
-                    err.response?.data ??
-                    err.message ??
-                    "Failed to load device status."
+                    extractError(
+                        error,
+                        "Failed to load device status."
+                    )
                 );
 
                 return null;
 
             }
+            finally {
+
+                setDeviceStatusLoading(false);
+
+            }
 
         },
+
         []
+
     );
 
     /*
@@ -268,9 +527,17 @@ export default function useTelemetry(filters = {}) {
 
         loading,
 
+        historyLoading,
+
+        deviceStatusLoading,
+
         error,
 
+        siteId,
+
         reload: loadTelemetry,
+
+        loadTelemetry,
 
         loadHistory,
 

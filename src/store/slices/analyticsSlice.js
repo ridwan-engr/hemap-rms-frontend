@@ -20,13 +20,13 @@ import {
 */
 
 const getErrorMessage = error => {
-
     return (
-        error.response?.data ||
-        error.message ||
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.response?.data ||
+        error?.message ||
         "Analytics request failed"
     );
-
 };
 
 /*
@@ -41,35 +41,19 @@ const getErrorMessage = error => {
 |--------------------------------------------------------------------------
 */
 
-export const fetchDashboardAnalytics =
-    createAsyncThunk(
+export const fetchDashboardAnalytics = createAsyncThunk(
+    "analytics/fetchDashboardAnalytics",
 
-        "analytics/fetchDashboardAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getDashboardAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getDashboardAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -77,35 +61,19 @@ export const fetchDashboardAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchEnergyAnalytics =
-    createAsyncThunk(
+export const fetchEnergyAnalytics = createAsyncThunk(
+    "analytics/fetchEnergyAnalytics",
 
-        "analytics/fetchEnergyAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getEnergyAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getEnergyAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -113,35 +81,19 @@ export const fetchEnergyAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchBatteryAnalytics =
-    createAsyncThunk(
+export const fetchBatteryAnalytics = createAsyncThunk(
+    "analytics/fetchBatteryAnalytics",
 
-        "analytics/fetchBatteryAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getBatteryAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getBatteryAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -149,35 +101,19 @@ export const fetchBatteryAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchSolarAnalytics =
-    createAsyncThunk(
+export const fetchSolarAnalytics = createAsyncThunk(
+    "analytics/fetchSolarAnalytics",
 
-        "analytics/fetchSolarAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getSolarAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getSolarAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -185,35 +121,19 @@ export const fetchSolarAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchGeneratorAnalytics =
-    createAsyncThunk(
+export const fetchGeneratorAnalytics = createAsyncThunk(
+    "analytics/fetchGeneratorAnalytics",
 
-        "analytics/fetchGeneratorAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getGeneratorAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getGeneratorAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -221,35 +141,19 @@ export const fetchGeneratorAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchGridAnalytics =
-    createAsyncThunk(
+export const fetchGridAnalytics = createAsyncThunk(
+    "analytics/fetchGridAnalytics",
 
-        "analytics/fetchGridAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getGridAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getGridAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
@@ -257,66 +161,75 @@ export const fetchGridAnalytics =
 |--------------------------------------------------------------------------
 */
 
-export const fetchReliabilityAnalytics =
-    createAsyncThunk(
+export const fetchReliabilityAnalytics = createAsyncThunk(
+    "analytics/fetchReliabilityAnalytics",
 
-        "analytics/fetchReliabilityAnalytics",
-
-        async (
-            filters = {},
-            { rejectWithValue }
-        ) => {
-
-            try {
-
-                return await getReliabilityAnalytics(
-                    filters
-                );
-
-            }
-
-            catch (error) {
-
-                return rejectWithValue(
-                    getErrorMessage(error)
-                );
-
-            }
-
+    async (filters = {}, { rejectWithValue }) => {
+        try {
+            return await getReliabilityAnalytics(filters);
+        } catch (error) {
+            return rejectWithValue(
+                getErrorMessage(error)
+            );
         }
-
-    );
+    }
+);
 
 /*
 |--------------------------------------------------------------------------
 | Initial State
 |--------------------------------------------------------------------------
+|
+| Each analytics endpoint has its own:
+|
+| - data
+| - loading
+| - error
+|
+| This prevents one endpoint from affecting another.
+|
 */
 
 const initialState = {
-
     dashboard: null,
-
     energy: null,
-
     battery: null,
-
     solar: null,
-
     generator: null,
-
     grid: null,
-
     reliability: null,
 
     filters: {},
 
-    loading: false,
+    loading: {
+        dashboard: false,
+        energy: false,
+        battery: false,
+        solar: false,
+        generator: false,
+        grid: false,
+        reliability: false
+    },
 
-    error: null,
+    error: {
+        dashboard: null,
+        energy: null,
+        battery: null,
+        solar: null,
+        generator: null,
+        grid: null,
+        reliability: null
+    },
 
-    lastUpdated: null
-
+    lastUpdated: {
+        dashboard: null,
+        energy: null,
+        battery: null,
+        solar: null,
+        generator: null,
+        grid: null,
+        reliability: null
+    }
 };
 
 /*
@@ -326,7 +239,6 @@ const initialState = {
 */
 
 const analyticsSlice = createSlice({
-
     name: "analytics",
 
     initialState,
@@ -335,18 +247,12 @@ const analyticsSlice = createSlice({
 
         /*
         |--------------------------------------------------------------------------
-        | Set Filters
+        | Set Analytics Filters
         |--------------------------------------------------------------------------
         */
 
-        setAnalyticsFilters(
-            state,
-            action
-        ) {
-
-            state.filters =
-                action.payload || {};
-
+        setAnalyticsFilters: (state, action) => {
+            state.filters = action.payload || {};
         },
 
         /*
@@ -355,28 +261,65 @@ const analyticsSlice = createSlice({
         |--------------------------------------------------------------------------
         */
 
-        clearAnalytics(state) {
-
+        clearAnalytics: state => {
             state.dashboard = null;
-
             state.energy = null;
-
             state.battery = null;
-
             state.solar = null;
-
             state.generator = null;
-
             state.grid = null;
-
             state.reliability = null;
 
-            state.error = null;
+            state.filters = {};
 
-            state.lastUpdated = null;
+            state.loading = {
+                dashboard: false,
+                energy: false,
+                battery: false,
+                solar: false,
+                generator: false,
+                grid: false,
+                reliability: false
+            };
 
+            state.error = {
+                dashboard: null,
+                energy: null,
+                battery: null,
+                solar: null,
+                generator: null,
+                grid: null,
+                reliability: null
+            };
+
+            state.lastUpdated = {
+                dashboard: null,
+                energy: null,
+                battery: null,
+                solar: null,
+                generator: null,
+                grid: null,
+                reliability: null
+            };
+        },
+
+        /*
+        |--------------------------------------------------------------------------
+        | Clear Analytics Errors
+        |--------------------------------------------------------------------------
+        */
+
+        clearAnalyticsErrors: state => {
+            state.error = {
+                dashboard: null,
+                energy: null,
+                battery: null,
+                solar: null,
+                generator: null,
+                grid: null,
+                reliability: null
+            };
         }
-
     },
 
     extraReducers: builder => {
@@ -388,42 +331,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchDashboardAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.dashboard = true;
+                    state.error.dashboard = null;
 
-                    state.loading = true;
-
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchDashboardAnalytics.fulfilled,
                 (state, action) => {
-
-                    state.loading = false;
+                    state.loading.dashboard = false;
 
                     state.dashboard =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.dashboard =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchDashboardAnalytics.rejected,
                 (state, action) => {
+                    state.loading.dashboard = false;
 
-                    state.loading = false;
-
-                    state.error =
-                        action.payload;
-
+                    state.error.dashboard =
+                        action.payload ||
+                        "Failed to load dashboard analytics";
                 }
             );
 
@@ -434,36 +373,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchEnergyAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.energy = true;
+                    state.error.energy = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchEnergyAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.energy = false;
 
                     state.energy =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.energy =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchEnergyAnalytics.rejected,
                 (state, action) => {
+                    state.loading.energy = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.energy =
+                        action.payload ||
+                        "Failed to load energy analytics";
                 }
             );
 
@@ -474,36 +415,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchBatteryAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.battery = true;
+                    state.error.battery = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchBatteryAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.battery = false;
 
                     state.battery =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.battery =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchBatteryAnalytics.rejected,
                 (state, action) => {
+                    state.loading.battery = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.battery =
+                        action.payload ||
+                        "Failed to load battery analytics";
                 }
             );
 
@@ -514,36 +457,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchSolarAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.solar = true;
+                    state.error.solar = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchSolarAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.solar = false;
 
                     state.solar =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.solar =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchSolarAnalytics.rejected,
                 (state, action) => {
+                    state.loading.solar = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.solar =
+                        action.payload ||
+                        "Failed to load solar analytics";
                 }
             );
 
@@ -554,36 +499,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchGeneratorAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.generator = true;
+                    state.error.generator = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchGeneratorAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.generator = false;
 
                     state.generator =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.generator =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchGeneratorAnalytics.rejected,
                 (state, action) => {
+                    state.loading.generator = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.generator =
+                        action.payload ||
+                        "Failed to load generator analytics";
                 }
             );
 
@@ -594,36 +541,38 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchGridAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.grid = true;
+                    state.error.grid = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchGridAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.grid = false;
 
                     state.grid =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.grid =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchGridAnalytics.rejected,
                 (state, action) => {
+                    state.loading.grid = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.grid =
+                        action.payload ||
+                        "Failed to load grid analytics";
                 }
             );
 
@@ -634,41 +583,41 @@ const analyticsSlice = createSlice({
         */
 
         builder
-
             .addCase(
                 fetchReliabilityAnalytics.pending,
-                state => {
+                (state, action) => {
+                    state.loading.reliability = true;
+                    state.error.reliability = null;
 
-                    state.error = null;
-
+                    state.filters =
+                        action.meta.arg || {};
                 }
             )
 
             .addCase(
                 fetchReliabilityAnalytics.fulfilled,
                 (state, action) => {
+                    state.loading.reliability = false;
 
                     state.reliability =
                         action.payload;
 
-                    state.lastUpdated =
+                    state.lastUpdated.reliability =
                         new Date().toISOString();
-
                 }
             )
 
             .addCase(
                 fetchReliabilityAnalytics.rejected,
                 (state, action) => {
+                    state.loading.reliability = false;
 
-                    state.error =
-                        action.payload;
-
+                    state.error.reliability =
+                        action.payload ||
+                        "Failed to load reliability analytics";
                 }
             );
-
     }
-
 });
 
 /*
@@ -679,7 +628,8 @@ const analyticsSlice = createSlice({
 
 export const {
     setAnalyticsFilters,
-    clearAnalytics
+    clearAnalytics,
+    clearAnalyticsErrors
 } = analyticsSlice.actions;
 
 /*
@@ -712,10 +662,109 @@ export const selectGridAnalytics =
 export const selectReliabilityAnalytics =
     state => state.analytics.reliability;
 
+/*
+|--------------------------------------------------------------------------
+| Loading Selectors
+|--------------------------------------------------------------------------
+*/
+
+export const selectDashboardAnalyticsLoading =
+    state => state.analytics.loading.dashboard;
+
+export const selectEnergyAnalyticsLoading =
+    state => state.analytics.loading.energy;
+
+export const selectBatteryAnalyticsLoading =
+    state => state.analytics.loading.battery;
+
+export const selectSolarAnalyticsLoading =
+    state => state.analytics.loading.solar;
+
+export const selectGeneratorAnalyticsLoading =
+    state => state.analytics.loading.generator;
+
+export const selectGridAnalyticsLoading =
+    state => state.analytics.loading.grid;
+
+export const selectReliabilityAnalyticsLoading =
+    state => state.analytics.loading.reliability;
+
+/*
+|--------------------------------------------------------------------------
+| Global Analytics Loading
+|--------------------------------------------------------------------------
+*/
+
 export const selectAnalyticsLoading =
-    state => state.analytics.loading;
+    state =>
+        Object.values(
+            state.analytics.loading
+        ).some(Boolean);
+
+/*
+|--------------------------------------------------------------------------
+| Error Selectors
+|--------------------------------------------------------------------------
+*/
 
 export const selectAnalyticsError =
     state => state.analytics.error;
+
+export const selectDashboardAnalyticsError =
+    state => state.analytics.error.dashboard;
+
+export const selectEnergyAnalyticsError =
+    state => state.analytics.error.energy;
+
+export const selectBatteryAnalyticsError =
+    state => state.analytics.error.battery;
+
+export const selectSolarAnalyticsError =
+    state => state.analytics.error.solar;
+
+export const selectGeneratorAnalyticsError =
+    state => state.analytics.error.generator;
+
+export const selectGridAnalyticsError =
+    state => state.analytics.error.grid;
+
+export const selectReliabilityAnalyticsError =
+    state => state.analytics.error.reliability;
+
+/*
+|--------------------------------------------------------------------------
+| Last Updated Selectors
+|--------------------------------------------------------------------------
+*/
+
+export const selectAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated;
+
+export const selectDashboardAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.dashboard;
+
+export const selectEnergyAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.energy;
+
+export const selectBatteryAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.battery;
+
+export const selectSolarAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.solar;
+
+export const selectGeneratorAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.generator;
+
+export const selectGridAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.grid;
+
+export const selectReliabilityAnalyticsLastUpdated =
+    state => state.analytics.lastUpdated.reliability;
+
+/*
+|--------------------------------------------------------------------------
+| Default Export
+|--------------------------------------------------------------------------
+*/
 
 export default analyticsSlice.reducer;

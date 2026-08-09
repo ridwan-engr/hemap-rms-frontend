@@ -1,12 +1,12 @@
 import { createTheme } from "@mui/material/styles";
 
-import palette from "./palette";
+import palette from "./palette.js";
 
-import typography from "./typography";
+import typography from "./typography.js";
 
-import shadows from "./shadows";
+import shadows from "./shadows.js";
 
-import components from "./components";
+import components from "./components.js";
 
 export const createAppTheme = (
 

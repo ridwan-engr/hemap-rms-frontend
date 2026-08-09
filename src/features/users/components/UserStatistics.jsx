@@ -1,14 +1,12 @@
 import {
-
     Card,
     CardContent,
     Typography,
-    Skeleton
-
+    Skeleton,
+    Box
 } from "@mui/material";
 
 import {
-
     ResponsiveContainer,
     BarChart,
     Bar,
@@ -17,10 +15,9 @@ import {
     CartesianGrid,
     Tooltip,
     Legend
-
 } from "recharts";
 
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -31,11 +28,8 @@ import useUser from "../hooks/useUser";
 export default function UserStatistics() {
 
     const {
-
-        statistics,
-
+        statistics = [],
         loading
-
     } = useUser();
 
     if (loading) {
@@ -47,21 +41,14 @@ export default function UserStatistics() {
                 <CardContent>
 
                     <Skeleton
-
                         variant="text"
-
                         width={220}
-
                         height={40}
-
                     />
 
                     <Skeleton
-
                         variant="rounded"
-
                         height={340}
-
                     />
 
                 </CardContent>
@@ -72,7 +59,10 @@ export default function UserStatistics() {
 
     }
 
-    const chartData = statistics || [];
+    const chartData =
+        Array.isArray(statistics)
+            ? statistics
+            : [];
 
     return (
 
@@ -81,71 +71,57 @@ export default function UserStatistics() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                     gutterBottom
-
                 >
-
                     User Distribution by Role
-
                 </Typography>
 
-                <ResponsiveContainer
-
-                    width="100%"
-
-                    height={340}
-
+                <Box
+                    sx={{
+                        width: "100%",
+                        height: 340
+                    }}
                 >
 
-                    <BarChart
-
-                        data={chartData}
-
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
                     >
 
-                        <CartesianGrid
+                        <BarChart
+                            data={chartData}
+                        >
 
-                            strokeDasharray="3 3"
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                            />
 
-                        />
+                            <XAxis
+                                dataKey="role"
+                            />
 
-                        <XAxis dataKey="role" />
+                            <YAxis />
 
-                        <Bar
+                            <Tooltip />
 
-                            dataKey="total"
+                            <Legend />
 
-                            name="Users"
+                            <Bar
+                                dataKey="total"
+                                name="Users"
+                            />
 
-                        />
+                        </BarChart>
 
-                        <YAxis />
+                    </ResponsiveContainer>
 
-                        <Tooltip />
-
-                        <Legend />
-
-                        <Bar
-
-                            dataKey="total"
-
-                            name="Users"
-
-                        />
-
-                    </BarChart>
-
-                </ResponsiveContainer>
+                </Box>
 
             </CardContent>
 
         </Card>
 
     );
-
 }

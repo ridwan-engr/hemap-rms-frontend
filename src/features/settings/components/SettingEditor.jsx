@@ -1,22 +1,125 @@
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useState
+} from "react";
 
 import {
-
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-
     Grid,
-
     TextField,
-
     FormControlLabel,
     Switch,
-
     Button
-
 } from "@mui/material";
+
+/*
+|--------------------------------------------------------------------------
+| Default Form
+|--------------------------------------------------------------------------
+*/
+
+const DEFAULT_FORM = {
+    key: "",
+    value: "",
+    description: "",
+    category: "SYSTEM",
+    editable: true
+};
+
+/*
+|--------------------------------------------------------------------------
+| Convert Value To Text
+|--------------------------------------------------------------------------
+*/
+
+function valueToText(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    if (
+        typeof value === "object"
+    ) {
+        return JSON.stringify(
+            value,
+            null,
+            2
+        );
+    }
+
+    return String(value);
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Parse Value
+|--------------------------------------------------------------------------
+*/
+
+function parseValue(value) {
+
+    const text = String(
+        value ?? ""
+    ).trim();
+
+    if (text === "") {
+        return "";
+    }
+
+    /*
+    | JSON / object / array / quoted string
+    */
+
+    try {
+
+        return JSON.parse(text);
+
+    }
+
+    catch {
+        // Continue with primitive parsing.
+    }
+
+    /*
+    | Boolean
+    */
+
+    if (text === "true") {
+        return true;
+    }
+
+    if (text === "false") {
+        return false;
+    }
+
+    /*
+    | Number
+    */
+
+    if (
+        text !== "" &&
+        !Number.isNaN(Number(text))
+    ) {
+
+        return Number(text);
+
+    }
+
+    /*
+    | Plain string
+    */
+
+    return value;
+
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -25,40 +128,20 @@ import {
 */
 
 export default function SettingEditor({
-
     open,
-
     onClose,
-
     onSave,
-
     setting
-
 }) {
 
     const [
-
         form,
-
         setForm
-
-    ] = useState({
-
-        key: "",
-
-        value: "",
-
-        description: "",
-
-        category: "SYSTEM",
-
-        editable: true
-
-    });
+    ] = useState(DEFAULT_FORM);
 
     /*
     |--------------------------------------------------------------------------
-    | Populate
+    | Populate Form
     |--------------------------------------------------------------------------
     */
 
@@ -67,17 +150,7 @@ export default function SettingEditor({
         if (!setting) {
 
             setForm({
-
-                key: "",
-
-                value: "",
-
-                description: "",
-
-                category: "SYSTEM",
-
-                editable: true
-
+                ...DEFAULT_FORM
             });
 
             return;
@@ -86,64 +159,58 @@ export default function SettingEditor({
 
         setForm({
 
-            key: setting.key || "",
+            key:
+                setting.key || "",
 
-            value: setting.value,
+            value:
+                valueToText(
+                    setting.value
+                ),
 
-            description: setting.description || "",
+            description:
+                setting.description || "",
 
-            category: setting.category || "SYSTEM",
+            category:
+                setting.category || "SYSTEM",
 
-            editable: setting.editable
+            editable:
+                setting.editable !== false
 
         });
 
-    }, [
-
-        setting
-
-    ]);
+    }, [setting]);
 
     /*
     |--------------------------------------------------------------------------
-    | Change
+    | Handle Change
     |--------------------------------------------------------------------------
     */
 
     const handleChange = event => {
 
         const {
-
             name,
-
             value
-
         } = event.target;
 
         setForm(previous => ({
-
             ...previous,
-
             [name]: value
-
         }));
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Switch
+    | Handle Switch
     |--------------------------------------------------------------------------
     */
 
     const handleSwitch = event => {
 
         setForm(previous => ({
-
             ...previous,
-
             editable: event.target.checked
-
         }));
 
     };
@@ -156,216 +223,134 @@ export default function SettingEditor({
 
     const handleSave = () => {
 
-        let parsedValue = form.value;
-
-        /*
-        ------------------------------------------------------------
-        Attempt automatic parsing
-        ------------------------------------------------------------
-        */
-
-        try {
-
-            parsedValue = JSON.parse(form.value);
-
+        if (!form.key.trim()) {
+            return;
         }
 
-        catch {
+        const parsedValue =
+            parseValue(form.value);
 
-            if (
+        if (onSave) {
 
-                form.value === "true"
-
-            ) {
-
-                parsedValue = true;
-
-            }
-
-            else if (
-
-                form.value === "false"
-
-            ) {
-
-                parsedValue = false;
-
-            }
-
-            else if (
-
-                !Number.isNaN(
-
-                    Number(form.value)
-
-                )
-
-            ) {
-
-                parsedValue = Number(form.value);
-
-            }
+            onSave({
+                ...form,
+                key: form.key.trim(),
+                value: parsedValue
+            });
 
         }
-
-        onSave({
-
-            ...form,
-
-            value: parsedValue
-
-        });
 
     };
 
     return (
 
         <Dialog
-
-            open={open}
-
+            open={Boolean(open)}
             onClose={onClose}
-
             fullWidth
-
             maxWidth="md"
-
         >
 
             <DialogTitle>
-
-                Edit Setting
-
+                {setting
+                    ? "Edit Setting"
+                    : "Create Setting"
+                }
             </DialogTitle>
 
             <DialogContent>
 
                 <Grid
-
                     container
-
                     spacing={3}
-
-                    sx={{ mt:1 }}
-
+                    sx={{ mt: 1 }}
                 >
 
-                    <Grid size={{ xs:12 }}>
+                    <Grid
+                        size={{ xs: 12 }}
+                    >
 
                         <TextField
-
                             fullWidth
-
                             label="Key"
-
                             name="key"
-
                             value={form.key}
-
-                            disabled
-
-                        />
-
-                    </Grid>
-
-                    <Grid size={{ xs:12 }}>
-
-                        <TextField
-
-                            fullWidth
-
-                            multiline
-
-                            minRows={3}
-
-                            label="Value"
-
-                            name="value"
-
-                            value={
-
-                                typeof form.value === "object"
-
-                                    ? JSON.stringify(
-
-                                        form.value,
-
-                                        null,
-
-                                        2
-
-                                    )
-
-                                    : form.value
-
-                            }
-
                             onChange={handleChange}
-
-                        />
-
-                    </Grid>
-
-                    <Grid size={{ xs:12 }}>
-
-                        <TextField
-
-                            fullWidth
-
-                            label="Description"
-
-                            name="description"
-
-                            value={form.description}
-
-                            onChange={handleChange}
-
-                        />
-
-                    </Grid>
-
-                    <Grid size={{ xs:12, md:6 }}>
-
-                        <TextField
-
-                            fullWidth
-
-                            label="Category"
-
-                            value={form.category}
-
-                            disabled
-
+                            disabled={Boolean(setting)}
                         />
 
                     </Grid>
 
                     <Grid
+                        size={{ xs: 12 }}
+                    >
 
-                        size={{ xs:12, md:6 }}
+                        <TextField
+                            fullWidth
+                            multiline
+                            minRows={4}
+                            label="Value"
+                            name="value"
+                            value={form.value}
+                            onChange={handleChange}
+                        />
 
-                        display="flex"
+                    </Grid>
 
-                        alignItems="center"
+                    <Grid
+                        size={{ xs: 12 }}
+                    >
 
+                        <TextField
+                            fullWidth
+                            label="Description"
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                        />
+
+                    </Grid>
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
+
+                        <TextField
+                            fullWidth
+                            label="Category"
+                            name="category"
+                            value={form.category}
+                            disabled={Boolean(setting)}
+                        />
+
+                    </Grid>
+
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                        sx={{
+                            display: "flex",
+                            alignItems: "center"
+                        }}
                     >
 
                         <FormControlLabel
-
                             control={
-
                                 <Switch
-
-                                    checked={form.editable}
-
-                                    onChange={handleSwitch}
-
+                                    checked={Boolean(
+                                        form.editable
+                                    )}
+                                    onChange={
+                                        handleSwitch
+                                    }
                                 />
-
                             }
-
                             label="Editable"
-
                         />
 
                     </Grid>
@@ -377,25 +362,17 @@ export default function SettingEditor({
             <DialogActions>
 
                 <Button
-
                     onClick={onClose}
-
                 >
-
                     Cancel
-
                 </Button>
 
                 <Button
-
                     variant="contained"
-
                     onClick={handleSave}
-
+                    disabled={!form.key.trim()}
                 >
-
                     Save
-
                 </Button>
 
             </DialogActions>

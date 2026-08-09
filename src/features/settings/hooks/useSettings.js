@@ -8,30 +8,25 @@ import {
 import {
     fetchSettings,
     fetchSetting,
-
     createNewSetting,
     updateExistingSetting,
     deleteExistingSetting,
-
     setCategory,
-    clearSelectedSetting
-
+    clearSelectedSetting,
+    clearSettingsError
 } from "../../../store/slices/settingsSlice.js";
 
-/*
-|--------------------------------------------------------------------------
-| useSettings
-|--------------------------------------------------------------------------
-|
-| Central hook for System Settings.
-|
-| Components should NEVER dispatch Redux actions directly.
-|
-|--------------------------------------------------------------------------
-*/
+const DEFAULT_SETTINGS_STATE = {
+    settings: [],
+    selectedSetting: null,
+    loading: false,
+    refreshing: false,
+    error: null,
+    lastUpdated: null,
+    category: "ALL"
+};
 
 export default function useSettings() {
-
     const dispatch = useDispatch();
 
     /*
@@ -40,27 +35,21 @@ export default function useSettings() {
     |--------------------------------------------------------------------------
     */
 
-    const {
-
-        settings,
-
-        selectedSetting,
-
-        loading,
-
-        refreshing,
-
-        error,
-
-        lastUpdated,
-
-        category
-
-    } = useSelector(
-
-        state => state.settings
-
+    const settingsState = useSelector(
+        state =>
+            state?.settings ??
+            DEFAULT_SETTINGS_STATE
     );
+
+    const {
+        settings,
+        selectedSetting,
+        loading,
+        refreshing,
+        error,
+        lastUpdated,
+        category
+    } = settingsState;
 
     /*
     |--------------------------------------------------------------------------
@@ -68,25 +57,11 @@ export default function useSettings() {
     |--------------------------------------------------------------------------
     */
 
-    const reload = useCallback(
-
-        () => {
-
-            return dispatch(
-
-                fetchSettings()
-
-            );
-
-        },
-
-        [
-
-            dispatch
-
-        ]
-
-    );
+    const reload = useCallback(() => {
+        return dispatch(
+            fetchSettings()
+        );
+    }, [dispatch]);
 
     /*
     |--------------------------------------------------------------------------
@@ -95,23 +70,12 @@ export default function useSettings() {
     */
 
     const loadSetting = useCallback(
-
         settingId => {
-
             return dispatch(
-
                 fetchSetting(settingId)
-
             );
-
         },
-
-        [
-
-            dispatch
-
-        ]
-
+        [dispatch]
     );
 
     /*
@@ -121,23 +85,12 @@ export default function useSettings() {
     */
 
     const createSetting = useCallback(
-
         payload => {
-
             return dispatch(
-
                 createNewSetting(payload)
-
             );
-
         },
-
-        [
-
-            dispatch
-
-        ]
-
+        [dispatch]
     );
 
     /*
@@ -147,35 +100,18 @@ export default function useSettings() {
     */
 
     const updateSetting = useCallback(
-
         (
-
             settingId,
-
             payload
-
         ) => {
-
             return dispatch(
-
                 updateExistingSetting({
-
                     settingId,
-
                     payload
-
                 })
-
             );
-
         },
-
-        [
-
-            dispatch
-
-        ]
-
+        [dispatch]
     );
 
     /*
@@ -185,27 +121,14 @@ export default function useSettings() {
     */
 
     const deleteSetting = useCallback(
-
         settingId => {
-
             return dispatch(
-
                 deleteExistingSetting(
-
                     settingId
-
                 )
-
             );
-
         },
-
-        [
-
-            dispatch
-
-        ]
-
+        [dispatch]
     );
 
     /*
@@ -215,23 +138,12 @@ export default function useSettings() {
     */
 
     const updateCategory = useCallback(
-
         value => {
-
             dispatch(
-
                 setCategory(value)
-
             );
-
         },
-
-        [
-
-            dispatch
-
-        ]
-
+        [dispatch]
     );
 
     /*
@@ -240,62 +152,46 @@ export default function useSettings() {
     |--------------------------------------------------------------------------
     */
 
-    const clearSelection = useCallback(
-
-        () => {
-
-            dispatch(
-
-                clearSelectedSetting()
-
-            );
-
-        },
-
-        [
-
-            dispatch
-
-        ]
-
-    );
+    const clearSelection = useCallback(() => {
+        dispatch(
+            clearSelectedSetting()
+        );
+    }, [dispatch]);
 
     /*
     |--------------------------------------------------------------------------
-    | Category Filter
+    | Clear Error
     |--------------------------------------------------------------------------
-    |
-    | Category filtering happens locally because
-    | the API exposes only GET /settings.
-    |
+    */
+
+    const clearError = useCallback(() => {
+        dispatch(
+            clearSettingsError()
+        );
+    }, [dispatch]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Local Category Filtering
+    |--------------------------------------------------------------------------
     */
 
     const filteredSettings =
-
         category === "ALL"
-
             ? settings
-
             : settings.filter(
-
                 setting =>
-
-                    setting.category === category
-
+                    setting?.category ===
+                    category
             );
 
     /*
     |--------------------------------------------------------------------------
-    | Public Hook API
+    | Public API
     |--------------------------------------------------------------------------
     */
 
     return {
-
-        /*
-        | State
-        */
-
         settings,
 
         filteredSettings,
@@ -312,10 +208,6 @@ export default function useSettings() {
 
         category,
 
-        /*
-        | Operations
-        */
-
         reload,
 
         loadSetting,
@@ -326,14 +218,10 @@ export default function useSettings() {
 
         deleteSetting,
 
-        /*
-        | Local Redux Controls
-        */
-
         updateCategory,
 
-        clearSelection
+        clearSelection,
 
+        clearError
     };
-
 }

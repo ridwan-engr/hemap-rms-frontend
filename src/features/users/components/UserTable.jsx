@@ -1,24 +1,21 @@
 import {
-
     Card,
     CardContent,
     Chip,
     IconButton,
-    Tooltip
-
+    Tooltip,
+    Stack
 } from "@mui/material";
 
 import {
-
     DataGrid
-
 } from "@mui/x-data-grid";
 
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -26,43 +23,48 @@ import useUser from "../hooks/useUser";
 |--------------------------------------------------------------------------
 */
 
-function StatusChip({ status }) {
+function StatusChip({
+    status,
+    isActive
+}) {
+
+    const normalizedStatus =
+        String(status || "").toLowerCase();
 
     let color = "default";
+    let label = status || "Unknown";
 
-    switch ((status || "").toLowerCase()) {
+    if (
+        isActive === true ||
+        normalizedStatus === "active"
+    ) {
 
-        case "active":
+        color = "success";
+        label = "Active";
 
-            color = "success";
-            break;
+    } else if (
+        isActive === false ||
+        normalizedStatus === "inactive"
+    ) {
 
-        case "inactive":
+        color = "warning";
+        label = "Inactive";
 
-            color = "warning";
-            break;
+    } else if (
+        normalizedStatus === "disabled"
+    ) {
 
-        case "disabled":
-
-            color = "error";
-            break;
-
-        default:
-
-            color = "default";
+        color = "error";
+        label = "Disabled";
 
     }
 
     return (
 
         <Chip
-
             size="small"
-
-            label={status || "Unknown"}
-
+            label={label}
             color={color}
-
         />
 
     );
@@ -76,90 +78,125 @@ function StatusChip({ status }) {
 */
 
 export default function UserTable({
-
     onView,
-
     onEdit,
-
     onDelete
-
 }) {
 
     const {
-
-        users,
-
-        total,
-
+        users = [],
+        total = 0,
         loading,
-
         paginationModel,
-
         updatePagination,
-
         reload
-
     } = useUser();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Columns
+    |--------------------------------------------------------------------------
+    */
 
     const columns = [
 
         {
-
             field: "fullName",
-
             headerName: "Full Name",
-
             flex: 1.4,
+            minWidth: 220,
 
-            minWidth: 220
+            valueGetter: (
+                _value,
+                row
+            ) => {
+
+                return [
+                    row?.firstName,
+                    row?.lastName
+                ]
+                    .filter(Boolean)
+                    .join(" ") || "-";
+
+            }
 
         },
 
         {
-
             field: "email",
-
             headerName: "Email",
-
             flex: 1.5,
-
             minWidth: 240
-
         },
 
         {
-
             field: "role",
-
             headerName: "Role",
-
             flex: 1,
+            minWidth: 140,
 
-            minWidth: 140
+            valueGetter: (
+                _value,
+                row
+            ) => {
+
+                if (
+                    typeof row?.role === "string"
+                ) {
+
+                    return row.role;
+
+                }
+
+                return (
+                    row?.role?.name ||
+                    "-"
+                );
+
+            }
 
         },
 
         {
             field: "assignedSites",
-
             headerName: "Assigned Sites",
-
             flex: 1.3,
-
             minWidth: 220,
 
-            renderCell: ({ value }) => {
+            renderCell: ({
+                value
+            }) => {
 
-                if (!value?.length) {
+                if (
+                    !Array.isArray(value) ||
+                    value.length === 0
+                ) {
 
                     return "-";
 
                 }
 
                 return value
+                    .map(site => {
 
-                    .map(site => site.siteName)
+                        if (
+                            typeof site === "string"
+                        ) {
 
+                            return site;
+
+                        }
+
+                        return (
+                            site?.siteName ||
+                            site?.name ||
+                            site?._id ||
+                            site?.id ||
+                            "-"
+                        );
+
+                    })
+                    .filter(Boolean)
                     .join(", ");
 
             }
@@ -167,31 +204,29 @@ export default function UserTable({
         },
 
         {
-
             field: "phone",
-
             headerName: "Phone",
-
             flex: 1,
+            minWidth: 150,
 
-            minWidth: 150
+            renderCell: ({
+                value
+            }) => value || "-"
 
         },
 
         {
-
             field: "status",
-
             headerName: "Status",
-
             width: 130,
 
             renderCell: params => (
 
                 <StatusChip
-
                     status={params.value}
-
+                    isActive={
+                        params.row?.isActive
+                    }
                 />
 
             )
@@ -199,49 +234,63 @@ export default function UserTable({
         },
 
         {
-
             field: "lastLogin",
-
             headerName: "Last Login",
-
             flex: 1.2,
+            minWidth: 180,
 
-            minWidth: 180
+            renderCell: ({
+                value
+            }) => {
+
+                if (!value) {
+
+                    return "-";
+
+                }
+
+                const date =
+                    new Date(value);
+
+                if (
+                    Number.isNaN(
+                        date.getTime()
+                    )
+                ) {
+
+                    return "-";
+
+                }
+
+                return date.toLocaleString();
+
+            }
 
         },
 
         {
-
             field: "actions",
-
             headerName: "Actions",
-
             sortable: false,
-
             filterable: false,
-
             width: 150,
 
             renderCell: params => (
 
-                <>
+                <Stack
+                    direction="row"
+                    spacing={0.5}
+                >
 
                     <Tooltip title="View">
 
                         <IconButton
-
                             size="small"
-
                             onClick={() =>
-
                                 onView?.(
-
                                     params.row
-
                                 )
-
                             }
-
                         >
 
                             <VisibilityIcon />
@@ -253,19 +302,12 @@ export default function UserTable({
                     <Tooltip title="Edit">
 
                         <IconButton
-
                             size="small"
-
                             onClick={() =>
-
                                 onEdit?.(
-
                                     params.row
-
                                 )
-
                             }
-
                         >
 
                             <EditIcon />
@@ -277,21 +319,13 @@ export default function UserTable({
                     <Tooltip title="Delete">
 
                         <IconButton
-
                             size="small"
-
                             color="error"
-
                             onClick={() =>
-
                                 onDelete?.(
-
                                     params.row
-
                                 )
-
                             }
-
                         >
 
                             <DeleteIcon />
@@ -300,13 +334,36 @@ export default function UserTable({
 
                     </Tooltip>
 
-                </>
+                </Stack>
 
             )
 
         }
 
     ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    const handlePaginationChange = model => {
+
+        updatePagination(model);
+
+        reload({
+            page: model.page + 1,
+            limit: model.pageSize
+        });
+
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -322,30 +379,36 @@ export default function UserTable({
 
                     columns={columns}
 
-                    loading={loading}
+                    getRowId={row =>
+                        row?.id ||
+                        row?._id
+                    }
 
                     rowCount={total}
 
                     paginationMode="server"
 
-                    paginationModel={paginationModel}
+                    paginationModel={
+                        paginationModel
+                    }
 
-                    pageSizeOptions={[10, 25, 50, 100]}
+                    pageSizeOptions={[
+                        10,
+                        25,
+                        50,
+                        100
+                    ]}
+
+                    loading={loading}
 
                     disableRowSelectionOnClick
 
-                    onPaginationModelChange={model => {
+                    onPaginationModelChange={
+                        handlePaginationChange
+                    }
 
-                        updatePagination(model);
-
-                        reload({
-
-                            page: model.page + 1,
-
-                            limit: model.pageSize
-
-                        });
-
+                    sx={{
+                        border: 0
                     }}
 
                 />

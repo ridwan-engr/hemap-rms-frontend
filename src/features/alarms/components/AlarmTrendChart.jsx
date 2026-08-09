@@ -23,30 +23,23 @@ import useAlarm from "../hooks/useAlarm";
 |--------------------------------------------------------------------------
 | Alarm Trend Chart
 |--------------------------------------------------------------------------
-|
-| Displays alarm occurrence trends over time.
-|
-| Supports:
-| • Hourly
-| • Daily
-| • Weekly
-| • Monthly
-|
 */
 
 export default function AlarmTrendChart() {
 
     const {
-
         trends,
-
-        loading,
-
+        loadingStatistics,
         error
-
     } = useAlarm();
 
-    if (loading) {
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
+
+    if (loadingStatistics) {
 
         return (
 
@@ -55,17 +48,11 @@ export default function AlarmTrendChart() {
                 <CardContent>
 
                     <Stack
-
-                        justifyContent="center"
-
-                        alignItems="center"
-
                         sx={{
-
-                            minHeight: 360
-
+                            minHeight: 360,
+                            justifyContent: "center",
+                            alignItems: "center"
                         }}
-
                     >
 
                         <CircularProgress />
@@ -80,6 +67,12 @@ export default function AlarmTrendChart() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
+
     if (error) {
 
         return (
@@ -89,9 +82,7 @@ export default function AlarmTrendChart() {
                 <CardContent>
 
                     <Typography color="error">
-
                         {error}
-
                     </Typography>
 
                 </CardContent>
@@ -102,6 +93,22 @@ export default function AlarmTrendChart() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Chart Data
+    |--------------------------------------------------------------------------
+    */
+
+    const data = Array.isArray(trends)
+        ? trends
+        : [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <Card>
@@ -109,79 +116,54 @@ export default function AlarmTrendChart() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Alarm Trend
-
                 </Typography>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
-
                     Alarm occurrence over time
-
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <ResponsiveContainer
-
                     width="100%"
-
                     height={340}
-
                 >
 
                     <AreaChart
-
-                        data={trends || []}
-
+                        data={data}
                     >
 
                         <defs>
 
                             <linearGradient
-
                                 id="alarmGradient"
-
                                 x1="0"
-
                                 y1="0"
-
                                 x2="0"
-
                                 y2="1"
-
                             >
 
                                 <stop
-
                                     offset="5%"
-
                                     stopColor="#1976D2"
-
                                     stopOpacity={0.8}
-
                                 />
 
                                 <stop
-
                                     offset="95%"
-
                                     stopColor="#1976D2"
-
                                     stopOpacity={0.1}
-
                                 />
 
                             </linearGradient>
@@ -189,15 +171,11 @@ export default function AlarmTrendChart() {
                         </defs>
 
                         <CartesianGrid
-
                             strokeDasharray="3 3"
-
                         />
 
                         <XAxis
-
                             dataKey="period"
-
                         />
 
                         <YAxis />
@@ -205,17 +183,11 @@ export default function AlarmTrendChart() {
                         <Tooltip />
 
                         <Area
-
                             type="monotone"
-
                             dataKey="count"
-
                             stroke="#1976D2"
-
                             fill="url(#alarmGradient)"
-
                             strokeWidth={3}
-
                         />
 
                     </AreaChart>

@@ -19,7 +19,7 @@ import {
 
 import {
     updateOptimizationRealtime
-} from "../store/slices/optimizationSlice";
+} from "../store/slices/optimizationSlice.js";
 
 import {
     updateReliabilityRealtime

@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import {
+    useEffect,
+    useState
+} from "react";
 
 import {
     Dialog,
@@ -17,21 +20,27 @@ import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
+| Initial Form State
+|--------------------------------------------------------------------------
+*/
+
+const EMPTY_FORM = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    role: "",
+    assignedSites: [],
+    avatar: "",
+    isActive: true,
+    password: "",
+    confirmPassword: ""
+};
+
+/*
+|--------------------------------------------------------------------------
 | User Form
 |--------------------------------------------------------------------------
-|
-| Uses the existing User API through useUser().
-|
-| Supported API:
-|
-| POST  /users
-| PUT   /users/:id
-| PATCH /users/:id/activate
-| PATCH /users/:id/deactivate
-|
-| Role and site lookup endpoints are NOT assumed here because the
-| current userApi.js does not expose getRoles() or getSites().
-|
 */
 
 export default function UserForm({
@@ -42,41 +51,18 @@ export default function UserForm({
 
     const {
         createUser,
-        updateUser,
-        reload
+        updateUser
     } = useUser();
 
-    const isEdit = Boolean(initialValues);
+    const [form, setForm] = useState(
+        EMPTY_FORM
+    );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Form State
-    |--------------------------------------------------------------------------
-    */
+    const [submitting, setSubmitting] =
+        useState(false);
 
-    const [form, setForm] = useState({
-
-        firstName: "",
-
-        lastName: "",
-
-        email: "",
-
-        phone: "",
-
-        role: "",
-
-        assignedSites: [],
-
-        avatar: "",
-
-        isActive: true,
-
-        password: "",
-
-        confirmPassword: ""
-
-    });
+    const isEdit =
+        Boolean(initialValues);
 
     /*
     |--------------------------------------------------------------------------
@@ -86,34 +72,17 @@ export default function UserForm({
 
     useEffect(() => {
 
+        if (!open) {
+            return;
+        }
+
         if (!initialValues) {
 
             setForm({
-
-                firstName: "",
-
-                lastName: "",
-
-                email: "",
-
-                phone: "",
-
-                role: "",
-
-                assignedSites: [],
-
-                avatar: "",
-
-                isActive: true,
-
-                password: "",
-
-                confirmPassword: ""
-
+                ...EMPTY_FORM
             });
 
             return;
-
         }
 
         setForm({
@@ -132,15 +101,21 @@ export default function UserForm({
 
             role:
                 initialValues.role?._id ||
+                initialValues.role?.id ||
                 initialValues.role ||
                 "",
 
             assignedSites:
-                initialValues.assignedSites?.map(
-                    site =>
-                        site?._id ||
-                        site
-                ) || [],
+                Array.isArray(
+                    initialValues.assignedSites
+                )
+                    ? initialValues.assignedSites.map(
+                        site =>
+                            site?._id ||
+                            site?.id ||
+                            site
+                    )
+                    : [],
 
             avatar:
                 initialValues.avatar || "",
@@ -149,12 +124,14 @@ export default function UserForm({
                 initialValues.isActive !== false,
 
             password: "",
-
             confirmPassword: ""
 
         });
 
-    }, [initialValues, open]);
+    }, [
+        initialValues,
+        open
+    ]);
 
     /*
     |--------------------------------------------------------------------------
@@ -170,11 +147,8 @@ export default function UserForm({
         } = event.target;
 
         setForm(previous => ({
-
             ...previous,
-
             [name]: value
-
         }));
 
     };
@@ -183,29 +157,30 @@ export default function UserForm({
     |--------------------------------------------------------------------------
     | Assigned Sites
     |--------------------------------------------------------------------------
-    |
-    | Since userApi.js has no getSites(), site IDs can be entered directly.
-    | If the parent already supplies available sites, this component can
-    | later be upgraded to a site selector without changing the API layer.
-    |
     */
 
-    const handleAssignedSitesChange = event => {
+    const handleAssignedSitesChange =
+        event => {
 
-        const value = event.target.value;
+            const value =
+                event.target.value;
 
-        setForm(previous => ({
-
-            ...previous,
-
-            assignedSites:
+            const sites =
                 typeof value === "string"
-                    ? value.split(",")
-                    : value
+                    ? value
+                        .split(",")
+                        .map(site =>
+                            site.trim()
+                        )
+                        .filter(Boolean)
+                    : value;
 
-        }));
+            setForm(previous => ({
+                ...previous,
+                assignedSites: sites
+            }));
 
-    };
+        };
 
     /*
     |--------------------------------------------------------------------------
@@ -215,76 +190,78 @@ export default function UserForm({
 
     const handleSubmit = async () => {
 
+        if (submitting) {
+            return;
+        }
+
+        if (!form.firstName.trim()) {
+
+            alert(
+                "First name is required."
+            );
+
+            return;
+        }
+
+        if (!form.lastName.trim()) {
+
+            alert(
+                "Last name is required."
+            );
+
+            return;
+        }
+
+        if (!form.email.trim()) {
+
+            alert(
+                "Email is required."
+            );
+
+            return;
+        }
+
+        if (!form.role) {
+
+            alert(
+                "Role is required."
+            );
+
+            return;
+        }
+
+        if (!isEdit) {
+
+            if (!form.password) {
+
+                alert(
+                    "Password is required."
+                );
+
+                return;
+            }
+
+            if (
+                form.password !==
+                form.confirmPassword
+            ) {
+
+                alert(
+                    "Passwords do not match."
+                );
+
+                return;
+            }
+
+        }
+
         try {
 
-            /*
-            |------------------------------------------------------------------
-            | Validate required fields
-            |------------------------------------------------------------------
-            */
-
-            if (!form.firstName.trim()) {
-
-                alert("First name is required.");
-
-                return;
-
-            }
-
-            if (!form.lastName.trim()) {
-
-                alert("Last name is required.");
-
-                return;
-
-            }
-
-            if (!form.email.trim()) {
-
-                alert("Email is required.");
-
-                return;
-
-            }
-
-            if (!form.role) {
-
-                alert("Role is required.");
-
-                return;
-
-            }
-
-            /*
-            |------------------------------------------------------------------
-            | Create
-            |------------------------------------------------------------------
-            */
+            setSubmitting(true);
 
             if (!isEdit) {
 
-                if (!form.password) {
-
-                    alert("Password is required.");
-
-                    return;
-
-                }
-
-                if (
-                    form.password !==
-                    form.confirmPassword
-                ) {
-
-                    alert(
-                        "Passwords do not match."
-                    );
-
-                    return;
-
-                }
-
-                const payload = {
+                await createUser({
 
                     firstName:
                         form.firstName.trim(),
@@ -313,74 +290,69 @@ export default function UserForm({
                     password:
                         form.password
 
-                };
+                });
 
-                await createUser(payload);
+            } else {
 
-            }
+                const userId =
+                    initialValues?._id ||
+                    initialValues?.id;
 
-            /*
-            |------------------------------------------------------------------
-            | Update
-            |------------------------------------------------------------------
-            */
+                if (!userId) {
 
-            else {
+                    throw new Error(
+                        "User ID is required for update."
+                    );
 
-                const payload = {
-
-                    firstName:
-                        form.firstName.trim(),
-
-                    lastName:
-                        form.lastName.trim(),
-
-                    email:
-                        form.email.trim(),
-
-                    phone:
-                        form.phone.trim(),
-
-                    role:
-                        form.role,
-
-                    assignedSites:
-                        form.assignedSites,
-
-                    avatar:
-                        form.avatar.trim()
-
-                };
+                }
 
                 await updateUser(
+                    userId,
+                    {
 
-                    initialValues._id ||
-                    initialValues.id,
+                        firstName:
+                            form.firstName.trim(),
 
-                    payload
+                        lastName:
+                            form.lastName.trim(),
 
+                        email:
+                            form.email.trim(),
+
+                        phone:
+                            form.phone.trim(),
+
+                        role:
+                            form.role,
+
+                        assignedSites:
+                            form.assignedSites,
+
+                        avatar:
+                            form.avatar.trim()
+
+                    }
                 );
 
             }
 
-            /*
-            |------------------------------------------------------------------
-            | Reload User List
-            |------------------------------------------------------------------
-            */
-
-            reload();
-
             onClose();
 
-        }
-
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 "User form submission failed:",
                 error
             );
+
+            alert(
+                error?.message ||
+                "Unable to save user."
+            );
+
+        } finally {
+
+            setSubmitting(false);
 
         }
 
@@ -395,37 +367,33 @@ export default function UserForm({
     return (
 
         <Dialog
-
-            open={open}
-
-            onClose={onClose}
-
+            open={Boolean(open)}
+            onClose={
+                submitting
+                    ? undefined
+                    : onClose
+            }
             fullWidth
-
             maxWidth="md"
-
         >
 
             <DialogTitle>
-
                 {
                     isEdit
                         ? "Edit User"
                         : "Create User"
                 }
-
             </DialogTitle>
-
 
             <DialogContent>
 
                 <Grid
                     container
                     spacing={2}
-                    sx={{ mt: 1 }}
+                    sx={{
+                        mt: 1
+                    }}
                 >
-
-                    {/* First Name */}
 
                     <Grid
                         size={{
@@ -435,29 +403,19 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             label="First Name"
-
                             name="firstName"
-
                             value={
                                 form.firstName
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         />
 
                     </Grid>
-
-
-                    {/* Last Name */}
 
                     <Grid
                         size={{
@@ -467,29 +425,19 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             label="Last Name"
-
                             name="lastName"
-
                             value={
                                 form.lastName
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         />
 
                     </Grid>
-
-
-                    {/* Email */}
 
                     <Grid
                         size={{
@@ -499,31 +447,20 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             type="email"
-
                             label="Email"
-
                             name="email"
-
                             value={
                                 form.email
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         />
 
                     </Grid>
-
-
-                    {/* Phone */}
 
                     <Grid
                         size={{
@@ -533,27 +470,18 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             label="Phone"
-
                             name="phone"
-
                             value={
                                 form.phone
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         />
 
                     </Grid>
-
-
-                    {/* Role */}
 
                     <Grid
                         size={{
@@ -563,58 +491,39 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             required
-
                             select
-
                             label="Role"
-
                             name="role"
-
                             value={
                                 form.role
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         >
 
                             <MenuItem value="">
-
                                 Select Role
-
                             </MenuItem>
 
                             <MenuItem value="ADMIN">
-
                                 Administrator
-
                             </MenuItem>
 
                             <MenuItem value="ENGINEER">
-
                                 Engineer
-
                             </MenuItem>
 
                             <MenuItem value="SUPERVISOR">
-
                                 Supervisor
-
                             </MenuItem>
 
                         </TextField>
 
                     </Grid>
 
-
-                    {/* Assigned Sites */}
-
                     <Grid
                         size={{
                             xs: 12,
@@ -623,33 +532,24 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             label="Assigned Site IDs"
-
                             name="assignedSites"
-
                             value={
                                 form.assignedSites.join(
                                     ", "
                                 )
                             }
-
-                            onChange={handleAssignedSitesChange}
-
-                            placeholder="MongoDB Site IDs, comma separated"
-
-                            helperText={
-                                "Enter site IDs separated by commas"
+                            onChange={
+                                handleAssignedSitesChange
                             }
-
+                            placeholder="Site IDs, comma separated"
+                            helperText={
+                                "Enter MongoDB site IDs separated by commas."
+                            }
                         />
 
                     </Grid>
-
-
-                    {/* Avatar */}
 
                     <Grid
                         size={{
@@ -658,30 +558,20 @@ export default function UserForm({
                     >
 
                         <TextField
-
                             fullWidth
-
                             label="Avatar URL"
-
                             name="avatar"
-
                             value={
                                 form.avatar
                             }
-
                             onChange={
                                 handleChange
                             }
-
                         />
 
                     </Grid>
 
-
-                    {/* Password */}
-
                     {!isEdit && (
-
                         <>
 
                             <Grid
@@ -692,29 +582,20 @@ export default function UserForm({
                             >
 
                                 <TextField
-
                                     fullWidth
-
                                     required
-
                                     type="password"
-
                                     label="Password"
-
                                     name="password"
-
                                     value={
                                         form.password
                                     }
-
                                     onChange={
                                         handleChange
                                     }
-
                                 />
 
                             </Grid>
-
 
                             <Grid
                                 size={{
@@ -724,35 +605,23 @@ export default function UserForm({
                             >
 
                                 <TextField
-
                                     fullWidth
-
                                     required
-
                                     type="password"
-
                                     label="Confirm Password"
-
                                     name="confirmPassword"
-
                                     value={
                                         form.confirmPassword
                                     }
-
                                     onChange={
                                         handleChange
                                     }
-
                                 />
 
                             </Grid>
 
                         </>
-
                     )}
-
-
-                    {/* Active */}
 
                     <Grid
                         size={{
@@ -761,15 +630,11 @@ export default function UserForm({
                     >
 
                         <FormControlLabel
-
                             control={
-
                                 <Switch
-
                                     checked={
                                         form.isActive
                                     }
-
                                     onChange={
                                         event =>
                                             setForm(
@@ -782,13 +647,9 @@ export default function UserForm({
                                                 })
                                             )
                                     }
-
                                 />
-
                             }
-
                             label="Active"
-
                         />
 
                     </Grid>
@@ -797,40 +658,31 @@ export default function UserForm({
 
             </DialogContent>
 
-
             <DialogActions>
 
                 <Button
                     onClick={onClose}
+                    disabled={submitting}
                 >
-
                     Cancel
-
                 </Button>
 
-
                 <Button
-
                     variant="contained"
-
-                    onClick={
-                        handleSubmit
-                    }
-
+                    onClick={handleSubmit}
+                    disabled={submitting}
                 >
-
                     {
-                        isEdit
-                            ? "Update"
-                            : "Create"
+                        submitting
+                            ? "Saving..."
+                            : isEdit
+                                ? "Update"
+                                : "Create"
                     }
-
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
-
 }

@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
 
 import {
-
     Box,
     Stack
-
 } from "@mui/material";
 
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
-import UserToolbar from "../components/UserToolbar";
-import UserSummaryCards from "../components/UserSummaryCards";
-import UserStatistics from "../components/UserStatistics";
-import UserFilter from "../components/UserFilter";
-import UserTable from "../components/UserTable";
-import UserDetails from "../components/UserDetails";
-import UserForm from "../components/UserForm";
+import UserToolbar from "../components/UserToolbar.jsx";
+import UserSummaryCards from "../components/UserSummaryCards.jsx";
+import UserStatistics from "../components/UserStatistics.jsx";
+import UserFilter from "../components/UserFilter.jsx";
+import UserTable from "../components/UserTable.jsx";
+import UserDetails from "../components/UserDetails.jsx";
+import UserForm from "../components/UserForm.jsx";
 
 /*
 |--------------------------------------------------------------------------
@@ -26,12 +24,8 @@ import UserForm from "../components/UserForm";
 export default function UsersPage() {
 
     const {
-
         reload,
-        loadSummary,
-        loadStatistics,
         deleteUser
-
     } = useUser();
 
     /*
@@ -41,35 +35,23 @@ export default function UsersPage() {
     */
 
     const [
-
         formOpen,
-
         setFormOpen
-
     ] = useState(false);
 
     const [
-
         detailsOpen,
-
         setDetailsOpen
-
     ] = useState(false);
 
     const [
-
         selectedUser,
-
         setSelectedUser
-
     ] = useState(null);
 
     const [
-
         editingUser,
-
         setEditingUser
-
     ] = useState(null);
 
     /*
@@ -82,17 +64,7 @@ export default function UsersPage() {
 
         reload();
 
-        loadSummary();
-
-        loadStatistics();
-
-    }, [
-
-        reload,
-        loadSummary,
-        loadStatistics
-
-    ]);
+    }, [reload]);
 
     /*
     |--------------------------------------------------------------------------
@@ -144,27 +116,51 @@ export default function UsersPage() {
 
     const handleDelete = async user => {
 
-        const confirmed = window.confirm(
-
-            `Delete ${user.firstName} ${user.lastName}?`
-
-        );
-
-        if (!confirmed) {
-
+        if (!user) {
             return;
-
         }
 
-        await deleteUser(user._id);
+        const userName = [
+            user.firstName,
+            user.lastName
+        ]
+            .filter(Boolean)
+            .join(" ");
 
-        reload();
+        const confirmed =
+            window.confirm(
+                `Delete ${userName || user.email || "this user"}?`
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+        try {
+
+            const userId =
+                user._id ||
+                user.id;
+
+            await deleteUser(userId);
+
+            await reload();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Failed to delete user:",
+                error
+            );
+
+        }
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Close Dialogs
+    | Close Form
     |--------------------------------------------------------------------------
     */
 
@@ -176,6 +172,12 @@ export default function UsersPage() {
 
     };
 
+    /*
+    |--------------------------------------------------------------------------
+    | Close Details
+    |--------------------------------------------------------------------------
+    */
+
     const handleCloseDetails = () => {
 
         setDetailsOpen(false);
@@ -184,6 +186,12 @@ export default function UsersPage() {
 
     };
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
 
         <Box>
@@ -191,9 +199,7 @@ export default function UsersPage() {
             <Stack spacing={3}>
 
                 <UserToolbar
-
                     onCreate={handleCreate}
-
                 />
 
                 <UserSummaryCards />
@@ -203,35 +209,23 @@ export default function UsersPage() {
                 <UserStatistics />
 
                 <UserTable
-
                     onView={handleView}
-
                     onEdit={handleEdit}
-
                     onDelete={handleDelete}
-
                 />
 
             </Stack>
 
             <UserForm
-
                 open={formOpen}
-
                 onClose={handleCloseForm}
-
                 initialValues={editingUser}
-
             />
 
             <UserDetails
-
                 open={detailsOpen}
-
                 onClose={handleCloseDetails}
-
                 user={selectedUser}
-
             />
 
         </Box>

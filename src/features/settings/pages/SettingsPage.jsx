@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 
 import {
-
     Grid,
-
     Box
-
 } from "@mui/material";
 
 import useSettings from "../hooks/useSettings";
@@ -20,48 +17,52 @@ import SettingDeleteDialog from "../components/SettingDeleteDialog";
 |--------------------------------------------------------------------------
 | Settings Page
 |--------------------------------------------------------------------------
+|
+| Responsibilities:
+|
+| - Load system settings
+| - Manage editor/delete dialog visibility
+| - Delegate CRUD operations to useSettings
+| - Pass callbacks to child components
+|
+| Components do not dispatch Redux actions directly.
+|
+|--------------------------------------------------------------------------
 */
 
 export default function SettingsPage() {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Settings Hook
+    |--------------------------------------------------------------------------
+    */
+
     const {
-
         reload,
-
         updateSetting,
-
         deleteSetting
-
     } = useSettings();
 
     /*
     |--------------------------------------------------------------------------
-    | State
+    | Local UI State
     |--------------------------------------------------------------------------
     */
 
     const [
-
         editorOpen,
-
         setEditorOpen
-
     ] = useState(false);
 
     const [
-
         deleteOpen,
-
         setDeleteOpen
-
     ] = useState(false);
 
     const [
-
         selectedSetting,
-
         setSelectedSetting
-
     ] = useState(null);
 
     /*
@@ -75,72 +76,102 @@ export default function SettingsPage() {
         reload();
 
     }, [
-
         reload
-
     ]);
 
     /*
     |--------------------------------------------------------------------------
-    | Edit
+    | Edit Setting
     |--------------------------------------------------------------------------
     */
 
     const handleEdit = setting => {
 
-        if (!setting.editable) {
-
+        if (!setting) {
             return;
+        }
 
+        if (!setting.editable) {
+            return;
         }
 
         setSelectedSetting(setting);
-
         setEditorOpen(true);
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Delete
+    | Delete Setting
     |--------------------------------------------------------------------------
     */
 
     const handleDelete = setting => {
 
-        if (!setting.editable) {
-
+        if (!setting) {
             return;
+        }
 
+        if (!setting.editable) {
+            return;
         }
 
         setSelectedSetting(setting);
-
         setDeleteOpen(true);
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Save
+    | Save Setting
     |--------------------------------------------------------------------------
     */
 
     const handleSave = async form => {
 
-        await updateSetting(
+        if (!selectedSetting) {
+            return;
+        }
 
-            selectedSetting._id,
+        const settingId =
+            selectedSetting._id ||
+            selectedSetting.id;
 
-            form
+        if (!settingId) {
+            console.error(
+                "Cannot update setting: missing setting ID."
+            );
+            return;
+        }
 
-        );
+        try {
 
-        setEditorOpen(false);
+            /*
+            |--------------------------------------------------------------------------
+            | updateSetting already dispatches the Redux thunk.
+            |
+            | The slice updates the local settings collection after success.
+            |--------------------------------------------------------------------------
+            */
 
-        setSelectedSetting(null);
+            await updateSetting(
+                settingId,
+                form
+            ).unwrap();
 
-        reload();
+            setEditorOpen(false);
+            setSelectedSetting(null);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Failed to update setting:",
+                error
+            );
+
+        }
 
     };
 
@@ -152,41 +183,80 @@ export default function SettingsPage() {
 
     const handleConfirmDelete = async setting => {
 
-        await deleteSetting(
+        if (!setting) {
+            return;
+        }
 
-            setting._id
+        const settingId =
+            setting._id ||
+            setting.id;
 
-        );
+        if (!settingId) {
+            console.error(
+                "Cannot delete setting: missing setting ID."
+            );
+            return;
+        }
 
-        setDeleteOpen(false);
+        try {
 
-        setSelectedSetting(null);
+            /*
+            |--------------------------------------------------------------------------
+            | Delete thunk updates Redux state after successful deletion.
+            |--------------------------------------------------------------------------
+            */
 
-        reload();
+            await deleteSetting(
+                settingId
+            ).unwrap();
+
+            setDeleteOpen(false);
+            setSelectedSetting(null);
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Failed to delete setting:",
+                error
+            );
+
+        }
 
     };
 
     /*
     |--------------------------------------------------------------------------
-    | Close
+    | Close Editor
     |--------------------------------------------------------------------------
     */
 
     const handleCloseEditor = () => {
 
         setEditorOpen(false);
-
         setSelectedSetting(null);
 
     };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Close Delete Dialog
+    |--------------------------------------------------------------------------
+    */
 
     const handleCloseDelete = () => {
 
         setDeleteOpen(false);
-
         setSelectedSetting(null);
 
     };
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -195,77 +265,68 @@ export default function SettingsPage() {
             <SettingsToolbar />
 
             <Grid
-
                 container
-
                 spacing={3}
-
-                sx={{ mt: 1 }}
-
+                sx={{
+                    mt: 1
+                }}
             >
 
+                {/* --------------------------------------------------------- */}
+                {/* Settings Categories */}
+                {/* --------------------------------------------------------- */}
+
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         md: 3
-
                     }}
-
                 >
 
                     <SettingsSidebar />
 
                 </Grid>
 
+                {/* --------------------------------------------------------- */}
+                {/* Settings Table */}
+                {/* --------------------------------------------------------- */}
+
                 <Grid
-
                     size={{
-
                         xs: 12,
-
                         md: 9
-
                     }}
-
                 >
 
                     <SettingsCategory
-
                         onEdit={handleEdit}
-
                         onDelete={handleDelete}
-
                     />
 
                 </Grid>
 
             </Grid>
 
+            {/* ------------------------------------------------------------- */}
+            {/* Setting Editor */}
+            {/* ------------------------------------------------------------- */}
+
             <SettingEditor
-
                 open={editorOpen}
-
                 setting={selectedSetting}
-
                 onClose={handleCloseEditor}
-
                 onSave={handleSave}
-
             />
 
+            {/* ------------------------------------------------------------- */}
+            {/* Delete Confirmation */}
+            {/* ------------------------------------------------------------- */}
+
             <SettingDeleteDialog
-
                 open={deleteOpen}
-
                 setting={selectedSetting}
-
                 onClose={handleCloseDelete}
-
                 onConfirm={handleConfirmDelete}
-
             />
 
         </Box>

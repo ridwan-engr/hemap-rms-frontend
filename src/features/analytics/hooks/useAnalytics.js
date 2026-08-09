@@ -1,6 +1,8 @@
 import {
     useCallback,
-    useEffect
+    useEffect,
+    useMemo,
+    useRef
 } from "react";
 
 import {
@@ -19,6 +21,7 @@ import {
     setAnalyticsFilters
 } from "../../../store/slices/analyticsSlice.js";
 
+
 /*
 |--------------------------------------------------------------------------
 | Analytics Hook
@@ -26,26 +29,24 @@ import {
 |
 | Central hook used by Analytics components.
 |
-| Components should NEVER dispatch Redux actions directly.
-|
-| Backend contract:
-|
-| GET /analytics/dashboard
-| GET /analytics/energy
-| GET /analytics/battery
-| GET /analytics/solar
-| GET /analytics/generator
-| GET /analytics/grid
-| GET /analytics/reliability
+| Components should NEVER call the Analytics API directly.
+| Components should NEVER dispatch Analytics actions directly.
 |
 |--------------------------------------------------------------------------
 */
 
-export default function useAnalytics(
-    initialFilters = {}
-) {
+export default function useAnalytics(initialFilters = {}) {
 
     const dispatch = useDispatch();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initialisation Guard
+    |--------------------------------------------------------------------------
+    */
+
+    const initializedRef = useRef(false);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -53,49 +54,115 @@ export default function useAnalytics(
     |--------------------------------------------------------------------------
     */
 
-    const dashboard = useSelector(
-        state => state.analytics.dashboard
+    const {
+        dashboard,
+        energy,
+        battery,
+        solar,
+        generator,
+        grid,
+        reliability,
+        filters,
+        loading: loadingState,
+        error: errorState,
+        lastUpdated: lastUpdatedState
+    } = useSelector(
+        state => state.analytics
     );
 
-    const energy = useSelector(
-        state => state.analytics.energy
+
+    /*
+    |--------------------------------------------------------------------------
+    | Global Loading State
+    |--------------------------------------------------------------------------
+    |
+    | Redux stores loading state independently for each endpoint.
+    |
+    | Global loading becomes true when ANY analytics request is running.
+    |
+    */
+
+    const loading = useMemo(
+        () =>
+            Object.values(
+                loadingState || {}
+            ).some(Boolean),
+        [
+            loadingState
+        ]
     );
 
-    const battery = useSelector(
-        state => state.analytics.battery
+
+    /*
+    |--------------------------------------------------------------------------
+    | Global Error
+    |--------------------------------------------------------------------------
+    */
+
+    const error = useMemo(
+        () => {
+
+            const errors =
+                Object.values(
+                    errorState || {}
+                );
+
+            return (
+                errors.find(
+                    value => Boolean(value)
+                ) || null
+            );
+
+        },
+        [
+            errorState
+        ]
     );
 
-    const solar = useSelector(
-        state => state.analytics.solar
+
+    /*
+    |--------------------------------------------------------------------------
+    | Latest Updated Timestamp
+    |--------------------------------------------------------------------------
+    */
+
+    const lastUpdated = useMemo(
+        () => {
+
+            const timestamps =
+                Object.values(
+                    lastUpdatedState || {}
+                )
+                    .filter(Boolean)
+                    .map(
+                        timestamp =>
+                            new Date(
+                                timestamp
+                            ).getTime()
+                    )
+                    .filter(
+                        timestamp =>
+                            !Number.isNaN(
+                                timestamp
+                            )
+                    );
+
+            if (!timestamps.length) {
+                return null;
+            }
+
+            return new Date(
+                Math.max(
+                    ...timestamps
+                )
+            ).toISOString();
+
+        },
+        [
+            lastUpdatedState
+        ]
     );
 
-    const generator = useSelector(
-        state => state.analytics.generator
-    );
-
-    const grid = useSelector(
-        state => state.analytics.grid
-    );
-
-    const reliability = useSelector(
-        state => state.analytics.reliability
-    );
-
-    const filters = useSelector(
-        state => state.analytics.filters
-    );
-
-    const loading = useSelector(
-        state => state.analytics.loading
-    );
-
-    const error = useSelector(
-        state => state.analytics.error
-    );
-
-    const lastUpdated = useSelector(
-        state => state.analytics.lastUpdated
-    );
 
     /*
     |--------------------------------------------------------------------------
@@ -104,12 +171,12 @@ export default function useAnalytics(
     */
 
     const loadDashboard = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchDashboardAnalytics(query)
+                fetchDashboardAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -118,6 +185,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -126,12 +194,12 @@ export default function useAnalytics(
     */
 
     const loadEnergy = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchEnergyAnalytics(query)
+                fetchEnergyAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -140,6 +208,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -148,12 +217,12 @@ export default function useAnalytics(
     */
 
     const loadBattery = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchBatteryAnalytics(query)
+                fetchBatteryAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -162,6 +231,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -170,12 +240,12 @@ export default function useAnalytics(
     */
 
     const loadSolar = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchSolarAnalytics(query)
+                fetchSolarAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -184,6 +254,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -192,12 +263,12 @@ export default function useAnalytics(
     */
 
     const loadGenerator = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchGeneratorAnalytics(query)
+                fetchGeneratorAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -206,6 +277,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -214,12 +286,12 @@ export default function useAnalytics(
     */
 
     const loadGrid = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchGridAnalytics(query)
+                fetchGridAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -228,6 +300,7 @@ export default function useAnalytics(
             filters
         ]
     );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -236,12 +309,12 @@ export default function useAnalytics(
     */
 
     const loadReliability = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
 
             return dispatch(
-                fetchReliabilityAnalytics(query)
+                fetchReliabilityAnalytics(
+                    query || {}
+                )
             );
 
         },
@@ -251,45 +324,61 @@ export default function useAnalytics(
         ]
     );
 
+
     /*
     |--------------------------------------------------------------------------
-    | Load All Analytics
+    | Reload All Analytics
     |--------------------------------------------------------------------------
     */
 
     const reload = useCallback(
-        (
-            query = filters
-        ) => {
+        (query = filters) => {
+
+            const requestFilters =
+                query || {};
 
             return Promise.all([
 
                 dispatch(
-                    fetchDashboardAnalytics(query)
+                    fetchDashboardAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchEnergyAnalytics(query)
+                    fetchEnergyAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchBatteryAnalytics(query)
+                    fetchBatteryAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchSolarAnalytics(query)
+                    fetchSolarAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchGeneratorAnalytics(query)
+                    fetchGeneratorAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchGridAnalytics(query)
+                    fetchGridAnalytics(
+                        requestFilters
+                    )
                 ),
 
                 dispatch(
-                    fetchReliabilityAnalytics(query)
+                    fetchReliabilityAnalytics(
+                        requestFilters
+                    )
                 )
 
             ]);
@@ -301,9 +390,10 @@ export default function useAnalytics(
         ]
     );
 
+
     /*
     |--------------------------------------------------------------------------
-    | Filters
+    | Update Filters
     |--------------------------------------------------------------------------
     */
 
@@ -322,55 +412,119 @@ export default function useAnalytics(
         ]
     );
 
+
     /*
     |--------------------------------------------------------------------------
-    | Initial Filters
+    | Initial Filters + Initial Load
     |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | Do NOT call reload() here.
+    |
+    | The initial load is intentionally independent of the reload callback
+    | so Redux filter updates cannot cause the initialization effect to
+    | become coupled to the request callback.
+    |
     */
 
     useEffect(
         () => {
 
             if (
+                initializedRef.current
+            ) {
+                return;
+            }
+
+            initializedRef.current = true;
+
+            const startingFilters =
                 initialFilters &&
-                Object.keys(initialFilters).length > 0
+                typeof initialFilters === "object"
+                    ? initialFilters
+                    : {};
+
+
+            /*
+            |------------------------------------------------------------------
+            | Save initial filters
+            |------------------------------------------------------------------
+            */
+
+            if (
+                Object.keys(
+                    startingFilters
+                ).length > 0
             ) {
 
                 dispatch(
                     setAnalyticsFilters(
-                        initialFilters
+                        startingFilters
                     )
                 );
 
             }
 
+
+            /*
+            |------------------------------------------------------------------
+            | Initial Analytics Requests
+            |------------------------------------------------------------------
+            */
+
+            dispatch(
+                fetchDashboardAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchEnergyAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchBatteryAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchSolarAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchGeneratorAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchGridAnalytics(
+                    startingFilters
+                )
+            );
+
+            dispatch(
+                fetchReliabilityAnalytics(
+                    startingFilters
+                )
+            );
+
         },
         [
-            dispatch,
-            initialFilters
+            dispatch
         ]
     );
 
-    /*
-    |--------------------------------------------------------------------------
-    | Initial Load
-    |--------------------------------------------------------------------------
-    */
-
-    useEffect(
-        () => {
-
-            reload();
-
-        },
-        [
-            reload
-        ]
-    );
 
     /*
     |--------------------------------------------------------------------------
-    | Public API
+    | Public Hook API
     |--------------------------------------------------------------------------
     */
 
@@ -378,7 +532,7 @@ export default function useAnalytics(
 
         /*
         |--------------------------------------------------------------------------
-        | Data
+        | Analytics Data
         |--------------------------------------------------------------------------
         */
 
@@ -396,6 +550,7 @@ export default function useAnalytics(
 
         reliability,
 
+
         /*
         |--------------------------------------------------------------------------
         | Filters
@@ -404,9 +559,10 @@ export default function useAnalytics(
 
         filters,
 
+
         /*
         |--------------------------------------------------------------------------
-        | Status
+        | Request State
         |--------------------------------------------------------------------------
         */
 
@@ -416,13 +572,25 @@ export default function useAnalytics(
 
         lastUpdated,
 
+
         /*
         |--------------------------------------------------------------------------
-        | Actions
+        | Detailed Request State
         |--------------------------------------------------------------------------
         */
 
-        reload,
+        loadingState,
+
+        errorState,
+
+        lastUpdatedState,
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Individual Requests
+        |--------------------------------------------------------------------------
+        */
 
         loadDashboard,
 
@@ -437,6 +605,22 @@ export default function useAnalytics(
         loadGrid,
 
         loadReliability,
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Global Requests
+        |--------------------------------------------------------------------------
+        */
+
+        reload,
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Management
+        |--------------------------------------------------------------------------
+        */
 
         updateFilters
 

@@ -16,11 +16,11 @@ import {
 import {
     CheckCircle,
     Warning,
-    Error,
+    Error as ErrorIcon,
     Info
 } from "@mui/icons-material";
 
-import useOptimization from "../hooks/useOptimization";
+import useOptimization from "../hooks/useOptimization.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -30,26 +30,35 @@ import useOptimization from "../hooks/useOptimization";
 
 function SeverityIcon({ severity }) {
 
-    switch (severity) {
+    const normalizedSeverity =
+        String(severity || "").toLowerCase();
+
+    switch (normalizedSeverity) {
 
         case "critical":
 
-            return <Error color="error" />;
+            return (
+                <ErrorIcon color="error" />
+            );
 
         case "warning":
 
-            return <Warning color="warning" />;
+            return (
+                <Warning color="warning" />
+            );
 
         case "success":
 
-            return <CheckCircle color="success" />;
+            return (
+                <CheckCircle color="success" />
+            );
 
         default:
 
-            return <Info color="info" />;
-
+            return (
+                <Info color="info" />
+            );
     }
-
 }
 
 /*
@@ -58,28 +67,25 @@ function SeverityIcon({ severity }) {
 |--------------------------------------------------------------------------
 */
 
-function RecommendationColor(severity) {
+function recommendationColor(severity) {
 
-    switch (severity) {
+    const normalizedSeverity =
+        String(severity || "").toLowerCase();
+
+    switch (normalizedSeverity) {
 
         case "critical":
-
             return "error";
 
         case "warning":
-
             return "warning";
 
         case "success":
-
             return "success";
 
         default:
-
             return "info";
-
     }
-
 }
 
 /*
@@ -89,45 +95,36 @@ function RecommendationColor(severity) {
 */
 
 export default function OptimizationRecommendations({
-
     siteId
-
 }) {
 
     const {
-
         recommendations,
-
         loading,
-
         error
-
     } = useOptimization({
-
         siteId
-
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
 
     if (loading) {
 
         return (
-
             <Card>
 
                 <CardContent>
 
                     <Stack
-
                         justifyContent="center"
-
                         alignItems="center"
-
                         sx={{
-
                             minHeight: 250
-
                         }}
-
                     >
 
                         <CircularProgress />
@@ -137,80 +134,142 @@ export default function OptimizationRecommendations({
                 </CardContent>
 
             </Card>
-
         );
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
 
     if (error) {
 
         return (
-
             <Alert severity="error">
 
-                {error}
+                {typeof error === "string"
+                    ? error
+                    : error?.message ||
+                      "Unable to load optimization recommendations."
+                }
 
             </Alert>
-
         );
-
     }
 
-    return (
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize Recommendations
+    |--------------------------------------------------------------------------
+    */
 
+    const items =
+        Array.isArray(recommendations)
+            ? recommendations
+            : Array.isArray(recommendations?.data)
+                ? recommendations.data
+                : Array.isArray(recommendations?.recommendations)
+                    ? recommendations.recommendations
+                    : [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Empty State
+    |--------------------------------------------------------------------------
+    */
+
+    if (!items.length) {
+
+        return (
+            <Card>
+
+                <CardContent>
+
+                    <Typography
+                        variant="h6"
+                        fontWeight={700}
+                    >
+                        Optimization Recommendations
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                            mt: 1
+                        }}
+                    >
+                        No optimization recommendations are currently
+                        available.
+                    </Typography>
+
+                </CardContent>
+
+            </Card>
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
+    return (
         <Card>
 
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Optimization Recommendations
-
                 </Typography>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
-
-                    AI-assisted operational recommendations generated from
-                    optimization, forecasting and reliability analytics.
-
+                    AI-assisted operational recommendations generated
+                    from optimization, forecasting and reliability
+                    analytics.
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <List>
 
-                    {
+                    {items.map((item, index) => {
 
-                        recommendations?.map((item) => (
+                        const severity =
+                            String(
+                                item?.severity || "info"
+                            ).toLowerCase();
 
+                        const key =
+                            item?.id ||
+                            item?._id ||
+                            `${item?.title || "recommendation"}-${index}`;
+
+                        return (
                             <ListItem
-
-                                key={item.id}
-
+                                key={key}
                                 alignItems="flex-start"
-
-                                divider
-
+                                divider={
+                                    index < items.length - 1
+                                }
                             >
 
                                 <ListItemIcon>
 
                                     <SeverityIcon
-
-                                        severity={item.severity}
-
+                                        severity={severity}
                                     />
 
                                 </ListItemIcon>
@@ -218,106 +277,89 @@ export default function OptimizationRecommendations({
                                 <ListItemText
 
                                     primary={
-
                                         <Stack
-
                                             direction="row"
-
                                             spacing={1}
-
-                                            alignItems="center"
-
+                                            sx={{
+                                                alignItems: "center",
+                                                flexWrap: "wrap"
+                                            }}
                                         >
 
                                             <Typography
                                                 fontWeight={600}
                                             >
-
-                                                {item.title}
-
+                                                {
+                                                    item?.title ||
+                                                    "Optimization Recommendation"
+                                                }
                                             </Typography>
 
-                                            <Chip
+                                            {item?.category && (
 
-                                                size="small"
+                                                <Chip
+                                                    size="small"
+                                                    color={
+                                                        recommendationColor(
+                                                            severity
+                                                        )
+                                                    }
+                                                    label={
+                                                        item.category
+                                                    }
+                                                />
 
-                                                color={RecommendationColor(
-                                                    item.severity
-                                                )}
-
-                                                label={item.category}
-
-                                            />
+                                            )}
 
                                         </Stack>
-
                                     }
 
                                     secondary={
-
                                         <>
+                                            {item?.description && (
 
-                                            <Typography
-                                                variant="body2"
-                                                sx={{
-                                                    mt: 1
-                                                }}
-                                            >
+                                                <Typography
+                                                    variant="body2"
+                                                    sx={{
+                                                        mt: 1
+                                                    }}
+                                                >
+                                                    {
+                                                        item.description
+                                                    }
+                                                </Typography>
 
-                                                {item.description}
+                                            )}
 
-                                            </Typography>
+                                            {item?.expectedBenefit && (
 
-                                            {
+                                                <Typography
+                                                    variant="caption"
+                                                    display="block"
+                                                    sx={{
+                                                        mt: 1
+                                                    }}
+                                                >
+                                                    Expected Benefit:{" "}
+                                                    {
+                                                        item.expectedBenefit
+                                                    }
+                                                </Typography>
 
-                                                item.expectedBenefit && (
-
-                                                    <Typography
-
-                                                        variant="caption"
-
-                                                        display="block"
-
-                                                        sx={{
-                                                            mt: 1
-                                                        }}
-
-                                                    >
-
-                                                        Expected Benefit:
-
-                                                        {" "}
-
-                                                        {
-
-                                                            item.expectedBenefit
-
-                                                        }
-
-                                                    </Typography>
-
-                                                )
-
-                                            }
-
+                                            )}
                                         </>
-
                                     }
 
                                 />
 
                             </ListItem>
-
-                        ))
-
-                    }
+                        );
+                    })}
 
                 </List>
 
             </CardContent>
 
         </Card>
-
     );
-
 }

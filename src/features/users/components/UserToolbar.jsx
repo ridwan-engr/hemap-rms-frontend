@@ -9,7 +9,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -18,17 +18,12 @@ import useUser from "../hooks/useUser";
 */
 
 export default function UserToolbar({
-
     onCreate
-
 }) {
 
     const {
-
         refresh,
-
         refreshing
-
     } = useUser();
 
     return (
@@ -38,63 +33,54 @@ export default function UserToolbar({
             <CardContent>
 
                 <Stack
-
-                    direction="row"
-
-                    justifyContent="space-between"
-
-                    alignItems="center"
-
+                    direction={{
+                        xs: "column",
+                        sm: "row"
+                    }}
+                    spacing={2}
+                    sx={{
+                        alignItems: {
+                            xs: "stretch",
+                            sm: "center"
+                        },
+                        justifyContent: "space-between"
+                    }}
                 >
 
                     <Typography
-
                         variant="h6"
-
                         fontWeight={700}
-
                     >
-
                         User Management
-
                     </Typography>
 
                     <Stack
-
-                        direction="row"
-
+                        direction={{
+                            xs: "column",
+                            sm: "row"
+                        }}
                         spacing={2}
-
                     >
 
                         <Button
-
                             variant="outlined"
-
-                            startIcon={<RefreshIcon />}
-
+                            startIcon={
+                                <RefreshIcon />
+                            }
                             onClick={refresh}
-
                             disabled={refreshing}
-
                         >
-
                             Refresh
-
                         </Button>
 
                         <Button
-
                             variant="contained"
-
-                            startIcon={<AddIcon />}
-
+                            startIcon={
+                                <AddIcon />
+                            }
                             onClick={onCreate}
-
                         >
-
                             New User
-
                         </Button>
 
                     </Stack>

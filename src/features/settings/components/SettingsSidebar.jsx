@@ -1,5 +1,4 @@
 import {
-
     Card,
     CardContent,
     List,
@@ -7,7 +6,6 @@ import {
     ListItemText,
     Typography,
     Divider
-
 } from "@mui/material";
 
 import useSettings from "../hooks/useSettings";
@@ -19,23 +17,14 @@ import useSettings from "../hooks/useSettings";
 */
 
 const DEFAULT_CATEGORIES = [
-
     "ALL",
-
     "SYSTEM",
-
     "DATABASE",
-
     "VRM",
-
     "SECURITY",
-
     "MAIL",
-
     "OPTIMIZATION",
-
     "NOTIFICATION"
-
 ];
 
 /*
@@ -47,13 +36,9 @@ const DEFAULT_CATEGORIES = [
 export default function SettingsSidebar() {
 
     const {
-
-        settings,
-
+        settings = [],
         category,
-
         updateCategory
-
     } = useSettings();
 
     /*
@@ -63,82 +48,56 @@ export default function SettingsSidebar() {
     */
 
     const categories = [
-
         ...new Set([
-
             ...DEFAULT_CATEGORIES,
 
-            ...settings.map(
-
-                setting => setting.category
-
-            )
-
+            ...settings
+                .map(setting => setting?.category)
+                .filter(Boolean)
         ])
-
     ];
 
     return (
 
         <Card>
 
-            <CardContent sx={{ p: 0 }}>
+            <CardContent
+                sx={{ p: 0 }}
+            >
 
                 <Typography
-
                     variant="h6"
-
                     sx={{
-
                         p: 2,
-
                         fontWeight: 700
-
                     }}
-
                 >
-
                     Categories
-
                 </Typography>
 
                 <Divider />
 
                 <List disablePadding>
 
-                    {
+                    {categories.map(item => (
 
-                        categories.map(item => (
+                        <ListItemButton
+                            key={item}
+                            selected={
+                                category === item
+                            }
+                            onClick={() =>
+                                updateCategory(item)
+                            }
+                        >
 
-                            <ListItemButton
+                            <ListItemText
+                                primary={item}
+                            />
 
-                                key={item}
+                        </ListItemButton>
 
-                                selected={
-
-                                    category === item
-
-                                }
-
-                                onClick={() =>
-
-                                    updateCategory(item)
-
-                                }
-
-                            >
-
-                                <ListItemText
-
-                                    primary={item}
-
-                                />
-
-                            </ListItemButton>
-
-                        ))
-
-                    }
+                    ))}
 
                 </List>
 

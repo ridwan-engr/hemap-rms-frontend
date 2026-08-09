@@ -25,17 +25,11 @@ import useAlarm from "../hooks/useAlarm";
 */
 
 const COLORS = [
-
-    "#D32F2F", // Critical
-
-    "#F57C00", // Major
-
-    "#1976D2", // Minor
-
-    "#FBC02D", // Warning
-
-    "#388E3C"  // Information
-
+    "#D32F2F",
+    "#F57C00",
+    "#1976D2",
+    "#FBC02D",
+    "#388E3C"
 ];
 
 /*
@@ -47,16 +41,18 @@ const COLORS = [
 export default function AlarmSeverityChart() {
 
     const {
-
         severity,
-
-        loading,
-
+        loadingStatistics,
         error
-
     } = useAlarm();
 
-    if (loading) {
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
+
+    if (loadingStatistics) {
 
         return (
 
@@ -65,17 +61,11 @@ export default function AlarmSeverityChart() {
                 <CardContent>
 
                     <Stack
-
-                        justifyContent="center"
-
-                        alignItems="center"
-
                         sx={{
-
-                            minHeight: 350
-
+                            minHeight: 350,
+                            justifyContent: "center",
+                            alignItems: "center"
                         }}
-
                     >
 
                         <CircularProgress />
@@ -90,6 +80,12 @@ export default function AlarmSeverityChart() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
+
     if (error) {
 
         return (
@@ -99,9 +95,7 @@ export default function AlarmSeverityChart() {
                 <CardContent>
 
                     <Typography color="error">
-
                         {error}
-
                     </Typography>
 
                 </CardContent>
@@ -112,7 +106,21 @@ export default function AlarmSeverityChart() {
 
     }
 
-    const data = severity || [];
+    /*
+    |--------------------------------------------------------------------------
+    | Chart Data
+    |--------------------------------------------------------------------------
+    */
+
+    const data = Array.isArray(severity)
+        ? severity
+        : [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -121,100 +129,71 @@ export default function AlarmSeverityChart() {
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Alarm Severity Distribution
-
                 </Typography>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
-
                     Distribution of alarms by severity level
-
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <ResponsiveContainer
-
                     width="100%"
-
                     height={350}
-
                 >
 
                     <PieChart>
 
                         <Pie
-
                             data={data}
-
                             dataKey="count"
-
                             nameKey="severity"
-
                             outerRadius={120}
-
                             innerRadius={60}
-
                             paddingAngle={3}
-
-                            label={({ severity, percent }) =>
-
-                                `${severity} ${(percent * 100).toFixed(1)}%`
-
+                            label={({
+                                severity,
+                                percent
+                            }) =>
+                                `${severity} ${(
+                                    percent * 100
+                                ).toFixed(1)}%`
                             }
-
                         >
 
-                            {
-
-                                data.map((entry, index) => (
+                            {data.map(
+                                (entry, index) => (
 
                                     <Cell
-
-                                        key={entry.severity}
-
-                                        fill={
-
-                                            COLORS[
-
-                                                index % COLORS.length
-
-                                            ]
-
+                                        key={
+                                            entry.severity ||
+                                            index
                                         }
-
+                                        fill={
+                                            COLORS[
+                                                index %
+                                                COLORS.length
+                                            ]
+                                        }
                                     />
 
-                                ))
-
-                            }
+                                )
+                            )}
 
                         </Pie>
 
-                        <Tooltip
-
-                            formatter={(value) => [
-
-                                value,
-
-                                "Alarms"
-
-                            ]}
-
-                        />
+                        <Tooltip />
 
                         <Legend />
 

@@ -1,33 +1,19 @@
 import {
-
     Chip,
-
-    CircularProgress,
-
     IconButton,
-
     Paper,
-
     Stack,
-
     Tooltip,
-
     Typography
-
 } from "@mui/material";
 
 import {
-
     DataGrid
-
 } from "@mui/x-data-grid";
 
 import {
-
     CheckCircle,
-
     Visibility
-
 } from "@mui/icons-material";
 
 import useAlarm from "../hooks/useAlarm";
@@ -40,26 +26,23 @@ import useAlarm from "../hooks/useAlarm";
 
 function severityColor(severity) {
 
-    switch (severity?.toLowerCase()) {
+    switch (
+        String(severity || "").toLowerCase()
+    ) {
 
         case "critical":
-
             return "error";
 
         case "major":
-
             return "warning";
 
         case "minor":
-
             return "info";
 
         case "warning":
-
             return "secondary";
 
         default:
-
             return "default";
 
     }
@@ -74,22 +57,20 @@ function severityColor(severity) {
 
 function statusColor(status) {
 
-    switch (status?.toLowerCase()) {
+    switch (
+        String(status || "").toLowerCase()
+    ) {
 
         case "active":
-
             return "error";
 
         case "acknowledged":
-
             return "warning";
 
         case "resolved":
-
             return "success";
 
         default:
-
             return "default";
 
     }
@@ -105,87 +86,67 @@ function statusColor(status) {
 export default function AlarmTable() {
 
     const {
-
         alarms,
-
         total,
-
-        loading,
-
+        loadingHistory,
         paginationModel,
-
         updatePagination,
-
         acknowledgeAlarm,
-
         viewAlarm
-
     } = useAlarm();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Columns
+    |--------------------------------------------------------------------------
+    */
 
     const columns = [
 
         {
-
             field: "alarmId",
-
             headerName: "Alarm ID",
-
             width: 140
-
         },
 
         {
-
             field: "siteName",
-
             headerName: "Site",
-
             flex: 1,
-
             minWidth: 180
-
         },
 
         {
-
             field: "equipment",
-
             headerName: "Equipment",
-
             flex: 1,
-
             minWidth: 170
-
         },
 
         {
-
             field: "category",
-
             headerName: "Category",
-
             width: 150
-
         },
 
         {
-
             field: "severity",
-
             headerName: "Severity",
-
             width: 130,
 
             renderCell: (params) => (
 
                 <Chip
-
                     size="small"
-
-                    label={params.value}
-
-                    color={severityColor(params.value)}
-
+                    label={
+                        params.value ||
+                        "Unknown"
+                    }
+                    color={
+                        severityColor(
+                            params.value
+                        )
+                    }
                 />
 
             )
@@ -193,23 +154,23 @@ export default function AlarmTable() {
         },
 
         {
-
             field: "status",
-
             headerName: "Status",
-
             width: 150,
 
             renderCell: (params) => (
 
                 <Chip
-
                     size="small"
-
-                    label={params.value}
-
-                    color={statusColor(params.value)}
-
+                    label={
+                        params.value ||
+                        "Unknown"
+                    }
+                    color={
+                        statusColor(
+                            params.value
+                        )
+                    }
                 />
 
             )
@@ -217,81 +178,76 @@ export default function AlarmTable() {
         },
 
         {
-
             field: "message",
-
             headerName: "Alarm Description",
-
             flex: 2,
-
             minWidth: 320
-
         },
 
         {
-
             field: "createdAt",
-
             headerName: "Raised",
-
             width: 180
-
         },
 
         {
-
             field: "actions",
-
             headerName: "Actions",
-
-            width: 120,
-
+            width: 130,
             sortable: false,
+            filterable: false,
 
-            renderCell: ({ row }) => (
+            renderCell: ({ row }) => {
 
-                <Stack
+                const alarmId =
+                    row._id ||
+                    row.id ||
+                    row.alarmId;
 
-                    direction="row"
+                const status =
+                    String(
+                        row.status || ""
+                    ).toLowerCase();
 
-                    spacing={1}
+                return (
 
-                >
+                    <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                            alignItems: "center"
+                        }}
+                    >
 
-                    <Tooltip title="View">
+                        <Tooltip title="View">
 
-                        <IconButton
+                            <IconButton
+                                size="small"
+                                onClick={() =>
+                                    viewAlarm(
+                                        alarmId
+                                    )
+                                }
+                            >
 
-                            size="small"
+                                <Visibility />
 
-                            onClick={() => viewAlarm(row.id)}
+                            </IconButton>
 
-                        >
+                        </Tooltip>
 
-                            <Visibility />
-
-                        </IconButton>
-
-                    </Tooltip>
-
-                    {
-
-                        row.status === "Active" && (
+                        {status === "active" && (
 
                             <Tooltip title="Acknowledge">
 
                                 <IconButton
-
                                     size="small"
-
                                     color="success"
-
                                     onClick={() =>
-
-                                        acknowledgeAlarm(row.id)
-
+                                        acknowledgeAlarm(
+                                            alarmId
+                                        )
                                     }
-
                                 >
 
                                     <CheckCircle />
@@ -300,106 +256,83 @@ export default function AlarmTable() {
 
                             </Tooltip>
 
-                        )
+                        )}
 
-                    }
+                    </Stack>
 
-                </Stack>
+                );
 
-            )
+            }
 
         }
 
     ];
 
-    if (loading) {
-
-        return (
-
-            <Paper
-
-                sx={{
-
-                    display: "flex",
-
-                    justifyContent: "center",
-
-                    alignItems: "center",
-
-                    height: 500
-
-                }}
-
-            >
-
-                <CircularProgress />
-
-            </Paper>
-
-        );
-
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
-        <Paper sx={{ height: 650 }}>
+        <Paper
+            sx={{
+                height: 650
+            }}
+        >
 
             <Stack
-
-                px={2}
-
-                pt={2}
-
+                sx={{
+                    px: 2,
+                    pt: 2
+                }}
             >
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Alarm History
-
                 </Typography>
 
             </Stack>
 
             <DataGrid
-
                 rows={alarms}
-
                 columns={columns}
+
+                getRowId={(row) =>
+                    row._id ||
+                    row.id ||
+                    row.alarmId
+                }
 
                 rowCount={total}
 
                 paginationMode="server"
 
-                paginationModel={paginationModel}
+                paginationModel={
+                    paginationModel
+                }
 
-                onPaginationModelChange={updatePagination}
+                onPaginationModelChange={
+                    updatePagination
+                }
 
                 pageSizeOptions={[
-
                     10,
-
                     25,
-
                     50,
-
                     100
-
                 ]}
 
-                loading={loading}
+                loading={loadingHistory}
 
                 disableRowSelectionOnClick
 
                 sx={{
-
                     border: 0
-
                 }}
 
             />

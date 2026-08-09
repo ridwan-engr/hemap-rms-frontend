@@ -1,136 +1,81 @@
 import {
-
-    Card,
-    CardContent,
-    Stack,
-    Typography,
-    Button
-
+    Box,
+    Button,
+    Grid,
+    TextField,
+    Typography
 } from "@mui/material";
 
-import RefreshIcon from "@mui/icons-material/Refresh";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
-
-import useSettings from "../hooks/useSettings";
-
-/*
-|--------------------------------------------------------------------------
-| Settings Toolbar
-|--------------------------------------------------------------------------
-*/
-
-export default function SettingsToolbar() {
-
-    const {
-
-        reload,
-        initializeDefaults,
-        loading
-
-    } = useSettings();
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initialize Defaults
-    |--------------------------------------------------------------------------
-    */
-
-    const handleInitialize = async () => {
-
-        const confirmed = window.confirm(
-
-            "Initialize default settings?\n\nExisting keys will be updated."
-
-        );
-
-        if (!confirmed) {
-
-            return;
-
-        }
-
-        await initializeDefaults();
-
-        reload();
-
-    };
-
+export default function SettingsToolbar({
+    search,
+    onSearchChange,
+    onRefresh,
+    loading = false
+}) {
     return (
-
-        <Card>
-
-            <CardContent>
-
-                <Stack
-
-                    direction="row"
-
-                    justifyContent="space-between"
-
-                    alignItems="center"
-
-                >
-
+        <Grid
+            container
+            spacing={2}
+            sx={{
+                alignItems: "center",
+                justifyContent: "space-between"
+            }}
+        >
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6
+                }}
+            >
+                <Box>
                     <Typography
-
                         variant="h6"
-
                         fontWeight={700}
-
                     >
-
-                        System Settings
-
+                        Settings
                     </Typography>
 
-                    <Stack
-
-                        direction="row"
-
-                        spacing={2}
-
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
                     >
+                        Manage system configuration and preferences
+                    </Typography>
+                </Box>
+            </Grid>
 
-                        <Button
+            <Grid
+                size={{
+                    xs: 12,
+                    md: 6
+                }}
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: {
+                        xs: "flex-start",
+                        md: "flex-end"
+                    },
+                    gap: 2
+                }}
+            >
+                <TextField
+                    size="small"
+                    value={search}
+                    onChange={(event) =>
+                        onSearchChange(event.target.value)
+                    }
+                    placeholder="Search settings..."
+                />
 
-                            variant="outlined"
-
-                            startIcon={<RefreshIcon />}
-
-                            onClick={reload}
-
-                            disabled={loading}
-
-                        >
-
-                            Refresh
-
-                        </Button>
-
-                        <Button
-
-                            variant="contained"
-
-                            color="warning"
-
-                            startIcon={<RestartAltIcon />}
-
-                            onClick={handleInitialize}
-
-                        >
-
-                            Initialize Defaults
-
-                        </Button>
-
-                    </Stack>
-
-                </Stack>
-
-            </CardContent>
-
-        </Card>
-
+                <Button
+                    variant="contained"
+                    onClick={onRefresh}
+                    disabled={loading}
+                >
+                    {loading ? "Refreshing..." : "Refresh"}
+                </Button>
+            </Grid>
+        </Grid>
     );
-
 }

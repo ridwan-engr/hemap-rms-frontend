@@ -19,6 +19,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
                     <SocketProvider>
 
+                        <Provider store={store}></Provider>
+
                         <App />
 
                     </SocketProvider>

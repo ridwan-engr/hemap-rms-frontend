@@ -1,29 +1,18 @@
 import {
-
     Dialog,
     DialogTitle,
     DialogContent,
-
+    DialogActions,
     Grid,
-
     Typography,
-
     Avatar,
-
     Chip,
-
     Divider,
-
     Stack,
-
     Button,
-
     List,
-
     ListItem,
-
     ListItemText
-
 } from "@mui/material";
 
 /*
@@ -33,131 +22,104 @@ import {
 */
 
 export default function UserDetails({
-
     open,
-
     onClose,
-
     user
-
 }) {
 
     if (!user) {
-
         return null;
-
     }
 
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+
+    const initials =
+        `${firstName?.[0] || ""}${lastName?.[0] || ""}`
+            .toUpperCase();
+
+    const roleName =
+        typeof user.role === "object"
+            ? user.role?.name
+            : user.role;
+
+    const assignedSites =
+        Array.isArray(user.assignedSites)
+            ? user.assignedSites
+            : [];
+
     return (
-
         <Dialog
-
-            open={open}
-
+            open={Boolean(open)}
             onClose={onClose}
-
             fullWidth
-
             maxWidth="md"
-
         >
 
             <DialogTitle>
-
                 User Details
-
             </DialogTitle>
 
             <DialogContent>
 
                 <Stack
-
                     spacing={3}
-
-                    sx={{ mt: 1 }}
-
+                    sx={{
+                        mt: 1
+                    }}
                 >
 
+                    {/* User Header */}
+
                     <Stack
-
                         direction="row"
-
                         spacing={2}
-
-                        alignItems="center"
-
+                        sx={{
+                            alignItems: "center"
+                        }}
                     >
 
                         <Avatar
-
-                            src={user.avatar}
-
+                            src={user.avatar || undefined}
                             sx={{
-
                                 width: 80,
-
                                 height: 80
-
                             }}
-
                         >
-
-                            {
-
-                                `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`
-
-                            }
-
+                            {initials}
                         </Avatar>
 
                         <Stack>
 
                             <Typography
-
                                 variant="h5"
-
                                 fontWeight={700}
-
                             >
-
-                                {user.firstName} {user.lastName}
-
+                                {firstName} {lastName}
                             </Typography>
 
                             <Typography
-
                                 color="text.secondary"
-
                             >
-
-                                {user.email}
-
+                                {user.email || "-"}
                             </Typography>
 
                             <Chip
-
-                                sx={{ mt: 1, width: "fit-content" }}
-
+                                sx={{
+                                    mt: 1,
+                                    width: "fit-content"
+                                }}
                                 color={
-
                                     user.isActive
-
                                         ? "success"
-
                                         : "error"
-
                                 }
-
                                 label={
-
                                     user.isActive
-
                                         ? "Active"
-
                                         : "Inactive"
-
                                 }
-
+                                size="small"
                             />
 
                         </Stack>
@@ -166,170 +128,171 @@ export default function UserDetails({
 
                     <Divider />
 
+                    {/* User Information */}
+
                     <Grid
-
                         container
-
                         spacing={2}
-
                     >
 
-                        <Grid size={{ xs:12, md:6 }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
 
                             <Typography
-
                                 variant="subtitle2"
-
+                                color="text.secondary"
                             >
-
                                 Phone
-
                             </Typography>
 
                             <Typography>
-
                                 {user.phone || "-"}
-
                             </Typography>
 
                         </Grid>
 
-                        <Grid size={{ xs:12, md:6 }}>
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
 
                             <Typography
-
                                 variant="subtitle2"
-
+                                color="text.secondary"
                             >
-
                                 Role
-
                             </Typography>
 
                             <Typography>
-
-                                {user.role?.name || "-"}
-
+                                {roleName || "-"}
                             </Typography>
 
                         </Grid>
 
-                        <Grid size={{ xs:12 }}>
+                        {/* Assigned Sites */}
+
+                        <Grid
+                            size={{
+                                xs: 12
+                            }}
+                        >
 
                             <Typography
-
                                 variant="subtitle2"
-
+                                color="text.secondary"
                             >
-
                                 Assigned Sites
-
                             </Typography>
 
-                            <List dense>
+                            {assignedSites.length > 0 ? (
 
-                                {
+                                <List dense>
 
-                                    user.assignedSites?.length
+                                    {assignedSites.map(
+                                        (site, index) => {
 
-                                        ? (
+                                            const siteId =
+                                                site?._id ||
+                                                site?.id ||
+                                                site;
 
-                                            user.assignedSites.map(site => (
+                                            const siteName =
+                                                site?.siteName ||
+                                                site?.name ||
+                                                siteId;
 
+                                            return (
                                                 <ListItem
-
-                                                    key={site._id}
-
+                                                    key={
+                                                        siteId ||
+                                                        index
+                                                    }
                                                 >
 
                                                     <ListItemText
-
-                                                        primary={site.siteName}
-
+                                                        primary={
+                                                            siteName
+                                                        }
                                                     />
 
                                                 </ListItem>
+                                            );
 
-                                            ))
+                                        }
+                                    )}
 
-                                        )
+                                </List>
 
-                                        : (
+                            ) : (
 
-                                            <Typography>
+                                <Typography
+                                    color="text.secondary"
+                                >
+                                    No assigned sites
+                                </Typography>
 
-                                                No assigned sites
-
-                                            </Typography>
-
-                                        )
-
-                                }
-
-                            </List>
+                            )}
 
                         </Grid>
 
-                        <Grid size={{ xs:12, md:6 }}>
+                        {/* Last Login */}
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
 
                             <Typography
-
                                 variant="subtitle2"
-
+                                color="text.secondary"
                             >
-
                                 Last Login
-
                             </Typography>
 
                             <Typography>
-
                                 {
-
                                     user.lastLogin
-
                                         ? new Date(
-
                                             user.lastLogin
-
                                         ).toLocaleString()
-
                                         : "-"
-
                                 }
-
                             </Typography>
 
                         </Grid>
 
-                        <Grid size={{ xs:12, md:6 }}>
+                        {/* Created */}
+
+                        <Grid
+                            size={{
+                                xs: 12,
+                                md: 6
+                            }}
+                        >
 
                             <Typography
-
                                 variant="subtitle2"
-
+                                color="text.secondary"
                             >
-
                                 Created
-
                             </Typography>
 
                             <Typography>
-
                                 {
-
                                     user.createdAt
-
                                         ? new Date(
-
                                             user.createdAt
-
                                         ).toLocaleString()
-
                                         : "-"
-
                                 }
-
                             </Typography>
 
                         </Grid>
@@ -338,34 +301,21 @@ export default function UserDetails({
 
                     <Divider />
 
-                    <Stack
-
-                        direction="row"
-
-                        justifyContent="flex-end"
-
-                    >
-
-                        <Button
-
-                            variant="contained"
-
-                            onClick={onClose}
-
-                        >
-
-                            Close
-
-                        </Button>
-
-                    </Stack>
-
                 </Stack>
 
             </DialogContent>
 
+            <DialogActions>
+
+                <Button
+                    variant="contained"
+                    onClick={onClose}
+                >
+                    Close
+                </Button>
+
+            </DialogActions>
+
         </Dialog>
-
     );
-
 }

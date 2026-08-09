@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-
+import { useCallback, useMemo } from "react";
 import {
     useDispatch,
     useSelector
@@ -8,14 +7,11 @@ import {
 import {
     fetchUsers,
     fetchUser,
-
-    createUser,
-    updateUser,
-    deleteUser,
-
-    activateUser,
-    deactivateUser,
-
+    createUser as createUserAction,
+    updateUser as updateUserAction,
+    deleteUser as deleteUserAction,
+    activateUser as activateUserAction,
+    deactivateUser as deactivateUserAction,
     setUserFilters,
     setPaginationModel,
     clearSelectedUser
@@ -30,6 +26,15 @@ import {
 |
 | Components should NEVER dispatch Redux actions directly.
 |
+| This hook also provides:
+|
+| - normalized users
+| - summary statistics
+| - role statistics
+| - safe defaults for Redux state
+| - DataGrid-compatible row IDs
+|
+|--------------------------------------------------------------------------
 */
 
 export default function useUser() {
@@ -42,77 +47,272 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const {
-        users,
-        total,
-
-        selectedUser,
-
-        filters,
-        paginationModel,
-
-        loading,
-        error,
-        lastUpdated
-
-    } = useSelector(
-        state => state.users
+    const state = useSelector(
+        state => state.users || {}
     );
+
+    const {
+        users = [],
+        total = 0,
+        selectedUser = null,
+        filters = {},
+        paginationModel = {
+            page: 0,
+            pageSize: 25
+        },
+        loading = false,
+        refreshing = false,
+        error = null,
+        lastUpdated = null
+    } = state;
 
     /*
     |--------------------------------------------------------------------------
-    | Load Users
+    | Normalize Users
+    |--------------------------------------------------------------------------
+    |
+    | MongoDB returns _id.
+    | MUI DataGrid requires id unless getRowId is supplied.
+    |
+    | We normalize here so every component receives a consistent shape.
+    |
+    */
+
+    const normalizedUsers = useMemo(() => {
+
+        if (!Array.isArray(users)) {
+            return [];
+        }
+
+        return users.map(user => {
+
+            const role =
+                typeof user?.role === "object"
+                    ? user.role?.name ||
+                      user.role?.code ||
+                      ""
+                    : user?.role || "";
+
+            const assignedSites =
+                Array.isArray(user?.assignedSites)
+                    ? user.assignedSites
+                    : [];
+
+            const fullName = [
+                user?.firstName,
+                user?.lastName
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .trim();
+
+            const status =
+                user?.isActive === true
+                    ? "Active"
+                    : "Inactive";
+
+            return {
+
+                ...user,
+
+                /*
+                |----------------------------------------------------------
+                | DataGrid ID
+                |----------------------------------------------------------
+                */
+
+                id:
+                    user?.id ||
+                    user?._id,
+
+                /*
+                |----------------------------------------------------------
+                | Display fields
+                |----------------------------------------------------------
+                */
+
+                fullName:
+                    fullName ||
+                    user?.name ||
+                    user?.email ||
+                    "Unknown User",
+
+                role,
+
+                assignedSites,
+
+                status,
+
+                lastLogin:
+                    user?.lastLogin
+                        ? new Date(
+                            user.lastLogin
+                        ).toLocaleString()
+                        : "-"
+
+            };
+
+        });
+
+    }, [users]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Summary
+    |--------------------------------------------------------------------------
+    */
+
+    const summary = useMemo(() => {
+
+        const list = normalizedUsers;
+
+        const totalUsers =
+            Number.isFinite(total) && total > 0
+                ? total
+                : list.length;
+
+        const activeUsers =
+            list.filter(
+                user =>
+                    user.isActive === true
+            ).length;
+
+        const inactiveUsers =
+            list.filter(
+                user =>
+                    user.isActive !== true
+            ).length;
+
+        const administrators =
+            list.filter(user => {
+
+                const role =
+                    String(
+                        user.role || ""
+                    ).toUpperCase();
+
+                return (
+                    role === "ADMIN" ||
+                    role === "ADMINISTRATOR"
+                );
+
+            }).length;
+
+        return {
+
+            totalUsers,
+
+            activeUsers,
+
+            inactiveUsers,
+
+            administrators
+
+        };
+
+    }, [
+        normalizedUsers,
+        total
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Role Statistics
+    |--------------------------------------------------------------------------
+    */
+
+    const statistics = useMemo(() => {
+
+        const roleMap = {};
+
+        normalizedUsers.forEach(user => {
+
+            const role =
+                user.role ||
+                "UNASSIGNED";
+
+            roleMap[role] =
+                (roleMap[role] || 0) + 1;
+
+        });
+
+        return Object.entries(
+            roleMap
+        ).map(
+            ([role, count]) => ({
+
+                role,
+
+                total: count
+
+            })
+        );
+
+    }, [normalizedUsers]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reload Users
     |--------------------------------------------------------------------------
     */
 
     const reload = useCallback(
+        (params = {}) => {
 
-        (params = filters) => {
+            const query = {
+
+                ...filters,
+
+                ...params,
+
+                page:
+                    params.page ??
+                    paginationModel.page + 1,
+
+                limit:
+                    params.limit ??
+                    paginationModel.pageSize
+
+            };
 
             return dispatch(
-
-                fetchUsers({
-
-                    ...params,
-
-                    page:
-                        paginationModel.page + 1,
-
-                    limit:
-                        paginationModel.pageSize
-
-                })
-
+                fetchUsers(query)
             );
 
         },
-
         [
             dispatch,
             filters,
-            paginationModel
+            paginationModel.page,
+            paginationModel.pageSize
         ]
-
     );
 
     /*
     |--------------------------------------------------------------------------
-    | User Details
+    | View User
     |--------------------------------------------------------------------------
     */
 
     const viewUser = useCallback(
-
         userId => {
+
+            if (!userId) {
+
+                return Promise.reject(
+                    new Error(
+                        "userId is required"
+                    )
+                );
+
+            }
 
             return dispatch(
                 fetchUser(userId)
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -121,18 +321,15 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const createNewUser = useCallback(
-
+    const createUser = useCallback(
         payload => {
 
             return dispatch(
-                createUser(payload)
+                createUserAction(payload)
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -141,29 +338,34 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const updateExistingUser = useCallback(
-
+    const updateUser = useCallback(
         (
             userId,
             payload
         ) => {
 
-            return dispatch(
+            if (!userId) {
 
-                updateUser({
+                return Promise.reject(
+                    new Error(
+                        "userId is required"
+                    )
+                );
+
+            }
+
+            return dispatch(
+                updateUserAction({
 
                     userId,
 
                     payload
 
                 })
-
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -172,18 +374,25 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const activateExistingUser = useCallback(
-
+    const activateUser = useCallback(
         userId => {
 
+            if (!userId) {
+
+                return Promise.reject(
+                    new Error(
+                        "userId is required"
+                    )
+                );
+
+            }
+
             return dispatch(
-                activateUser(userId)
+                activateUserAction(userId)
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -192,18 +401,25 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const deactivateExistingUser = useCallback(
-
+    const deactivateUser = useCallback(
         userId => {
 
+            if (!userId) {
+
+                return Promise.reject(
+                    new Error(
+                        "userId is required"
+                    )
+                );
+
+            }
+
             return dispatch(
-                deactivateUser(userId)
+                deactivateUserAction(userId)
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -212,18 +428,25 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const removeUser = useCallback(
-
+    const deleteUser = useCallback(
         userId => {
 
+            if (!userId) {
+
+                return Promise.reject(
+                    new Error(
+                        "userId is required"
+                    )
+                );
+
+            }
+
             return dispatch(
-                deleteUser(userId)
+                deleteUserAction(userId)
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -232,8 +455,7 @@ export default function useUser() {
     |--------------------------------------------------------------------------
     */
 
-    const clearSelected = useCallback(
-
+    const clearSelectedUser = useCallback(
         () => {
 
             dispatch(
@@ -241,9 +463,7 @@ export default function useUser() {
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -253,17 +473,16 @@ export default function useUser() {
     */
 
     const updateFilters = useCallback(
-
         newFilters => {
 
             dispatch(
-                setUserFilters(newFilters)
+                setUserFilters(
+                    newFilters || {}
+                )
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
@@ -273,61 +492,87 @@ export default function useUser() {
     */
 
     const updatePagination = useCallback(
-
         model => {
 
             dispatch(
-                setPaginationModel(model)
+                setPaginationModel(
+                    model
+                )
             );
 
         },
-
         [dispatch]
-
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Public Hook API
+    | Refresh
+    |--------------------------------------------------------------------------
+    */
+
+    const refresh = useCallback(
+        () => {
+
+            return reload();
+
+        },
+        [reload]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public API
     |--------------------------------------------------------------------------
     */
 
     return {
 
-        users,
+        /* Data */
+        users: normalizedUsers,
+
         total,
 
         selectedUser,
 
+        /* Statistics */
+        summary,
+
+        statistics,
+
+        /* Query state */
         filters,
+
         paginationModel,
 
+        /* Request state */
         loading,
+
+        refreshing,
+
         error,
+
         lastUpdated,
 
+        /* Actions */
         reload,
+
+        refresh,
 
         viewUser,
 
-        createUser:
-            createNewUser,
+        createUser,
 
-        updateUser:
-            updateExistingUser,
+        updateUser,
 
-        activateUser:
-            activateExistingUser,
+        activateUser,
 
-        deactivateUser:
-            deactivateExistingUser,
+        deactivateUser,
 
-        deleteUser:
-            removeUser,
+        deleteUser,
 
-        clearSelectedUser:
-            clearSelected,
+        clearSelectedUser,
 
+        /* UI state */
         updateFilters,
 
         updatePagination

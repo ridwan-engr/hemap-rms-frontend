@@ -18,7 +18,7 @@ import {
 
 import SolarPowerIcon from "@mui/icons-material/SolarPower";
 
-import useOptimization from "../hooks/useOptimization";
+import useOptimization from "../hooks/useOptimization.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -27,19 +27,13 @@ import useOptimization from "../hooks/useOptimization";
 */
 
 function SummaryCard({
-
     icon,
-
     title,
-
     value,
-
     unit
-
 }) {
 
     return (
-
         <Card
             elevation={2}
             sx={{
@@ -51,7 +45,9 @@ function SummaryCard({
 
                 <Stack
                     spacing={2}
-                    alignItems="center"
+                    sx={{
+                        alignItems: "center"
+                    }}
                 >
 
                     {icon}
@@ -59,22 +55,23 @@ function SummaryCard({
                     <Typography
                         variant="subtitle2"
                         color="text.secondary"
-                        align="center"
+                        sx={{
+                            textAlign: "center"
+                        }}
                     >
-
                         {title}
-
                     </Typography>
 
                     <Typography
                         variant="h5"
                         fontWeight={700}
+                        sx={{
+                            textAlign: "center"
+                        }}
                     >
-
                         {value ?? "--"}
 
                         {unit && ` ${unit}`}
-
                     </Typography>
 
                 </Stack>
@@ -82,9 +79,7 @@ function SummaryCard({
             </CardContent>
 
         </Card>
-
     );
-
 }
 
 /*
@@ -94,201 +89,251 @@ function SummaryCard({
 */
 
 export default function DispatchSummary({
-
     siteId
-
 }) {
 
     const {
-
         summary,
-
         loading,
-
         error
-
     } = useOptimization({
-
         siteId
-
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
 
     if (loading) {
 
         return (
-
             <Stack
-
-                justifyContent="center"
-
-                alignItems="center"
-
                 sx={{
-
-                    minHeight: 300
-
+                    minHeight: 300,
+                    alignItems: "center",
+                    justifyContent: "center"
                 }}
-
             >
-
                 <CircularProgress />
-
             </Stack>
-
         );
-
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
 
     if (error) {
 
         return (
-
-            <Typography color="error">
-
-                {error}
-
+            <Typography
+                color="error"
+            >
+                {typeof error === "string"
+                    ? error
+                    : error?.message ||
+                      "Unable to load optimization summary."
+                }
             </Typography>
-
         );
-
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
-
         <Grid
-
             container
-
             spacing={3}
-
         >
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Operating Cost */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<Bolt color="primary" />}
-
+                    icon={
+                        <Bolt color="primary" />
+                    }
                     title="Operating Cost"
-
-                    value={summary?.operatingCost}
-
+                    value={
+                        summary?.operatingCost
+                    }
                     unit="₦"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Renewable Contribution */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<SolarPowerIcon color="success" />}
-
+                    icon={
+                        <SolarPowerIcon
+                            color="success"
+                        />
+                    }
                     title="Renewable Contribution"
-
-                    value={summary?.renewableContribution}
-
+                    value={
+                        summary?.renewableContribution
+                    }
                     unit="%"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Diesel Consumption */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<LocalGasStation color="warning" />}
-
+                    icon={
+                        <LocalGasStation
+                            color="warning"
+                        />
+                    }
                     title="Diesel Consumption"
-
-                    value={summary?.dieselConsumption}
-
+                    value={
+                        summary?.dieselConsumption
+                    }
                     unit="L"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Battery Throughput */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<BatteryChargingFull color="success" />}
-
+                    icon={
+                        <BatteryChargingFull
+                            color="success"
+                        />
+                    }
                     title="Battery Throughput"
-
-                    value={summary?.batteryThroughput}
-
+                    value={
+                        summary?.batteryThroughput
+                    }
                     unit="kWh"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* CO2 Avoided */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<Co2 color="action" />}
-
+                    icon={
+                        <Co2
+                            color="action"
+                        />
+                    }
                     title="CO₂ Avoided"
-
-                    value={summary?.co2Avoided}
-
+                    value={
+                        summary?.co2Avoided
+                    }
                     unit="kg"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Cost Savings */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<Savings color="success" />}
-
+                    icon={
+                        <Savings
+                            color="success"
+                        />
+                    }
                     title="Cost Savings"
-
-                    value={summary?.costSavings}
-
+                    value={
+                        summary?.costSavings
+                    }
                     unit="₦"
-
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Optimization Status */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<CheckCircle color="success" />}
-
+                    icon={
+                        <CheckCircle
+                            color="success"
+                        />
+                    }
                     title="Optimization Status"
-
-                    value={summary?.status}
-
+                    value={
+                        summary?.status
+                    }
                 />
-
             </Grid>
 
-            <Grid size={{ xs: 12, md: 3 }}>
+            {/* Last Optimization */}
 
+            <Grid
+                size={{
+                    xs: 12,
+                    sm: 6,
+                    md: 3
+                }}
+            >
                 <SummaryCard
-
-                    icon={<Bolt color="primary" />}
-
+                    icon={
+                        <Bolt
+                            color="primary"
+                        />
+                    }
                     title="Last Optimization"
-
-                    value={summary?.lastRun}
-
+                    value={
+                        summary?.lastRun
+                    }
                 />
-
             </Grid>
 
         </Grid>
-
     );
-
 }

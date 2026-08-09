@@ -1,16 +1,11 @@
 import {
-
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
-
     Typography,
-
     Button,
-
     Alert
-
 } from "@mui/material";
 
 /*
@@ -20,90 +15,61 @@ import {
 */
 
 export default function SettingDeleteDialog({
-
     open,
-
     onClose,
-
     onConfirm,
-
     setting
-
 }) {
 
     if (!setting) {
-
         return null;
-
     }
 
+    const settingId =
+        setting._id ||
+        setting.id;
+
     return (
-
         <Dialog
-
-            open={open}
-
+            open={Boolean(open)}
             onClose={onClose}
-
             fullWidth
-
             maxWidth="sm"
-
         >
 
             <DialogTitle>
-
                 Delete Setting
-
             </DialogTitle>
 
             <DialogContent>
 
                 <Alert
-
                     severity="warning"
-
                     sx={{ mb: 3 }}
-
                 >
-
-                    Deleting a system setting may affect the operation of
-                    HEMAP. Ensure this setting is no longer required.
-
+                    Deleting a system setting may affect
+                    the operation of HEMAP. Ensure this
+                    setting is no longer required.
                 </Alert>
 
                 <Typography>
-
                     Are you sure you want to delete this setting?
-
                 </Typography>
 
                 <Typography
-
                     variant="subtitle1"
-
                     sx={{
-
                         mt: 2,
-
                         fontWeight: 700
-
                     }}
-
                 >
-
-                    {setting.key}
-
+                    {setting.key || "-"}
                 </Typography>
 
                 <Typography
-
                     color="text.secondary"
-
                 >
-
                     {setting.description || "-"}
-
                 </Typography>
 
             </DialogContent>
@@ -111,37 +77,29 @@ export default function SettingDeleteDialog({
             <DialogActions>
 
                 <Button
-
                     onClick={onClose}
-
                 >
-
                     Cancel
-
                 </Button>
 
                 <Button
-
                     color="error"
-
                     variant="contained"
+                    disabled={!settingId}
+                    onClick={() => {
 
-                    onClick={() =>
+                        if (onConfirm) {
+                            onConfirm(setting);
+                        }
 
-                        onConfirm(setting)
-
-                    }
-
+                    }}
                 >
-
                     Delete
-
                 </Button>
 
             </DialogActions>
 
         </Dialog>
-
     );
 
 }

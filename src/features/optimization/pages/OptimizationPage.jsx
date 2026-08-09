@@ -1,201 +1,232 @@
-import { Alert, Container, Grid, Stack } from "@mui/material";
+import {
+    Alert,
+    Container,
+    Stack
+} from "@mui/material";
 
-import useOptimization from "../hooks/useOptimization";
+import {
+    useParams
+} from "react-router-dom";
+
+import useOptimization from "../hooks/useOptimization.js";
 
 import DispatchSummary from "../components/DispatchSummary";
 import EconomicDispatchChart from "../components/EconomicDispatchChart";
-import BatterySchedulerChart from "../components/BatteryScheduleChart";
-import GeneratorSchedulerChart from "../components/GeneratorScheduleChart";
+import BatteryScheduleChart from "../components/BatteryScheduleChart";
+import GeneratorScheduleChart from "../components/GeneratorScheduleChart";
 import RenewableContributionChart from "../components/RenewableContributionChart";
-import CostSavingCard from "../components/CostSavingsCard";
+import CostSavingsCard from "../components/CostSavingsCard";
 import OptimizationRecommendations from "../components/OptimizationRecommendations";
+
+/*
+|--------------------------------------------------------------------------
+| Optimization Page
+|--------------------------------------------------------------------------
+|
+| Main optimization dashboard.
+|
+| Components:
+| - Dispatch summary
+| - Economic dispatch
+| - Battery schedule
+| - Generator schedule
+| - Renewable contribution
+| - Cost savings
+| - Optimization recommendations
+|
+*/
 
 export default function OptimizationPage() {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Route Parameters
+    |--------------------------------------------------------------------------
+    */
+
     const {
+        siteId
+    } = useParams();
 
-        summary,
+    /*
+    |--------------------------------------------------------------------------
+    | Optimization Hook
+    |--------------------------------------------------------------------------
+    |
+    | Used here only to validate that the optimization context is available.
+    |
+    */
 
-        dispatch,
+    const {
+        error
+    } = useOptimization({
+        siteId
+    });
 
-        batterySchedule,
-
-        generatorSchedule,
-
-        renewableContribution,
-
-        costSavings,
-
-        recommendations,
-
-        loading,
-
-        error,
-
-        refresh
-
-    } = useOptimization();
+    /*
+    |--------------------------------------------------------------------------
+    | Error State
+    |--------------------------------------------------------------------------
+    */
 
     if (error) {
 
-        return (
+        const message =
+            typeof error === "string"
+                ? error
+                : error?.message ||
+                  error?.error ||
+                  "Unable to load optimization data.";
 
-            <Container maxWidth="xl" sx={{ py: 3 }}>
+        return (
+            <Container
+                maxWidth="xl"
+                sx={{
+                    py: 3
+                }}
+            >
 
                 <Alert severity="error">
-
-                    {error}
-
+                    {message}
                 </Alert>
 
             </Container>
-
         );
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
+
     return (
-
         <Container
-
             maxWidth="xl"
-
             sx={{
-
                 py: 3
-
             }}
-
         >
 
             <Stack spacing={3}>
 
+                {/* ---------------------------------------------------------
+                    Dispatch Summary
+                --------------------------------------------------------- */}
+
                 <DispatchSummary
-
-                    summary={summary}
-
-                    loading={loading}
-
-                    onRefresh={refresh}
-
+                    siteId={siteId}
                 />
 
-                <Grid container spacing={3}>
+                {/* ---------------------------------------------------------
+                    Economic Dispatch + Cost Savings
+                --------------------------------------------------------- */}
 
-                    <Grid
+                <Stack
+                    direction={{
+                        xs: "column",
+                        lg: "row"
+                    }}
+                    spacing={3}
+                    sx={{
+                        alignItems: "stretch"
+                    }}
+                >
 
-                        size={{
-
-                            xs: 12,
-
-                            lg: 8
-
+                    <Stack
+                        sx={{
+                            flex: 2,
+                            minWidth: 0
                         }}
-
                     >
 
                         <EconomicDispatchChart
-
-                            dispatch={dispatch}
-
-                            loading={loading}
-
+                            siteId={siteId}
+                            height={400}
                         />
 
-                    </Grid>
+                    </Stack>
 
-                    <Grid
-
-                        size={{
-
-                            xs: 12,
-
-                            lg: 4
-
+                    <Stack
+                        sx={{
+                            flex: 1,
+                            minWidth: 0
                         }}
-
                     >
 
-                        <CostSavingCard
-
-                            costSavings={costSavings}
-
-                            loading={loading}
-
+                        <CostSavingsCard
+                            siteId={siteId}
                         />
 
-                    </Grid>
+                    </Stack>
 
-                </Grid>
+                </Stack>
 
-                <Grid container spacing={3}>
+                {/* ---------------------------------------------------------
+                    Battery + Generator Schedules
+                --------------------------------------------------------- */}
 
-                    <Grid
+                <Stack
+                    direction={{
+                        xs: "column",
+                        lg: "row"
+                    }}
+                    spacing={3}
+                    sx={{
+                        alignItems: "stretch"
+                    }}
+                >
 
-                        size={{
-
-                            xs: 12,
-
-                            lg: 6
-
+                    <Stack
+                        sx={{
+                            flex: 1,
+                            minWidth: 0
                         }}
-
                     >
 
-                        <BatterySchedulerChart
-
-                            schedule={batterySchedule}
-
-                            loading={loading}
-
+                        <BatteryScheduleChart
+                            siteId={siteId}
+                            height={400}
                         />
 
-                    </Grid>
+                    </Stack>
 
-                    <Grid
-
-                        size={{
-
-                            xs: 12,
-
-                            lg: 6
-
+                    <Stack
+                        sx={{
+                            flex: 1,
+                            minWidth: 0
                         }}
-
                     >
 
-                        <GeneratorSchedulerChart
-
-                            schedule={generatorSchedule}
-
-                            loading={loading}
-
+                        <GeneratorScheduleChart
+                            siteId={siteId}
+                            height={400}
                         />
 
-                    </Grid>
+                    </Stack>
 
-                </Grid>
+                </Stack>
+
+                {/* ---------------------------------------------------------
+                    Renewable Contribution
+                --------------------------------------------------------- */}
 
                 <RenewableContributionChart
-
-                    contribution={renewableContribution}
-
-                    loading={loading}
-
+                    siteId={siteId}
+                    height={420}
                 />
 
+                {/* ---------------------------------------------------------
+                    Recommendations
+                --------------------------------------------------------- */}
+
                 <OptimizationRecommendations
-
-                    recommendations={recommendations}
-
-                    loading={loading}
-
+                    siteId={siteId}
                 />
 
             </Stack>
 
         </Container>
-
     );
-
 }

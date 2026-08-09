@@ -4,10 +4,12 @@ import {
     Grid,
     TextField,
     MenuItem,
-    Button
+    Button,
+    Stack
 } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 import {
     useState,
@@ -18,11 +20,30 @@ import useSite from "../hooks/useSites.js";
 
 /*
 |--------------------------------------------------------------------------
+| Default Filters
+|--------------------------------------------------------------------------
+*/
+
+const defaultFilters = {
+    keyword: "",
+    state: "",
+    status: "",
+    technology: ""
+};
+
+/*
+|--------------------------------------------------------------------------
 | Site Filter
 |--------------------------------------------------------------------------
 */
 
 export default function SiteFilter() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Site Hook
+    |--------------------------------------------------------------------------
+    */
 
     const {
         filters,
@@ -30,46 +51,35 @@ export default function SiteFilter() {
         reload
     } = useSite();
 
+    /*
+    |--------------------------------------------------------------------------
+    | Local Form State
+    |--------------------------------------------------------------------------
+    */
+
     const [form, setForm] = useState({
-
-        keyword: "",
-        state: "",
-        status: "",
-        technology: ""
-
+        ...defaultFilters,
+        ...filters
     });
 
     /*
     |--------------------------------------------------------------------------
-    | Initialize Filter
+    | Synchronize Local Form With Redux Filters
     |--------------------------------------------------------------------------
     */
 
     useEffect(() => {
 
         setForm({
-
-            keyword:
-                filters?.keyword ?? "",
-
-            state:
-                filters?.state ?? "",
-
-            status:
-                filters?.status ?? "",
-
-            technology:
-                filters?.technology ?? ""
-
+            ...defaultFilters,
+            ...(filters || {})
         });
 
-    }, [
-        filters
-    ]);
+    }, [filters]);
 
     /*
     |--------------------------------------------------------------------------
-    | Handle Change
+    | Handle Input Change
     |--------------------------------------------------------------------------
     */
 
@@ -89,7 +99,7 @@ export default function SiteFilter() {
 
     /*
     |--------------------------------------------------------------------------
-    | Apply Filter
+    | Apply Filters / Search
     |--------------------------------------------------------------------------
     */
 
@@ -103,26 +113,23 @@ export default function SiteFilter() {
 
     /*
     |--------------------------------------------------------------------------
-    | Reset
+    | Reset Filters
     |--------------------------------------------------------------------------
     */
 
     const handleReset = () => {
 
-        const cleared = {
+        setForm({
+            ...defaultFilters
+        });
 
-            keyword: "",
-            state: "",
-            status: "",
-            technology: ""
+        updateFilters({
+            ...defaultFilters
+        });
 
-        };
-
-        setForm(cleared);
-
-        updateFilters(cleared);
-
-        reload(cleared);
+        reload({
+            ...defaultFilters
+        });
 
     };
 
@@ -143,6 +150,10 @@ export default function SiteFilter() {
                     spacing={2}
                 >
 
+                    {/* ------------------------------------------------------
+                        Keyword
+                    ------------------------------------------------------ */}
+
                     <Grid
                         size={{
                             xs: 12,
@@ -152,6 +163,7 @@ export default function SiteFilter() {
 
                         <TextField
                             fullWidth
+                            size="small"
                             label="Keyword"
                             name="keyword"
                             value={form.keyword}
@@ -160,6 +172,10 @@ export default function SiteFilter() {
                         />
 
                     </Grid>
+
+                    {/* ------------------------------------------------------
+                        State
+                    ------------------------------------------------------ */}
 
                     <Grid
                         size={{
@@ -171,6 +187,7 @@ export default function SiteFilter() {
                         <TextField
                             select
                             fullWidth
+                            size="small"
                             label="State"
                             name="state"
                             value={form.state}
@@ -197,13 +214,17 @@ export default function SiteFilter() {
                                 Rivers
                             </MenuItem>
 
-                            <MenuItem value="Rivers">
+                            <MenuItem value="Oyo">
                                 Oyo
                             </MenuItem>
 
                         </TextField>
 
                     </Grid>
+
+                    {/* ------------------------------------------------------
+                        Status
+                    ------------------------------------------------------ */}
 
                     <Grid
                         size={{
@@ -215,6 +236,7 @@ export default function SiteFilter() {
                         <TextField
                             select
                             fullWidth
+                            size="small"
                             label="Status"
                             name="status"
                             value={form.status}
@@ -245,6 +267,10 @@ export default function SiteFilter() {
 
                     </Grid>
 
+                    {/* ------------------------------------------------------
+                        Technology
+                    ------------------------------------------------------ */}
+
                     <Grid
                         size={{
                             xs: 12,
@@ -255,6 +281,7 @@ export default function SiteFilter() {
                         <TextField
                             select
                             fullWidth
+                            size="small"
                             label="Technology"
                             name="technology"
                             value={form.technology}
@@ -285,39 +312,47 @@ export default function SiteFilter() {
 
                     </Grid>
 
-                    <Grid
-                        size={{ xs: 12, md: 3 }}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center"
-                        }}
-                    >
-                        <Button
-                            fullWidth
-                            variant="contained"
-                            startIcon={<SearchIcon />}
-                            onClick={handleSearch}
-                        >
-                            Apply Filters
-                        </Button>
-                    </Grid>
+                    {/* ------------------------------------------------------
+                        Actions
+                    ------------------------------------------------------ */}
 
                     <Grid
                         size={{
-                            xs: 12
-                        }}
-                        sx={{
-                            display: "flex",
-                            justifyContent: "flex-end"
+                            xs: 12,
+                            md: 3
                         }}
                     >
 
-                        <Button
-                            variant="outlined"
-                            onClick={handleReset}
+                        <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{
+                                height: "100%"
+                            }}
                         >
-                            Reset
-                        </Button>
+
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                startIcon={
+                                    <SearchIcon />
+                                }
+                                onClick={handleSearch}
+                            >
+                                Apply Filters
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                startIcon={
+                                    <RestartAltIcon />
+                                }
+                                onClick={handleReset}
+                            >
+                                Reset
+                            </Button>
+
+                        </Stack>
 
                     </Grid>
 

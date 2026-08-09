@@ -1,9 +1,0 @@
-export { default as DashboardHeader } from "./components/DashboardHeader.jsx";
-export { default as DashboardKPIs } from "./components/DashboardKPIs.jsx";
-export { default as DashboardStatus } from "./components/DashboardStatus.jsx";
-export { default as DashboardTelemetry } from "./components/DashboardTelemetry.jsx";
-export { default as DashboardAlarms } from "./components/DashboardAlarms.jsx";
-export { default as DashboardEnergy } from "./components/DashboardEnergy.jsx";
-export { default as DashboardReliability } from "./components/DashboardReliability.jsx";
-export { default as DashboardOptimization } from "./components/DashboardOptimization.jsx";
-export { default as DashboardForecast } from "./components/DashboardForecast.jsx";

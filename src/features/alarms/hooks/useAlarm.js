@@ -13,10 +13,11 @@ import {
     fetchAlarm,
 
     acknowledgeAlarm as acknowledgeAlarmAction,
-
     resolveAlarm as resolveAlarmAction,
-
     deleteAlarm as deleteAlarmAction,
+
+    setAlarmFilters,
+    setPaginationModel,
 
     clearSelectedAlarm,
     clearAlarmError,
@@ -49,42 +50,53 @@ export default function useAlarm() {
     const {
 
         active,
-
         history,
 
-        statistics,
+        total,
 
+        statistics,
         summary,
+
+        severity,
+        trends,
 
         selectedAlarm,
 
+        filters,
+        paginationModel,
+
         loading,
-
         loadingActive,
-
         loadingHistory,
-
         loadingStatistics,
-
         loadingSummary,
-
         loadingAlarm,
 
         processing,
 
         error,
-
         lastUpdated
 
     } = useSelector(
-
         state => state.alarms
-
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Active Alarms
+    | Derived Compatibility Values
+    |--------------------------------------------------------------------------
+    */
+
+    const activeSummary =
+        summary?.active ||
+        summary?.activeSummary ||
+        summary;
+
+    const alarms = history;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Load Active Alarms
     |--------------------------------------------------------------------------
     */
 
@@ -93,24 +105,18 @@ export default function useAlarm() {
         (params = {}) => {
 
             return dispatch(
-
                 fetchActiveAlarms(params)
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Alarm History
+    | Load Alarm History
     |--------------------------------------------------------------------------
     */
 
@@ -119,24 +125,18 @@ export default function useAlarm() {
         (params = {}) => {
 
             return dispatch(
-
                 fetchAlarmHistory(params)
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Alarm Statistics
+    | Load Statistics
     |--------------------------------------------------------------------------
     */
 
@@ -145,24 +145,18 @@ export default function useAlarm() {
         (params = {}) => {
 
             return dispatch(
-
                 fetchAlarmStatistics(params)
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Alarm Summary
+    | Load Summary
     |--------------------------------------------------------------------------
     */
 
@@ -171,24 +165,18 @@ export default function useAlarm() {
         (params = {}) => {
 
             return dispatch(
-
                 fetchAlarmSummary(params)
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Alarm Details
+    | Load Alarm
     |--------------------------------------------------------------------------
     */
 
@@ -196,25 +184,27 @@ export default function useAlarm() {
 
         alarmId => {
 
+            if (!alarmId) {
+                return Promise.reject(
+                    new Error(
+                        "Alarm ID is required."
+                    )
+                );
+            }
+
             return dispatch(
-
                 fetchAlarm(alarmId)
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Acknowledge
+    | Acknowledge Alarm
     |--------------------------------------------------------------------------
     */
 
@@ -223,39 +213,28 @@ export default function useAlarm() {
         alarmId => {
 
             return dispatch(
-
                 acknowledgeAlarmAction(
-
                     alarmId
-
                 )
-
             );
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Resolve
+    | Resolve Alarm
     |--------------------------------------------------------------------------
     */
 
     const resolve = useCallback(
 
         (
-
             alarmId,
-
             payload = {}
-
         ) => {
 
             return dispatch(
@@ -272,17 +251,13 @@ export default function useAlarm() {
 
         },
 
-        [
-
-            dispatch
-
-        ]
+        [dispatch]
 
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Delete
+    | Delete Alarm
     |--------------------------------------------------------------------------
     */
 
@@ -291,99 +266,117 @@ export default function useAlarm() {
         alarmId => {
 
             return dispatch(
-
                 deleteAlarmAction(
-
                     alarmId
+                )
+            );
 
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filters
+    |--------------------------------------------------------------------------
+    */
+
+    const updateFilters = useCallback(
+
+        newFilters => {
+
+            dispatch(
+                setAlarmFilters(
+                    newFilters
+                )
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    const updatePagination = useCallback(
+
+        model => {
+
+            dispatch(
+                setPaginationModel(
+                    model
+                )
+            );
+
+        },
+
+        [dispatch]
+
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh
+    |--------------------------------------------------------------------------
+    */
+
+    const refresh = useCallback(
+
+        async () => {
+
+            const params = {
+
+                ...filters,
+
+                page:
+                    paginationModel.page + 1,
+
+                limit:
+                    paginationModel.pageSize
+
+            };
+
+            await Promise.all([
+
+                dispatch(
+                    fetchActiveAlarms(
+                        params
+                    )
+                ),
+
+                dispatch(
+                    fetchAlarmHistory(
+                        params
+                    )
+                ),
+
+                dispatch(
+                    fetchAlarmStatistics(
+                        filters
+                    )
+                ),
+
+                dispatch(
+                    fetchAlarmSummary(
+                        filters
+                    )
                 )
 
-            );
+            ]);
 
         },
 
         [
-
-            dispatch
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clear Selected Alarm
-    |--------------------------------------------------------------------------
-    */
-
-    const clearSelection = useCallback(
-
-        () => {
-
-            dispatch(
-
-                clearSelectedAlarm()
-
-            );
-
-        },
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clear Error
-    |--------------------------------------------------------------------------
-    */
-
-    const clearError = useCallback(
-
-        () => {
-
-            dispatch(
-
-                clearAlarmError()
-
-            );
-
-        },
-
-        [
-
-            dispatch
-
-        ]
-
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clear All Alarm State
-    |--------------------------------------------------------------------------
-    */
-
-    const clearAll = useCallback(
-
-        () => {
-
-            dispatch(
-
-                clearAlarms()
-
-            );
-
-        },
-
-        [
-
-            dispatch
-
+            dispatch,
+            filters,
+            paginationModel
         ]
 
     );
@@ -402,13 +395,39 @@ export default function useAlarm() {
 
         active,
 
+        activeSummary,
+
         history,
+
+        alarms,
+
+        total,
 
         statistics,
 
         summary,
 
+        severity,
+
+        trends,
+
         selectedAlarm,
+
+        /*
+        | Filters
+        */
+
+        filters,
+
+        updateFilters,
+
+        /*
+        | Pagination
+        */
+
+        paginationModel,
+
+        updatePagination,
 
         /*
         | Loading
@@ -451,24 +470,47 @@ export default function useAlarm() {
         loadAlarm,
 
         /*
-        | Alarm Actions
+        | Compatibility aliases
         */
 
-        acknowledge,
+        viewAlarm: loadAlarm,
 
-        resolve,
+        acknowledgeAlarm:
+            acknowledge,
 
-        deleteAlarm: removeAlarm,
+        resolveAlarm:
+            resolve,
+
+        deleteAlarm:
+            removeAlarm,
 
         /*
-        | State Controls
+        | Refresh
         */
 
-        clearSelection,
+        refresh,
 
-        clearError,
+        refreshing:
+            processing,
 
-        clearAll
+        /*
+        | State controls
+        */
+
+        clearSelectedAlarm: () =>
+            dispatch(
+                clearSelectedAlarm()
+            ),
+
+        clearError: () =>
+            dispatch(
+                clearAlarmError()
+            ),
+
+        clearAll: () =>
+            dispatch(
+                clearAlarms()
+            )
 
     };
 

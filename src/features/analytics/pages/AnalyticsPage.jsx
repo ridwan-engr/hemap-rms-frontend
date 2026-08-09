@@ -1,17 +1,11 @@
 import {
-
+    Alert,
     Box,
-
-    Grid,
-
-    Stack,
-
-    Typography,
-
     Button,
-
-    CircularProgress
-
+    CircularProgress,
+    Grid,
+    Stack,
+    Typography
 } from "@mui/material";
 
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -21,181 +15,302 @@ import useAnalytics from "../hooks/useAnalytics.js";
 import ReliabilityChart from "../components/ReliabilityChart.jsx";
 import EnergyChart from "../components/EnergyChart.jsx";
 import ForecastChart from "../components/ForecastChart.jsx";
-import BatterySocChart from "../components/BatterySOCChart.jsx";
+import BatterySOCChart from "../components/BatterySOCChart.jsx";
 import FuelConsumptionChart from "../components/FuelConsumptionChart.jsx";
-import LoadProfile from "../components/LoadProfileChart.jsx";
+import LoadProfileChart from "../components/LoadProfileChart.jsx";
 import SolarGenerationChart from "../components/SolarGenerationChart.jsx";
 import AlarmTrendChart from "../components/AlarmTrendChart.jsx";
+
+
 /*
 |--------------------------------------------------------------------------
 | Analytics Page
+|--------------------------------------------------------------------------
+|
+| Data flow:
+|
+| AnalyticsPage
+|      ↓
+| useAnalytics()
+|      ↓
+| analyticsSlice
+|      ↓
+| analyticsApi
+|      ↓
+| apiClient
+|      ↓
+| Backend /analytics/*
+|
 |--------------------------------------------------------------------------
 */
 
 export default function AnalyticsPage() {
 
     const {
-
         loading,
-
-        refreshing,
-
+        error,
         lastUpdated,
-
-        refresh
-
+        reload
     } = useAnalytics();
 
-    if (loading) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Error message
+    |--------------------------------------------------------------------------
+    */
+
+    const errorMessage =
+        typeof error === "string"
+            ? error
+            : error?.message ||
+              "Unable to load analytics data.";
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Loading
+    |--------------------------------------------------------------------------
+    |
+    | Only show the full-page loader when there is no error.
+    | This prevents an error from being hidden behind an endless spinner.
+    |
+    */
+
+    if (loading && !error) {
 
         return (
-
             <Box
-
-                display="flex"
-
-                justifyContent="center"
-
-                alignItems="center"
-
-                minHeight="70vh"
-
+                sx={{
+                    minHeight: "70vh",
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                }}
             >
+                <Stack
+                    spacing={2}
+                    alignItems="center"
+                >
 
-                <CircularProgress />
+                    <CircularProgress />
 
+                    <Typography
+                        variant="body2"
+                        color="text.secondary"
+                    >
+                        Loading analytics...
+                    </Typography>
+
+                </Stack>
             </Box>
-
         );
-
     }
 
-    return (
 
+    /*
+    |--------------------------------------------------------------------------
+    | Analytics Page
+    |--------------------------------------------------------------------------
+    */
+
+    return (
         <Stack spacing={3}>
 
+            {/* =========================================================
+                HEADER
+               ========================================================= */}
+
             <Stack
-
-                direction="row"
-
+                direction={{
+                    xs: "column",
+                    sm: "row"
+                }}
                 justifyContent="space-between"
-
-                alignItems="center"
-
+                alignItems={{
+                    xs: "flex-start",
+                    sm: "center"
+                }}
+                spacing={2}
             >
 
                 <Box>
 
                     <Typography
-
                         variant="h4"
-
                         fontWeight={700}
-
                     >
-
                         Analytics
-
                     </Typography>
 
                     <Typography
-
                         variant="body2"
-
                         color="text.secondary"
-
                     >
-
                         Advanced Energy Analytics Dashboard
-
                     </Typography>
 
-                    {
-
-                        lastUpdated && (
-
-                            <Typography
-
-                                variant="caption"
-
-                                color="text.secondary"
-
-                            >
-
-                                Last Updated: {lastUpdated}
-
-                            </Typography>
-
-                        )
-
-                    }
+                    {lastUpdated && (
+                        <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            display="block"
+                            sx={{
+                                mt: 0.5
+                            }}
+                        >
+                            Last Updated:{" "}
+                            {new Date(lastUpdated).toLocaleString()}
+                        </Typography>
+                    )}
 
                 </Box>
 
+
                 <Button
-
                     variant="contained"
-
                     startIcon={<RefreshIcon />}
-
-                    onClick={refresh}
-
-                    disabled={refreshing}
-
+                    onClick={reload}
+                    disabled={loading}
                 >
-
-                    Refresh
-
+                    {loading ? "Refreshing..." : "Refresh"}
                 </Button>
 
             </Stack>
 
-            <Grid container spacing={3}>
 
-                <Grid size={{ xs: 12, md: 6 }}>
+            {/* =========================================================
+                GLOBAL ERROR
+               ========================================================= */}
 
+            {error && (
+                <Alert
+                    severity="error"
+                    action={
+                        <Button
+                            color="inherit"
+                            size="small"
+                            onClick={reload}
+                            disabled={loading}
+                        >
+                            Retry
+                        </Button>
+                    }
+                >
+                    <Typography
+                        variant="body2"
+                        fontWeight={600}
+                    >
+                        Analytics Error
+                    </Typography>
+
+                    <Typography variant="body2">
+                        {errorMessage}
+                    </Typography>
+                </Alert>
+            )}
+
+
+            {/* =========================================================
+                ANALYTICS CHARTS
+               ========================================================= */}
+
+            <Grid
+                container
+                spacing={3}
+            >
+
+                {/* Reliability */}
+
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
                     <ReliabilityChart />
-
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
 
+                {/* Energy */}
+
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
                     <EnergyChart />
-
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
 
+                {/* Forecast */}
+
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
                     <ForecastChart />
-
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
 
-                    <BatterySocChart />
+                {/* Battery SOC */}
 
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
+                    <BatterySOCChart />
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
 
+                {/* Solar Generation */}
+
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
                     <SolarGenerationChart />
-
                 </Grid>
 
-                <Grid size={{ xs: 12, md: 6 }}>
 
+                {/* Generator Fuel Consumption */}
+
+                <Grid
+                    size={{
+                        xs: 12,
+                        md: 6
+                    }}
+                >
                     <FuelConsumptionChart />
-
                 </Grid>
 
-                <Grid size={{ xs: 12 }}>
 
-                    <LoadProfile />
+                {/* Load Profile */}
 
+                <Grid
+                    size={{
+                        xs: 12
+                    }}
+                >
+                    <LoadProfileChart />
                 </Grid>
 
-                <Grid size={{ xs: 12 }}>
 
+                {/* Alarm Trend */}
+
+                <Grid
+                    size={{
+                        xs: 12
+                    }}
+                >
                     <AlarmTrendChart />
 
                 </Grid>
@@ -205,5 +320,5 @@ export default function AnalyticsPage() {
         </Stack>
 
     );
-
+    
 }

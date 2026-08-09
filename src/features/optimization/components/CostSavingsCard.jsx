@@ -16,7 +16,7 @@ import {
     TrendingUp
 } from "@mui/icons-material";
 
-import useOptimization from "../hooks/useOptimization";
+import useOptimization from "../hooks/useOptimization.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -25,22 +25,18 @@ import useOptimization from "../hooks/useOptimization";
 */
 
 function KPI({
-
     icon,
-
     title,
-
     value,
-
     unit
-
 }) {
 
     return (
-
         <Stack
             spacing={1}
-            alignItems="center"
+            sx={{
+                alignItems: "center"
+            }}
         >
 
             {icon}
@@ -48,25 +44,27 @@ function KPI({
             <Typography
                 variant="body2"
                 color="text.secondary"
+                sx={{
+                    textAlign: "center"
+                }}
             >
-
                 {title}
-
             </Typography>
 
             <Typography
                 variant="h6"
                 fontWeight={700}
+                sx={{
+                    textAlign: "center"
+                }}
             >
+                {value ?? "--"}
 
-                {value ?? "--"} {unit}
-
+                {unit && ` ${unit}`}
             </Typography>
 
         </Stack>
-
     );
-
 }
 
 /*
@@ -76,45 +74,36 @@ function KPI({
 */
 
 export default function CostSavingsCard({
-
     siteId
-
 }) {
 
     const {
-
         costSavings,
-
         loading,
-
         error
-
     } = useOptimization({
-
         siteId
-
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
 
     if (loading) {
 
         return (
-
             <Card>
 
                 <CardContent>
 
                     <Stack
-
                         justifyContent="center"
-
                         alignItems="center"
-
                         sx={{
-
                             minHeight: 300
-
                         }}
-
                     >
 
                         <CircularProgress />
@@ -124,199 +113,191 @@ export default function CostSavingsCard({
                 </CardContent>
 
             </Card>
-
         );
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
+
     if (error) {
 
         return (
-
             <Card>
 
                 <CardContent>
 
                     <Typography color="error">
 
-                        {error}
+                        {typeof error === "string"
+                            ? error
+                            : error?.message ||
+                              "Unable to load optimization savings."
+                        }
 
                     </Typography>
 
                 </CardContent>
 
             </Card>
-
         );
 
     }
 
-    return (
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
-        <Card>
+    return (
+        <Card
+            sx={{
+                height: "100%"
+            }}
+        >
 
             <CardContent>
 
                 <Typography
-
                     variant="h6"
-
                     fontWeight={700}
-
                 >
-
                     Optimization Cost Savings
-
                 </Typography>
 
                 <Typography
-
                     variant="body2"
-
                     color="text.secondary"
-
                 >
-
                     Financial Benefits Achieved
-
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <Grid
-
                     container
-
                     spacing={4}
-
                 >
 
-                    <Grid size={{ xs: 12, md: 4 }}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 4
+                        }}
+                    >
 
                         <KPI
-
                             icon={
-
                                 <Savings
-
                                     color="success"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                             title="Operating Cost Saved"
-
-                            value={costSavings?.operatingCostSaved}
-
+                            value={
+                                costSavings?.operatingCostSaved
+                            }
                             unit="₦"
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 4 }}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 4
+                        }}
+                    >
 
                         <KPI
-
                             icon={
-
                                 <LocalGasStation
-
                                     color="warning"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                             title="Diesel Saved"
-
-                            value={costSavings?.dieselSaved}
-
-                            unit="Litres"
-
+                            value={
+                                costSavings?.dieselSaved
+                            }
+                            unit="L"
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 4 }}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 4
+                        }}
+                    >
 
                         <KPI
-
                             icon={
-
                                 <Bolt
-
                                     color="primary"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                             title="Grid Energy Saved"
-
-                            value={costSavings?.gridEnergySaved}
-
+                            value={
+                                costSavings?.gridEnergySaved
+                            }
                             unit="kWh"
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <KPI
-
                             icon={
-
                                 <Co2
-
                                     color="action"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                             title="CO₂ Emissions Reduced"
-
-                            value={costSavings?.co2Reduction}
-
+                            value={
+                                costSavings?.co2Reduction
+                            }
                             unit="kg"
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid
+                        size={{
+                            xs: 12,
+                            md: 6
+                        }}
+                    >
 
                         <KPI
-
                             icon={
-
                                 <TrendingUp
-
                                     color="success"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                             title="Projected Annual Savings"
-
-                            value={costSavings?.annualSavings}
-
+                            value={
+                                costSavings?.annualSavings
+                            }
                             unit="₦"
-
                         />
 
                     </Grid>
@@ -326,7 +307,5 @@ export default function CostSavingsCard({
             </CardContent>
 
         </Card>
-
     );
-
 }

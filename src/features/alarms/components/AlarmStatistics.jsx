@@ -24,22 +24,20 @@ import useAlarm from "../hooks/useAlarm";
 */
 
 function StatisticItem({
-
     icon,
-
     title,
-
     value,
-
     unit = ""
-
 }) {
 
     return (
 
         <Stack
             spacing={1}
-            alignItems="center"
+            sx={{
+                alignItems: "center",
+                textAlign: "center"
+            }}
         >
 
             {icon}
@@ -49,18 +47,14 @@ function StatisticItem({
                 color="text.secondary"
                 align="center"
             >
-
                 {title}
-
             </Typography>
 
             <Typography
                 variant="h5"
                 fontWeight={700}
             >
-
                 {value ?? "--"} {unit}
-
             </Typography>
 
         </Stack>
@@ -78,16 +72,18 @@ function StatisticItem({
 export default function AlarmStatistics() {
 
     const {
-
         statistics,
-
-        loading,
-
+        loadingStatistics,
         error
-
     } = useAlarm();
 
-    if (loading) {
+    /*
+    |--------------------------------------------------------------------------
+    | Loading
+    |--------------------------------------------------------------------------
+    */
+
+    if (loadingStatistics) {
 
         return (
 
@@ -96,10 +92,10 @@ export default function AlarmStatistics() {
                 <CardContent>
 
                     <Stack
-                        justifyContent="center"
-                        alignItems="center"
                         sx={{
-                            minHeight: 320
+                            minHeight: 320,
+                            justifyContent: "center",
+                            alignItems: "center"
                         }}
                     >
 
@@ -115,6 +111,12 @@ export default function AlarmStatistics() {
 
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Error
+    |--------------------------------------------------------------------------
+    */
+
     if (error) {
 
         return (
@@ -124,9 +126,7 @@ export default function AlarmStatistics() {
                 <CardContent>
 
                     <Typography color="error">
-
                         {error}
-
                     </Typography>
 
                 </CardContent>
@@ -136,6 +136,12 @@ export default function AlarmStatistics() {
         );
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Render
+    |--------------------------------------------------------------------------
+    */
 
     return (
 
@@ -147,171 +153,157 @@ export default function AlarmStatistics() {
                     variant="h6"
                     fontWeight={700}
                 >
-
                     Alarm Statistics
-
                 </Typography>
 
                 <Typography
                     variant="body2"
                     color="text.secondary"
                 >
-
                     Alarm Performance Indicators
-
                 </Typography>
 
-                <Divider sx={{ my: 2 }} />
+                <Divider
+                    sx={{
+                        my: 2
+                    }}
+                />
 
                 <Grid
                     container
                     spacing={3}
                 >
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* Total Alarms */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="Total Alarms"
-
                             value={statistics?.totalAlarms}
-
                             icon={
-
                                 <TimelineIcon
-
                                     color="primary"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* Active */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="Active"
-
                             value={statistics?.activeAlarms}
-
                             icon={
-
                                 <NotificationsActiveIcon
-
                                     color="error"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* Acknowledged */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="Acknowledged"
-
                             value={statistics?.acknowledgedAlarms}
-
                             icon={
-
                                 <AssignmentTurnedInIcon
-
                                     color="warning"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* Resolved */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="Resolved"
-
                             value={statistics?.resolvedAlarms}
-
                             icon={
-
                                 <CheckCircleIcon
-
                                     color="success"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* MTTA */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="MTTA"
-
                             value={statistics?.mtta}
-
                             unit="min"
-
                             icon={
-
                                 <ScheduleIcon
-
                                     color="info"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>
 
-                    <Grid size={{ xs: 6, md: 4 }}>
+                    {/* MTTR */}
+
+                    <Grid
+                        size={{
+                            xs: 6,
+                            md: 4
+                        }}
+                    >
 
                         <StatisticItem
-
                             title="MTTR"
-
                             value={statistics?.mttr}
-
                             unit="min"
-
                             icon={
-
                                 <TimerIcon
-
                                     color="secondary"
-
                                     fontSize="large"
-
                                 />
-
                             }
-
                         />
 
                     </Grid>

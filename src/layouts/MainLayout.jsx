@@ -38,7 +38,7 @@ import {
     AccountCircle
 } from "@mui/icons-material";
 
-import { logout } from "../store/slices/authSlice";
+import { logout } from "../store/slices/authSlice.js";
 
 const drawerWidth = 260;
 

@@ -417,10 +417,10 @@ export default function ReportFilter() {
 
                             onChange={handleChange}
 
-                            InputLabelProps={{
-
-                                shrink: true
-
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true
+                                }
                             }}
 
                         />
@@ -443,10 +443,10 @@ export default function ReportFilter() {
 
                             onChange={handleChange}
 
-                            InputLabelProps={{
-
-                                shrink: true
-
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true
+                                }
                             }}
 
                         />

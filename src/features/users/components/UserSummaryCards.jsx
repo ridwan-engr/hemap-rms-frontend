@@ -1,11 +1,10 @@
 import {
-
     Grid,
     Card,
     CardContent,
     Typography,
-    Skeleton
-
+    Skeleton,
+    Stack
 } from "@mui/material";
 
 import PeopleIcon from "@mui/icons-material/People";
@@ -13,7 +12,7 @@ import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 import BlockIcon from "@mui/icons-material/Block";
 
-import useUser from "../hooks/useUser";
+import useUser from "../hooks/useUser.js";
 
 /*
 |--------------------------------------------------------------------------
@@ -22,13 +21,9 @@ import useUser from "../hooks/useUser";
 */
 
 function SummaryCard({
-
     title,
-
     value,
-
     icon
-
 }) {
 
     return (
@@ -37,51 +32,35 @@ function SummaryCard({
 
             <CardContent>
 
-                <Grid
-
-                    container
-
+                <Stack
+                    direction="row"
                     spacing={2}
-
-                    alignItems="center"
-
+                    sx={{
+                        alignItems: "center"
+                    }}
                 >
 
-                    <Grid>
+                    {icon}
 
-                        {icon}
-
-                    </Grid>
-
-                    <Grid>
+                    <Stack>
 
                         <Typography
-
                             variant="body2"
-
                             color="text.secondary"
-
                         >
-
                             {title}
-
                         </Typography>
 
                         <Typography
-
                             variant="h5"
-
                             fontWeight={700}
-
                         >
-
-                            {value}
-
+                            {value ?? 0}
                         </Typography>
 
-                    </Grid>
+                    </Stack>
 
-                </Grid>
+                </Stack>
 
             </CardContent>
 
@@ -100,11 +79,8 @@ function SummaryCard({
 export default function UserSummaryCards() {
 
     const {
-
-        summary,
-
+        summary = {},
         loading
-
     } = useUser();
 
     if (loading) {
@@ -112,50 +88,31 @@ export default function UserSummaryCards() {
         return (
 
             <Grid
-
                 container
-
                 spacing={2}
-
             >
 
-                {
+                {Array.from({
+                    length: 4
+                }).map((_, index) => (
 
-                    Array.from({
+                    <Grid
+                        key={index}
+                        size={{
+                            xs: 12,
+                            sm: 6,
+                            lg: 3
+                        }}
+                    >
 
-                        length: 4
+                        <Skeleton
+                            variant="rounded"
+                            height={120}
+                        />
 
-                    }).map((_, index) => (
+                    </Grid>
 
-                        <Grid
-
-                            key={index}
-
-                            size={{
-
-                                xs: 12,
-
-                                sm: 6,
-
-                                lg: 3
-
-                            }}
-
-                        >
-
-                            <Skeleton
-
-                                variant="rounded"
-
-                                height={120}
-
-                            />
-
-                        </Grid>
-
-                    ))
-
-                }
+                ))}
 
             </Grid>
 
@@ -166,169 +123,98 @@ export default function UserSummaryCards() {
     return (
 
         <Grid
-
             container
-
             spacing={2}
-
         >
 
             <Grid
-
                 size={{
-
                     xs: 12,
-
                     sm: 6,
-
                     lg: 3
-
                 }}
-
             >
 
                 <SummaryCard
-
                     title="Total Users"
-
                     value={
-
-                        summary.totalUsers ?? 0
-
+                        summary?.totalUsers ?? 0
                     }
-
                     icon={
-
                         <PeopleIcon
-
                             color="primary"
-
                             fontSize="large"
-
                         />
-
                     }
-
                 />
 
             </Grid>
 
             <Grid
-
                 size={{
-
                     xs: 12,
-
                     sm: 6,
-
                     lg: 3
-
                 }}
-
             >
 
                 <SummaryCard
-
                     title="Administrators"
-
                     value={
-
-                        summary.administrators ?? 0
-
+                        summary?.administrators ?? 0
                     }
-
                     icon={
-
                         <AdminPanelSettingsIcon
-
                             color="secondary"
-
                             fontSize="large"
-
                         />
-
                     }
-
                 />
 
             </Grid>
 
             <Grid
-
                 size={{
-
                     xs: 12,
-
                     sm: 6,
-
                     lg: 3
-
                 }}
-
             >
 
                 <SummaryCard
-
                     title="Active Users"
-
                     value={
-
-                        summary.activeUsers ?? 0
-
+                        summary?.activeUsers ?? 0
                     }
-
                     icon={
-
                         <VerifiedUserIcon
-
                             color="success"
-
                             fontSize="large"
-
                         />
-
                     }
-
                 />
 
             </Grid>
 
             <Grid
-
                 size={{
-
                     xs: 12,
-
                     sm: 6,
-
                     lg: 3
-
                 }}
-
             >
 
                 <SummaryCard
-
                     title="Inactive Users"
-
                     value={
-
-                        summary.inactiveUsers ?? 0
-
+                        summary?.inactiveUsers ?? 0
                     }
-
                     icon={
-
                         <BlockIcon
-
                             color="error"
-
                             fontSize="large"
-
                         />
-
                     }
-
                 />
 
             </Grid>
