@@ -1,8 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import authReducer from "./slices/authSlice.js";
-import optimizationReducer from "./slices/optimizationSlice.js";
-import settingsReducer from "./slices/settingsSlice.js";
+import authReducer from "./authSlice.js";
+import optimizationReducer from "./optimizationSlice.js";
+import settingsReducer from "./settingsSlice.js";
+import vrmReducer from "./vrmSlice.js";
 
 const store = configureStore({
     reducer: {
@@ -10,7 +11,9 @@ const store = configureStore({
 
         optimization: optimizationReducer,
 
-        settings: settingsReducer
+        settings: settingsReducer,
+
+        vrm: vrmReducer
     },
 
     middleware: getDefaultMiddleware =>

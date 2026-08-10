@@ -29,6 +29,12 @@ export default function StatisticsPage() {
         reload
     } = useStatistics();
 
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh
+    |--------------------------------------------------------------------------
+    */
+
     const handleRefresh = async () => {
         try {
             await reload();
@@ -40,7 +46,17 @@ export default function StatisticsPage() {
         }
     };
 
-    if (loading && !dashboard && !kpis) {
+    /*
+    |--------------------------------------------------------------------------
+    | Initial Loading
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        loading &&
+        !dashboard &&
+        !kpis
+    ) {
         return (
             <Box
                 sx={{
@@ -57,6 +73,7 @@ export default function StatisticsPage() {
 
     return (
         <Stack spacing={3}>
+
             {/* ----------------------------------------------------------
                 Header
             ---------------------------------------------------------- */}
@@ -85,8 +102,8 @@ export default function StatisticsPage() {
                         variant="body2"
                         color="text.secondary"
                     >
-                        Energy, power, battery, generation and
-                        site performance statistics
+                        Energy, power, battery, generation
+                        and site performance statistics
                     </Typography>
 
                     {lastUpdated && (
@@ -95,7 +112,9 @@ export default function StatisticsPage() {
                             color="text.secondary"
                         >
                             Last Updated:{" "}
-                            {new Date(lastUpdated).toLocaleString()}
+                            {new Date(
+                                lastUpdated
+                            ).toLocaleString()}
                         </Typography>
                     )}
                 </Box>
@@ -113,7 +132,10 @@ export default function StatisticsPage() {
                         )
                     }
                     onClick={handleRefresh}
-                    disabled={loading}
+                    disabled={
+                        loading ||
+                        false
+                    }
                 >
                     Refresh
                 </Button>
@@ -143,20 +165,36 @@ export default function StatisticsPage() {
                 KPI Summary
             ---------------------------------------------------------- */}
 
-            <Grid container spacing={3}>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid
+                container
+                spacing={3}
+            >
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 3
+                    }}
+                >
                     <StatisticCard
                         title="Total Sites"
                         value={
                             kpis?.totalSites ??
                             dashboard?.totalSites ??
-                            locations?.length ??
-                            0
+                            (Array.isArray(locations)
+                                ? locations.length
+                                : 0)
                         }
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 3
+                    }}
+                >
                     <StatisticCard
                         title="Total Energy"
                         value={
@@ -169,7 +207,13 @@ export default function StatisticsPage() {
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 3
+                    }}
+                >
                     <StatisticCard
                         title="Solar Generation"
                         value={
@@ -182,7 +226,13 @@ export default function StatisticsPage() {
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 3
+                    }}
+                >
                     <StatisticCard
                         title="Battery SOC"
                         value={
@@ -256,6 +306,7 @@ export default function StatisticsPage() {
 
             <Card>
                 <CardContent>
+
                     <Typography
                         variant="h6"
                         fontWeight={700}
@@ -268,7 +319,10 @@ export default function StatisticsPage() {
                     locations.length > 0 ? (
                         <Stack spacing={1}>
                             {locations.map(
-                                (location, index) => (
+                                (
+                                    location,
+                                    index
+                                ) => (
                                     <Box
                                         key={
                                             location?.siteId ||
@@ -318,15 +372,19 @@ export default function StatisticsPage() {
                             No site location data available.
                         </Typography>
                     )}
+
                 </CardContent>
             </Card>
+
         </Stack>
     );
 }
 
-/* --------------------------------------------------------------------------
-   Statistic Card
--------------------------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Statistic Card
+|--------------------------------------------------------------------------
+*/
 
 function StatisticCard({
     title,
@@ -336,6 +394,7 @@ function StatisticCard({
     return (
         <Card>
             <CardContent>
+
                 <Typography
                     variant="body2"
                     color="text.secondary"
@@ -351,14 +410,17 @@ function StatisticCard({
                     {formatValue(value)}
                     {suffix}
                 </Typography>
+
             </CardContent>
         </Card>
     );
 }
 
-/* --------------------------------------------------------------------------
-   Statistics Section
--------------------------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Statistics Section
+|--------------------------------------------------------------------------
+*/
 
 function StatisticsSection({
     title,
@@ -366,9 +428,11 @@ function StatisticsSection({
 }) {
     if (
         data == null ||
-        (typeof data === "object" &&
+        (
+            typeof data === "object" &&
             !Array.isArray(data) &&
-            Object.keys(data).length === 0)
+            Object.keys(data).length === 0
+        )
     ) {
         return null;
     }
@@ -376,6 +440,7 @@ function StatisticsSection({
     return (
         <Card>
             <CardContent>
+
                 <Typography
                     variant="h6"
                     fontWeight={700}
@@ -384,71 +449,115 @@ function StatisticsSection({
                     {title}
                 </Typography>
 
-                <Grid container spacing={2}>
+                <Grid
+                    container
+                    spacing={2}
+                >
                     {renderStatistics(data)}
                 </Grid>
+
             </CardContent>
         </Card>
     );
 }
 
-/* --------------------------------------------------------------------------
-   Render Statistics
--------------------------------------------------------------------------- */
+/*
+|--------------------------------------------------------------------------
+| Render Statistics
+|--------------------------------------------------------------------------
+*/
 
 function renderStatistics(data) {
-    if (Array.isArray(data)) {
-        return data.map((item, index) => (
-            <Grid
-                size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 4
-                }}
-                key={item?.id || item?.siteId || index}
-            >
-                <Box
-                    sx={{
-                        p: 2,
-                        borderRadius: 1,
-                        bgcolor: "background.default"
-                    }}
-                >
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
-                    >
-                        {item?.name ||
-                            item?.label ||
-                            item?.siteName ||
-                            `Item ${index + 1}`}
-                    </Typography>
 
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
+    /*
+    |--------------------------------------------------------------------------
+    | Array
+    |--------------------------------------------------------------------------
+    */
+
+    if (Array.isArray(data)) {
+        return data.map(
+            (
+                item,
+                index
+            ) => (
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 4
+                    }}
+                    key={
+                        item?.id ||
+                        item?.siteId ||
+                        index
+                    }
+                >
+                    <Box
+                        sx={{
+                            p: 2,
+                            borderRadius: 1,
+                            bgcolor:
+                                "background.default"
+                        }}
                     >
-                        {formatValue(
-                            item?.value ??
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            {item?.name ||
+                                item?.label ||
+                                item?.siteName ||
+                                `Item ${
+                                    index + 1
+                                }`}
+                        </Typography>
+
+                        <Typography
+                            variant="h6"
+                            fontWeight={700}
+                        >
+                            {formatValue(
+                                item?.value ??
                                 item?.total ??
                                 item?.count ??
                                 0
-                        )}
-                    </Typography>
-                </Box>
-            </Grid>
-        ));
+                            )}
+                        </Typography>
+                    </Box>
+                </Grid>
+            )
+        );
     }
 
-    if (typeof data !== "object") {
+    /*
+    |--------------------------------------------------------------------------
+    | Primitive
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        typeof data !== "object" ||
+        data === null
+    ) {
         return (
-            <Grid size={{ xs: 12 }}>
+            <Grid
+                size={{
+                    xs: 12
+                }}
+            >
                 <Typography variant="h6">
                     {formatValue(data)}
                 </Typography>
             </Grid>
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Object
+    |--------------------------------------------------------------------------
+    */
 
     return Object.entries(data)
         .filter(
@@ -457,60 +566,89 @@ function renderStatistics(data) {
                 value !== undefined &&
                 typeof value !== "object"
         )
-        .map(([key, value]) => (
-            <Grid
-                size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 4
-                }}
-                key={key}
-            >
-                <Box
-                    sx={{
-                        p: 2,
-                        borderRadius: 1,
-                        bgcolor: "background.default"
+        .map(
+            (
+                [key, value]
+            ) => (
+                <Grid
+                    size={{
+                        xs: 12,
+                        sm: 6,
+                        md: 4
                     }}
+                    key={key}
                 >
-                    <Typography
-                        variant="body2"
-                        color="text.secondary"
+                    <Box
+                        sx={{
+                            p: 2,
+                            borderRadius: 1,
+                            bgcolor:
+                                "background.default"
+                        }}
                     >
-                        {formatLabel(key)}
-                    </Typography>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                        >
+                            {formatLabel(key)}
+                        </Typography>
 
-                    <Typography
-                        variant="h6"
-                        fontWeight={700}
-                    >
-                        {formatValue(value)}
-                    </Typography>
-                </Box>
-            </Grid>
-        ));
-}
-
-/* --------------------------------------------------------------------------
-   Helpers
--------------------------------------------------------------------------- */
-
-function formatLabel(value) {
-    return String(value)
-        .replace(/([A-Z])/g, " $1")
-        .replace(/[_-]/g, " ")
-        .replace(/\s+/g, " ")
-        .replace(/^./, char =>
-            char.toUpperCase()
+                        <Typography
+                            variant="h6"
+                            fontWeight={700}
+                        >
+                            {formatValue(value)}
+                        </Typography>
+                    </Box>
+                </Grid>
+            )
         );
 }
 
+/*
+|--------------------------------------------------------------------------
+| Format Label
+|--------------------------------------------------------------------------
+*/
+
+function formatLabel(value) {
+    return String(value)
+        .replace(
+            /([A-Z])/g,
+            " $1"
+        )
+        .replace(
+            /[_-]/g,
+            " "
+        )
+        .replace(
+            /\s+/g,
+            " "
+        )
+        .replace(
+            /^./,
+            char =>
+                char.toUpperCase()
+        );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Format Value
+|--------------------------------------------------------------------------
+*/
+
 function formatValue(value) {
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return "—";
     }
 
-    if (typeof value === "number") {
+    if (
+        typeof value === "number"
+    ) {
         return Number.isInteger(value)
             ? value.toLocaleString()
             : value.toLocaleString(

@@ -1,6 +1,7 @@
 import {
     useCallback,
-    useEffect
+    useEffect,
+    useMemo
 } from "react";
 
 import {
@@ -21,38 +22,64 @@ import {
 
 /*
 |--------------------------------------------------------------------------
-| Statistics Hook
+| Stable Empty Values
 |--------------------------------------------------------------------------
 |
-| Central hook used by Statistics components.
+| IMPORTANT:
+| Never use:
 |
-| Components should NEVER:
+|     state => state.statistics?.filters || {}
 |
-| - call Axios directly
-| - dispatch Redux actions directly
-| - access the statistics slice directly
-|
-| Components should consume this hook only.
-|
-|--------------------------------------------------------------------------
-|
-| Backend contract:
-|
-| GET /statistics/dashboard
-| GET /statistics/energy
-| GET /statistics/battery
-| GET /statistics/solar
-| GET /statistics/generator
-| GET /statistics/grid
-| GET /statistics/kpis
-| GET /statistics/locations
+| because {} creates a new object reference every selector evaluation.
 |
 |--------------------------------------------------------------------------
 */
 
-export default function useStatistics(initialFilters = {}) {
+const EMPTY_FILTERS = {};
 
+/*
+|--------------------------------------------------------------------------
+| Statistics Hook
+|--------------------------------------------------------------------------
+|
+| Central data-access layer for Statistics components.
+|
+| Components should:
+|
+| - NOT call Axios
+| - NOT dispatch Redux actions directly
+| - NOT access the statistics slice directly
+|
+| Components consume this hook only.
+|
+|--------------------------------------------------------------------------
+*/
+
+export default function useStatistics(initialFilters = EMPTY_FILTERS) {
     const dispatch = useDispatch();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Normalize Initial Filters
+    |--------------------------------------------------------------------------
+    |
+    | Keep the filters reference stable.
+    |
+    */
+
+    const normalizedInitialFilters = useMemo(
+        () => {
+            if (
+                !initialFilters ||
+                typeof initialFilters !== "object"
+            ) {
+                return EMPTY_FILTERS;
+            }
+
+            return initialFilters;
+        },
+        [initialFilters]
+    );
 
     /*
     |--------------------------------------------------------------------------
@@ -61,194 +88,236 @@ export default function useStatistics(initialFilters = {}) {
     */
 
     const dashboard = useSelector(
-        state => state.statistics?.dashboard
+        state => state.statistics?.dashboard ?? null
     );
 
     const energy = useSelector(
-        state => state.statistics?.energy
+        state => state.statistics?.energy ?? null
     );
 
     const battery = useSelector(
-        state => state.statistics?.battery
+        state => state.statistics?.battery ?? null
     );
 
     const solar = useSelector(
-        state => state.statistics?.solar
+        state => state.statistics?.solar ?? null
     );
 
     const generator = useSelector(
-        state => state.statistics?.generator
+        state => state.statistics?.generator ?? null
     );
 
     const grid = useSelector(
-        state => state.statistics?.grid
+        state => state.statistics?.grid ?? null
     );
 
     const kpis = useSelector(
-        state => state.statistics?.kpis
+        state => state.statistics?.kpis ?? null
     );
 
     const locations = useSelector(
-        state => state.statistics?.locations
-    );
-
-    const filters = useSelector(
-        state => state.statistics?.filters || {}
-    );
-
-    const loading = useSelector(
-        state => state.statistics?.loading ?? false
-    );
-
-    const refreshing = useSelector(
-        state => state.statistics?.refreshing ?? false
-    );
-
-    const error = useSelector(
-        state => state.statistics?.error ?? null
-    );
-
-    const lastUpdated = useSelector(
-        state => state.statistics?.lastUpdated ?? null
+        state => state.statistics?.locations ?? []
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Dashboard Statistics
+    | Filters
+    |--------------------------------------------------------------------------
+    */
+
+    const filters = useSelector(
+        state =>
+            state.statistics?.filters ??
+            EMPTY_FILTERS
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Request State
+    |--------------------------------------------------------------------------
+    */
+
+    const loading = useSelector(
+        state =>
+            state.statistics?.loading ??
+            false
+    );
+
+    const refreshing = useSelector(
+        state =>
+            state.statistics?.refreshing ??
+            false
+    );
+
+    const error = useSelector(
+        state =>
+            state.statistics?.error ??
+            null
+    );
+
+    const lastUpdated = useSelector(
+        state =>
+            state.statistics?.lastUpdated ??
+            null
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Resolver
+    |--------------------------------------------------------------------------
+    */
+
+    const resolveQuery = useCallback(
+        query => {
+            if (
+                query &&
+                typeof query === "object"
+            ) {
+                return query;
+            }
+
+            return filters;
+        },
+        [filters]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dashboard
     |--------------------------------------------------------------------------
     */
 
     const loadDashboard = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchDashboardStatistics(query)
+                fetchDashboardStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Energy Statistics
+    | Energy
     |--------------------------------------------------------------------------
     */
 
     const loadEnergy = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchEnergyStatistics(query)
+                fetchEnergyStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Battery Statistics
+    | Battery
     |--------------------------------------------------------------------------
     */
 
     const loadBattery = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchBatteryStatistics(query)
+                fetchBatteryStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Solar Statistics
+    | Solar
     |--------------------------------------------------------------------------
     */
 
     const loadSolar = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchSolarStatistics(query)
+                fetchSolarStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Generator Statistics
+    | Generator
     |--------------------------------------------------------------------------
     */
 
     const loadGenerator = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchGeneratorStatistics(query)
+                fetchGeneratorStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Grid Statistics
+    | Grid
     |--------------------------------------------------------------------------
     */
 
     const loadGrid = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchGridStatistics(query)
+                fetchGridStatistics(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
     /*
     |--------------------------------------------------------------------------
-    | KPI Statistics
+    | KPIs
     |--------------------------------------------------------------------------
     */
 
     const loadKPIs = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchKPIs(query)
+                fetchKPIs(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
@@ -259,16 +328,16 @@ export default function useStatistics(initialFilters = {}) {
     */
 
     const loadLocations = useCallback(
-        (query = filters) => {
-
+        query => {
             return dispatch(
-                fetchSiteLocations(query)
+                fetchSiteLocations(
+                    resolveQuery(query)
+                )
             );
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
@@ -279,46 +348,63 @@ export default function useStatistics(initialFilters = {}) {
     */
 
     const reload = useCallback(
-        (query = filters) => {
+        query => {
+            const resolvedQuery =
+                resolveQuery(query);
 
             return Promise.all([
                 dispatch(
-                    fetchDashboardStatistics(query)
+                    fetchDashboardStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchEnergyStatistics(query)
+                    fetchEnergyStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchBatteryStatistics(query)
+                    fetchBatteryStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchSolarStatistics(query)
+                    fetchSolarStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchGeneratorStatistics(query)
+                    fetchGeneratorStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchGridStatistics(query)
+                    fetchGridStatistics(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchKPIs(query)
+                    fetchKPIs(
+                        resolvedQuery
+                    )
                 ),
 
                 dispatch(
-                    fetchSiteLocations(query)
+                    fetchSiteLocations(
+                        resolvedQuery
+                    )
                 )
             ]);
-
         },
         [
             dispatch,
-            filters
+            resolveQuery
         ]
     );
 
@@ -326,45 +412,25 @@ export default function useStatistics(initialFilters = {}) {
     |--------------------------------------------------------------------------
     | Initial Statistics Load
     |--------------------------------------------------------------------------
-    */
-
-    useEffect(
-        () => {
-
-            reload();
-
-        },
-        [
-            reload
-        ]
-    );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Initial Filters Load
-    |--------------------------------------------------------------------------
     |
-    | Initial filters are passed to the individual thunk requests.
-    | This avoids requiring components to know Redux implementation details.
+    | ONE initial load only.
+    |
+    | This replaces the previous two useEffects that could cause:
+    |
+    |     reload()
+    |     reload(initialFilters)
+    |
+    | and therefore duplicate API requests.
     |
     */
 
     useEffect(
         () => {
-
-            if (
-                initialFilters &&
-                Object.keys(initialFilters).length > 0
-            ) {
-
-                reload(initialFilters);
-
-            }
-
+            reload(normalizedInitialFilters);
         },
         [
-            initialFilters,
-            reload
+            reload,
+            normalizedInitialFilters
         ]
     );
 
@@ -375,77 +441,49 @@ export default function useStatistics(initialFilters = {}) {
     */
 
     return {
-
         /*
-        |--------------------------------------------------------------------------
         | Data
-        |--------------------------------------------------------------------------
         */
 
         dashboard,
-
         energy,
-
         battery,
-
         solar,
-
         generator,
-
         grid,
-
         kpis,
-
         locations,
 
         /*
-        |--------------------------------------------------------------------------
         | Filters
-        |--------------------------------------------------------------------------
         */
 
         filters,
 
         /*
-        |--------------------------------------------------------------------------
         | Status
-        |--------------------------------------------------------------------------
         */
 
         loading,
-
         refreshing,
-
         error,
-
         lastUpdated,
 
         /*
-        |--------------------------------------------------------------------------
         | Individual Loaders
-        |--------------------------------------------------------------------------
         */
 
         loadDashboard,
-
         loadEnergy,
-
         loadBattery,
-
         loadSolar,
-
         loadGenerator,
-
         loadGrid,
-
         loadKPIs,
-
         loadLocations,
 
         /*
-        |--------------------------------------------------------------------------
-        | Reload Everything
-        |--------------------------------------------------------------------------
+        | Reload
         */
 
         reload

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./routes/ProtectedRoutes.jsx";
 import AppLayout from "./layouts/AppLayouts.jsx";
 
+
 /*
 |--------------------------------------------------------------------------
 | Authentication|--------------------------------------------------------------------------
@@ -100,6 +101,14 @@ import InstallationPage from "./features/installation/pages/InstallationPage.jsx
 
 import StatisticsPage from "./features/statistics/pages/StatisticsPage.jsx";
 
+/*
+|--------------------------------------------------------------------------
+| Statistics
+|--------------------------------------------------------------------------
+*/
+
+import VRMInstallationPage from "./features/vrm/pages/VRMInstallationPage.jsx";
+
 export default function App() {
 
     return (
@@ -165,11 +174,6 @@ export default function App() {
                     />
 
                     <Route
-                        path="/settings"
-                        element={<SettingsPage />}
-                    />
-
-                    <Route
                         path="/alarms"
                         element={<AlarmPage />}
                     />
@@ -182,6 +186,16 @@ export default function App() {
                     <Route
                         path="/statistics"
                         element={<StatisticsPage />}
+                    />
+
+                    <Route
+                        path="/vrm"
+                        element={<VRMInstallationPage />}
+                    />
+
+                     <Route
+                        path="/settings"
+                        element={<SettingsPage />}
                     />
 
                 </Route>
