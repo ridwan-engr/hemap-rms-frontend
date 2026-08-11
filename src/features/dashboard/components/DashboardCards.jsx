@@ -1,4 +1,5 @@
 import {
+    Box,
     Grid,
     Card,
     CardContent,
@@ -16,146 +17,155 @@ import ElectricBoltIcon from "@mui/icons-material/ElectricBolt";
 
 import useDashboard from "../hooks/useDashboard";
 
-/*
-|--------------------------------------------------------------------------
-| Card Component
-|--------------------------------------------------------------------------
-*/
+/**
+ * ============================================================================
+ * HEMAP RMS
+ * Dashboard KPI Card
+ * ============================================================================
+ *
+ * Displays a single dashboard KPI.
+ *
+ * Important:
+ * - Uses MUI layout components only.
+ * - Layout properties are supplied through `sx`.
+ * - No layout props are passed to native DOM elements.
+ *
+ * ============================================================================
+ */
 
 function KPICard({
-
     title,
-
     value,
-
     icon,
-
     color
-
 }) {
-
     return (
-
         <Card
             elevation={2}
             sx={{
                 height: "100%"
             }}
         >
-
-            <CardContent>
-
-                <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
+            <CardContent
+                sx={{
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center"
+                }}
+            >
+                <Box
+                    sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: 2
+                    }}
                 >
+                    {/* KPI Information */}
 
-                    <div>
-
+                    <Box
+                        sx={{
+                            minWidth: 0
+                        }}
+                    >
                         <Typography
                             color="text.secondary"
                             variant="body2"
+                            noWrap
                         >
-
                             {title}
-
                         </Typography>
 
                         <Typography
                             variant="h4"
                             fontWeight={700}
-                            mt={1}
+                            sx={{
+                                mt: 1
+                            }}
                         >
-
                             {value}
-
                         </Typography>
+                    </Box>
 
-                    </div>
+                    {/* KPI Icon */}
 
-                    <div
-                        style={{
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
                             color
                         }}
                     >
-
                         {icon}
-
-                    </div>
-
-                </Stack>
-
+                    </Box>
+                </Box>
             </CardContent>
-
         </Card>
-
     );
-
 }
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard Cards
-|--------------------------------------------------------------------------
-*/
+/**
+ * ============================================================================
+ * Dashboard Cards
+ * ============================================================================
+ */
 
 export default function DashboardCards() {
-
     const {
-
         cards,
-
         loading
-
     } = useDashboard();
 
+    /**
+     * ------------------------------------------------------------------------
+     * Loading State
+     * ------------------------------------------------------------------------
+     */
+
     if (loading || !cards) {
-
         return (
-
             <Grid
                 container
                 spacing={3}
             >
-
-                {
-
-                    [...Array(6)].map((_, index) => (
-
+                {Array.from({ length: 6 }).map(
+                    (_, index) => (
                         <Grid
+                            key={index}
                             size={{
                                 xs: 12,
                                 sm: 6,
                                 md: 4,
                                 lg: 2
                             }}
-                            key={index}
                         >
-
                             <Skeleton
                                 variant="rounded"
                                 height={130}
                             />
-
                         </Grid>
-
-                    ))
-
-                }
-
+                    )
+                )}
             </Grid>
-
         );
-
     }
 
-    return (
+    /**
+     * ------------------------------------------------------------------------
+     * Dashboard KPI Cards
+     * ------------------------------------------------------------------------
+     */
 
+    return (
         <Grid
             container
             spacing={3}
         >
+            {/* Total Sites */}
 
             <Grid
                 size={{
@@ -164,20 +174,21 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Total Sites"
-
-                    value={cards?.totalSites ?? 0}
-
-                    icon={<LanguageIcon fontSize="large" />}
-
+                    value={
+                        cards?.totalSites ?? 0
+                    }
+                    icon={
+                        <LanguageIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#1565C0"
-
                 />
-
             </Grid>
+
+            {/* Active Sites */}
 
             <Grid
                 size={{
@@ -186,20 +197,21 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Active Sites"
-
-                    value={cards?.activeSites ?? 0}
-
-                    icon={<CheckCircleIcon fontSize="large" />}
-
+                    value={
+                        cards?.activeSites ?? 0
+                    }
+                    icon={
+                        <CheckCircleIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#2E7D32"
-
                 />
-
             </Grid>
+
+            {/* Active Alarms */}
 
             <Grid
                 size={{
@@ -208,20 +220,21 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Active Alarms"
-
-                    value={cards?.activeAlarms ?? 0}
-
-                    icon={<WarningAmberIcon fontSize="large" />}
-
+                    value={
+                        cards?.activeAlarms ?? 0
+                    }
+                    icon={
+                        <WarningAmberIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#F57C00"
-
                 />
-
             </Grid>
+
+            {/* Battery SOC */}
 
             <Grid
                 size={{
@@ -230,20 +243,19 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Battery SOC"
-
                     value={`${cards?.batterySOC ?? 0}%`}
-
-                    icon={<BatteryChargingFullIcon fontSize="large" />}
-
+                    icon={
+                        <BatteryChargingFullIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#00897B"
-
                 />
-
             </Grid>
+
+            {/* Renewable Energy */}
 
             <Grid
                 size={{
@@ -252,20 +264,19 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Renewables"
-
                     value={`${cards?.renewableEnergy ?? 0}%`}
-
-                    icon={<SolarPowerIcon fontSize="large" />}
-
+                    icon={
+                        <SolarPowerIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#43A047"
-
                 />
-
             </Grid>
+
+            {/* Generator Runtime */}
 
             <Grid
                 size={{
@@ -274,23 +285,17 @@ export default function DashboardCards() {
                     lg: 2
                 }}
             >
-
                 <KPICard
-
                     title="Generator Runtime"
-
                     value={`${cards?.generatorRuntime ?? 0} h`}
-
-                    icon={<ElectricBoltIcon fontSize="large" />}
-
+                    icon={
+                        <ElectricBoltIcon
+                            fontSize="large"
+                        />
+                    }
                     color="#5E35B1"
-
                 />
-
             </Grid>
-
         </Grid>
-
     );
-
 }

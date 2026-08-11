@@ -1,31 +1,10 @@
-import apiClient from "../../../services/api/apiClient.js";
+import apiClient
+    from "../../../services/api/apiClient.js";
+
 
 /*
 |--------------------------------------------------------------------------
-| VRM API
-|--------------------------------------------------------------------------
-|
-| Frontend communicates ONLY with the HEMAP backend.
-|
-| The frontend must NEVER:
-|
-| - call vrmapi.victronenergy.com directly
-| - contain VRM_ACCESS_TOKEN
-| - contain VRM_USER_ID
-| - contain VRM_INSTALLATION_ID
-|
-| Backend endpoints:
-|
-| GET /api/v1/vrm/installation
-| GET /api/v1/vrm/dashboard
-| GET /api/v1/vrm/statistics
-|
-|--------------------------------------------------------------------------
-*/
-
-/*
-|--------------------------------------------------------------------------
-| Get configured VRM installation
+| Get VRM Installation
 |--------------------------------------------------------------------------
 */
 
@@ -40,9 +19,10 @@ export async function getVRMInstallation() {
 
 }
 
+
 /*
 |--------------------------------------------------------------------------
-| Get live VRM dashboard
+| Get VRM Dashboard
 |--------------------------------------------------------------------------
 */
 
@@ -57,9 +37,10 @@ export async function getVRMDashboard() {
 
 }
 
+
 /*
 |--------------------------------------------------------------------------
-| Get VRM statistics
+| Get VRM Statistics
 |--------------------------------------------------------------------------
 */
 
@@ -79,9 +60,10 @@ export async function getVRMStatistics(
 
 }
 
+
 /*
 |--------------------------------------------------------------------------
-| Default API
+| Default Export
 |--------------------------------------------------------------------------
 */
 

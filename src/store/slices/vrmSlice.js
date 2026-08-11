@@ -9,109 +9,12 @@ import {
     getVRMStatistics
 } from "../../features/vrm/api/vrmApi.js";
 
-/*
-|--------------------------------------------------------------------------
-| VRM Async Thunks
-|--------------------------------------------------------------------------
-*/
+import {
+    normalizeVRMInstallation,
+    normalizeVRMDashboard,
+    normalizeVRMStatistics
+} from "../../features/vrm/api/normalizeVRM.js";
 
-/*
-|--------------------------------------------------------------------------
-| Fetch VRM Installation
-|--------------------------------------------------------------------------
-*/
-
-export const fetchVRMInstallation =
-    createAsyncThunk(
-        "vrm/fetchInstallation",
-
-        async (_, thunkAPI) => {
-
-            try {
-
-                const response =
-                    await getVRMInstallation();
-
-                return response;
-
-            } catch (error) {
-
-                return thunkAPI.rejectWithValue(
-                    error?.response?.data ||
-                    error?.message ||
-                    "Failed to load VRM installation."
-                );
-
-            }
-
-        }
-    );
-
-/*
-|--------------------------------------------------------------------------
-| Fetch Live VRM Dashboard
-|--------------------------------------------------------------------------
-*/
-
-export const fetchVRMDashboard =
-    createAsyncThunk(
-        "vrm/fetchDashboard",
-
-        async (_, thunkAPI) => {
-
-            try {
-
-                const response =
-                    await getVRMDashboard();
-
-                return response;
-
-            } catch (error) {
-
-                return thunkAPI.rejectWithValue(
-                    error?.response?.data ||
-                    error?.message ||
-                    "Failed to load VRM dashboard."
-                );
-
-            }
-
-        }
-    );
-
-/*
-|--------------------------------------------------------------------------
-| Fetch VRM Statistics
-|--------------------------------------------------------------------------
-*/
-
-export const fetchVRMStatistics =
-    createAsyncThunk(
-        "vrm/fetchStatistics",
-
-        async (params = {}, thunkAPI) => {
-
-            try {
-
-                const response =
-                    await getVRMStatistics(
-                        params
-                    );
-
-                return response;
-
-            } catch (error) {
-
-                return thunkAPI.rejectWithValue(
-                    error?.response?.data ||
-                    error?.message ||
-                    "Failed to load VRM statistics."
-                );
-
-            }
-
-        }
-    );
 
 /*
 |--------------------------------------------------------------------------
@@ -121,290 +24,482 @@ export const fetchVRMStatistics =
 
 const initialState = {
 
+    /*
+    |----------------------------------------------------------------------
+    | Normalized VRM installation identity
+    |----------------------------------------------------------------------
+    */
+
     installation: null,
+
+
+    /*
+    |----------------------------------------------------------------------
+    | Normalized live dashboard
+    |----------------------------------------------------------------------
+    */
 
     dashboard: null,
 
+
+    /*
+    |----------------------------------------------------------------------
+    | Normalized historical statistics
+    |----------------------------------------------------------------------
+    */
+
     statistics: null,
+
+
+    /*
+    |----------------------------------------------------------------------
+    | Loading
+    |----------------------------------------------------------------------
+    */
 
     loading: false,
 
+
+    /*
+    |----------------------------------------------------------------------
+    | Refreshing
+    |----------------------------------------------------------------------
+    */
+
     refreshing: false,
 
+
+    /*
+    |----------------------------------------------------------------------
+    | Error
+    |----------------------------------------------------------------------
+    */
+
     error: null,
+
+
+    /*
+    |----------------------------------------------------------------------
+    | Last successful update
+    |----------------------------------------------------------------------
+    */
 
     lastUpdated: null
 
 };
 
+
 /*
 |--------------------------------------------------------------------------
-| VRM Slice
+| Fetch Installation
 |--------------------------------------------------------------------------
 */
 
-const vrmSlice = createSlice({
+export const fetchVRMInstallation =
+    createAsyncThunk(
+        "vrm/fetchInstallation",
 
-    name: "vrm",
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
 
-    initialState,
+            try {
 
-    reducers: {
+                const response =
+                    await getVRMInstallation();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Clear Error
-        |--------------------------------------------------------------------------
-        */
 
-        clearVRMError(state) {
+                const normalized =
+                    normalizeVRMInstallation(
+                        response
+                    );
 
-            state.error = null;
+
+                return normalized;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    normalizeThunkError(
+                        error
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Dashboard
+|--------------------------------------------------------------------------
+*/
+
+export const fetchVRMDashboard =
+    createAsyncThunk(
+        "vrm/fetchDashboard",
+
+        async (
+            _,
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await getVRMDashboard();
+
+
+                const normalized =
+                    normalizeVRMDashboard(
+                        response
+                    );
+
+
+                return normalized;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    normalizeThunkError(
+                        error
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Statistics
+|--------------------------------------------------------------------------
+*/
+
+export const fetchVRMStatistics =
+    createAsyncThunk(
+        "vrm/fetchStatistics",
+
+        async (
+            params = {},
+            { rejectWithValue }
+        ) => {
+
+            try {
+
+                const response =
+                    await getVRMStatistics(
+                        params
+                    );
+
+
+                const normalized =
+                    normalizeVRMStatistics(
+                        response
+                    );
+
+
+                return normalized;
+
+            } catch (error) {
+
+                return rejectWithValue(
+                    normalizeThunkError(
+                        error
+                    )
+                );
+
+            }
+
+        }
+    );
+
+
+/*
+|--------------------------------------------------------------------------
+| Slice
+|--------------------------------------------------------------------------
+*/
+
+const vrmSlice =
+    createSlice({
+
+        name: "vrm",
+
+        initialState,
+
+        reducers: {
+
+            /*
+            |--------------------------------------------------------------
+            | Clear error
+            |--------------------------------------------------------------
+            */
+
+            clearVRMError(
+                state
+            ) {
+
+                state.error = null;
+
+            },
+
+
+            /*
+            |--------------------------------------------------------------
+            | Clear all VRM state
+            |--------------------------------------------------------------
+            */
+
+            clearVRMState(
+                state
+            ) {
+
+                state.installation = null;
+
+                state.dashboard = null;
+
+                state.statistics = null;
+
+                state.loading = false;
+
+                state.refreshing = false;
+
+                state.error = null;
+
+                state.lastUpdated = null;
+
+            }
 
         },
 
-        /*
-        |--------------------------------------------------------------------------
-        | Clear VRM State
-        |--------------------------------------------------------------------------
-        */
 
-        clearVRMState(state) {
+        extraReducers: (
+            builder
+        ) => {
 
-            state.installation = null;
+            /*
+            |==============================================================
+            | INSTALLATION
+            |==============================================================
+            */
 
-            state.dashboard = null;
+            builder
 
-            state.statistics = null;
+                .addCase(
+                    fetchVRMInstallation.pending,
+                    (
+                        state
+                    ) => {
 
-            state.loading = false;
+                        state.loading =
+                            true;
 
-            state.refreshing = false;
+                        state.error =
+                            null;
 
-            state.error = null;
+                    }
+                )
 
-            state.lastUpdated = null;
+
+                .addCase(
+                    fetchVRMInstallation.fulfilled,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.installation =
+                            action.payload;
+
+                        state.loading =
+                            false;
+
+                        state.lastUpdated =
+                            new Date().toISOString();
+
+                    }
+                )
+
+
+                .addCase(
+                    fetchVRMInstallation.rejected,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.loading =
+                            false;
+
+                        state.error =
+                            action.payload ??
+                            "Unable to load VRM installation.";
+
+                    }
+                );
+
+
+            /*
+            |==============================================================
+            | DASHBOARD
+            |==============================================================
+            */
+
+            builder
+
+                .addCase(
+                    fetchVRMDashboard.pending,
+                    (
+                        state
+                    ) => {
+
+                        /*
+                         * If dashboard already exists, this is a refresh.
+                         */
+
+                        state.refreshing =
+                            Boolean(
+                                state.dashboard
+                            );
+
+                        state.error =
+                            null;
+
+                        /*
+                         * Only use initial loading when there is no
+                         * dashboard yet.
+                         */
+
+                        if (
+                            !state.dashboard
+                        ) {
+
+                            state.loading =
+                                true;
+
+                        }
+
+                    }
+                )
+
+
+                .addCase(
+                    fetchVRMDashboard.fulfilled,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.dashboard =
+                            action.payload;
+
+                        state.loading =
+                            false;
+
+                        state.refreshing =
+                            false;
+
+                        state.lastUpdated =
+                            new Date().toISOString();
+
+                    }
+                )
+
+
+                .addCase(
+                    fetchVRMDashboard.rejected,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.loading =
+                            false;
+
+                        state.refreshing =
+                            false;
+
+                        state.error =
+                            action.payload ??
+                            "Unable to load VRM dashboard.";
+
+                    }
+                );
+
+
+            /*
+            |==============================================================
+            | STATISTICS
+            |==============================================================
+            */
+
+            builder
+
+                .addCase(
+                    fetchVRMStatistics.pending,
+                    (
+                        state
+                    ) => {
+
+                        /*
+                         * Statistics are part of the refresh operation,
+                         * but should not blank existing statistics.
+                         */
+
+                        state.error =
+                            null;
+
+                    }
+                )
+
+
+                .addCase(
+                    fetchVRMStatistics.fulfilled,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.statistics =
+                            action.payload;
+
+                        state.refreshing =
+                            false;
+
+                        state.lastUpdated =
+                            new Date().toISOString();
+
+                    }
+                )
+
+
+                .addCase(
+                    fetchVRMStatistics.rejected,
+                    (
+                        state,
+                        action
+                    ) => {
+
+                        state.refreshing =
+                            false;
+
+                        state.error =
+                            action.payload ??
+                            "Unable to load VRM statistics.";
+
+                    }
+                );
 
         }
 
-    },
+    });
 
-    extraReducers: builder => {
-
-        /*
-        |--------------------------------------------------------------------------
-        | Installation
-        |--------------------------------------------------------------------------
-        */
-
-        builder
-
-            .addCase(
-                fetchVRMInstallation.pending,
-                state => {
-
-                    state.loading = true;
-
-                    state.error = null;
-
-                }
-            )
-
-            .addCase(
-                fetchVRMInstallation.fulfilled,
-                (state, action) => {
-
-                    state.loading = false;
-
-                    /*
-                    | Backend response:
-                    |
-                    | {
-                    |     success: true,
-                    |     data: {
-                    |         installationId,
-                    |         dashboard
-                    |     }
-                    | }
-                    |
-                    */
-
-                    const response =
-                        action.payload;
-
-                    state.installation =
-                        response?.data ||
-                        response ||
-                        null;
-
-                    state.lastUpdated =
-                        new Date().toISOString();
-
-                }
-            )
-
-            .addCase(
-                fetchVRMInstallation.rejected,
-                (state, action) => {
-
-                    state.loading = false;
-
-                    state.error =
-                        normalizeError(
-                            action.payload
-                        );
-
-                }
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dashboard
-        |--------------------------------------------------------------------------
-        */
-
-        builder
-
-            .addCase(
-                fetchVRMDashboard.pending,
-                state => {
-
-                    state.refreshing = true;
-
-                    state.error = null;
-
-                }
-            )
-
-            .addCase(
-                fetchVRMDashboard.fulfilled,
-                (state, action) => {
-
-                    state.refreshing = false;
-
-                    const response =
-                        action.payload;
-
-                    state.dashboard =
-                        response?.data ||
-                        response ||
-                        null;
-
-                    state.lastUpdated =
-                        new Date().toISOString();
-
-                }
-            )
-
-            .addCase(
-                fetchVRMDashboard.rejected,
-                (state, action) => {
-
-                    state.refreshing = false;
-
-                    state.error =
-                        normalizeError(
-                            action.payload
-                        );
-
-                }
-            );
-
-        /*
-        |--------------------------------------------------------------------------
-        | Statistics
-        |--------------------------------------------------------------------------
-        */
-
-        builder
-
-            .addCase(
-                fetchVRMStatistics.pending,
-                state => {
-
-                    state.refreshing = true;
-
-                    state.error = null;
-
-                }
-            )
-
-            .addCase(
-                fetchVRMStatistics.fulfilled,
-                (state, action) => {
-
-                    state.refreshing = false;
-
-                    const response =
-                        action.payload;
-
-                    state.statistics =
-                        response?.data ||
-                        response ||
-                        null;
-
-                    state.lastUpdated =
-                        new Date().toISOString();
-
-                }
-            )
-
-            .addCase(
-                fetchVRMStatistics.rejected,
-                (state, action) => {
-
-                    state.refreshing = false;
-
-                    state.error =
-                        normalizeError(
-                            action.payload
-                        );
-
-                }
-            );
-
-    }
-
-});
-
-/*
-|--------------------------------------------------------------------------
-| Error Normalization
-|--------------------------------------------------------------------------
-*/
-
-function normalizeError(error) {
-
-    if (!error) {
-
-        return "VRM request failed.";
-
-    }
-
-    if (typeof error === "string") {
-
-        return error;
-
-    }
-
-    if (error?.message) {
-
-        return error.message;
-
-    }
-
-    if (error?.error) {
-
-        return typeof error.error === "string"
-            ? error.error
-            : error.error?.message ||
-              "VRM request failed.";
-
-    }
-
-    return "VRM request failed.";
-
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -417,43 +512,93 @@ export const {
     clearVRMState
 } = vrmSlice.actions;
 
+
 /*
 |--------------------------------------------------------------------------
 | Selectors
 |--------------------------------------------------------------------------
 */
 
-export const selectVRM =
-    state =>
-        state.vrm;
-
 export const selectVRMInstallation =
     state =>
-        state.vrm?.installation;
+        state.vrm?.installation ??
+        null;
+
 
 export const selectVRMDashboard =
     state =>
-        state.vrm?.dashboard;
+        state.vrm?.dashboard ??
+        null;
+
 
 export const selectVRMStatistics =
     state =>
-        state.vrm?.statistics;
+        state.vrm?.statistics ??
+        null;
+
 
 export const selectVRMLoading =
     state =>
-        state.vrm?.loading ?? false;
+        Boolean(
+            state.vrm?.loading
+        );
+
 
 export const selectVRMRefreshing =
     state =>
-        state.vrm?.refreshing ?? false;
+        Boolean(
+            state.vrm?.refreshing
+        );
+
 
 export const selectVRMError =
     state =>
-        state.vrm?.error ?? null;
+        state.vrm?.error ??
+        null;
+
 
 export const selectVRMLastUpdated =
     state =>
-        state.vrm?.lastUpdated ?? null;
+        state.vrm?.lastUpdated ??
+        null;
+
+
+/*
+|--------------------------------------------------------------------------
+| Error Normalization
+|--------------------------------------------------------------------------
+*/
+
+function normalizeThunkError(
+    error
+) {
+
+    if (
+        error?.response?.data
+    ) {
+
+        return (
+            error.response.data.message ??
+            error.response.data.error ??
+            "VRM request failed."
+        );
+
+    }
+
+
+    if (
+        error?.message
+    ) {
+
+        return error.message;
+
+    }
+
+
+    return "VRM request failed.";
+
+}
+
 
 /*
 |--------------------------------------------------------------------------

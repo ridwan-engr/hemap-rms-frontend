@@ -141,11 +141,15 @@ export default function InstallationPage() {
 
         return (
             <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                minHeight="60vh"
-            >
+                sx={{
+                        display:"flex",
+                        alignItems:"center",
+                        justifyContent:"center",
+                        minHeight:"60vh"
+                    }}
+
+                >
+
                 <CircularProgress />
             </Box>
         );

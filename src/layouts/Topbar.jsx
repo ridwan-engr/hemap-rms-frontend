@@ -42,7 +42,9 @@ const titles = {
 
     "/users": "Users",
 
-    "/settings": "Settings"
+    "/settings": "Settings",
+
+     "/vrm": "VRM"
 
 };
 

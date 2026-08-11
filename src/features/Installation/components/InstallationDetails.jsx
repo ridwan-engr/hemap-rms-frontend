@@ -228,13 +228,15 @@ export default function InstallationDetails({
     ) {
 
         return (
-
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                minHeight="400px"
-            >
+            
+                <Box
+                    sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        minHeight: "400px"
+                    }}
+                >
 
                 <CircularProgress />
 
@@ -267,7 +269,7 @@ export default function InstallationDetails({
                         {typeof error === "string"
                             ? error
                             : error?.message ||
-                              "Unable to load installation."
+                            "Unable to load installation."
                         }
 
                     </Alert>
@@ -586,7 +588,7 @@ export default function InstallationDetails({
                     {typeof error === "string"
                         ? error
                         : error?.message ||
-                          "An analytics operation failed."
+                        "An analytics operation failed."
                     }
 
                 </Alert>

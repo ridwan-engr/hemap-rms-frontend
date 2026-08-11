@@ -1,18 +1,10 @@
-import {
-    useCallback,
-    useEffect
-} from "react";
-
-import {
-    useDispatch,
-    useSelector
-} from "react-redux";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
     fetchVRMInstallation,
     fetchVRMDashboard,
     fetchVRMStatistics,
-    clearVRMError,
 
     selectVRMInstallation,
     selectVRMDashboard,
@@ -20,30 +12,56 @@ import {
     selectVRMLoading,
     selectVRMRefreshing,
     selectVRMError,
-    selectVRMLastUpdated
+    selectVRMLastUpdated,
+
+    clearVRMError
 } from "../../../store/slices/vrmSlice.js";
 
-/*
-|--------------------------------------------------------------------------
-| VRM Hook
-|--------------------------------------------------------------------------
-|
-| Components must consume VRM through this hook.
-|
-| Components should NOT:
-|
-| - call Axios directly
-| - call vrmApi.js directly
-| - dispatch Redux actions directly
-| - access state.vrm directly
-|
-|--------------------------------------------------------------------------
-*/
+/**
+ * ============================================================================
+ * HEMAP RMS
+ * VRM - useVRM Hook
+ * ============================================================================
+ *
+ * Purpose:
+ * ----------------------------------------------------------------------------
+ * Central React hook for consuming VRM state.
+ *
+ * Architecture:
+ *
+ * VRMInstallationPage
+ *        ↓
+ * useVRM()
+ *        ↓
+ * vrmSlice
+ *        ↓
+ * vrmApi
+ *        ↓
+ * HEMAP Backend
+ *        ↓
+ * Victron VRM
+ *
+ * Responsibilities:
+ * ----------------------------------------------------------------------------
+ * - Read normalized VRM state from Redux.
+ * - Trigger VRM Redux thunks.
+ * - Provide the initial VRM data load.
+ * - Provide a single refresh() operation.
+ * - Expose request and synchronization state.
+ *
+ * This hook does NOT:
+ * ----------------------------------------------------------------------------
+ * - call Axios
+ * - call vrmApi directly
+ * - parse raw VRM responses
+ * - normalize VRM data
+ * - contain UI markup
+ * - access VRM credentials
+ *
+ * ============================================================================
+ */
 
-export default function useVRM({
-    autoLoad = true,
-    statisticsParams = {}
-} = {}) {
+export default function useVRM() {
 
     const dispatch = useDispatch();
 
@@ -54,91 +72,89 @@ export default function useVRM({
     */
 
     const installation =
-        useSelector(selectVRMInstallation);
+        useSelector(
+            selectVRMInstallation
+        );
 
     const dashboard =
-        useSelector(selectVRMDashboard);
+        useSelector(
+            selectVRMDashboard
+        );
 
     const statistics =
-        useSelector(selectVRMStatistics);
+        useSelector(
+            selectVRMStatistics
+        );
 
     const loading =
-        useSelector(selectVRMLoading);
+        useSelector(
+            selectVRMLoading
+        );
 
     const refreshing =
-        useSelector(selectVRMRefreshing);
+        useSelector(
+            selectVRMRefreshing
+        );
 
     const error =
-        useSelector(selectVRMError);
+        useSelector(
+            selectVRMError
+        );
 
     const lastUpdated =
-        useSelector(selectVRMLastUpdated);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Installation
-    |--------------------------------------------------------------------------
-    */
-
-    const loadInstallation =
-        useCallback(
-            () => {
-
-                return dispatch(
-                    fetchVRMInstallation()
-                );
-
-            },
-            [dispatch]
+        useSelector(
+            selectVRMLastUpdated
         );
 
     /*
     |--------------------------------------------------------------------------
-    | Load Dashboard
-    |--------------------------------------------------------------------------
-    */
-
-    const loadDashboard =
-        useCallback(
-            () => {
-
-                return dispatch(
-                    fetchVRMDashboard()
-                );
-
-            },
-            [dispatch]
-        );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Load Statistics
-    |--------------------------------------------------------------------------
-    */
-
-    const loadStatistics =
-        useCallback(
-            (params = statisticsParams) => {
-
-                return dispatch(
-                    fetchVRMStatistics(
-                        params
-                    )
-                );
-
-            },
-            [
-                dispatch,
-                statisticsParams
-            ]
-        );
-
-    /*
-    |--------------------------------------------------------------------------
-    | Refresh
+    | Initial VRM Load
     |--------------------------------------------------------------------------
     |
-    | Refresh all VRM data from the HEMAP backend.
+    | Load installation information, dashboard telemetry and statistics
+    | when the VRM feature is first mounted.
+    |
+    | Existing Redux data is preserved and will not be unnecessarily
+    | requested again.
+    |
+    */
+
+    useEffect(() => {
+
+        if (
+            !installation &&
+            !dashboard
+        ) {
+
+            dispatch(
+                fetchVRMInstallation()
+            );
+
+            dispatch(
+                fetchVRMDashboard()
+            );
+
+            dispatch(
+                fetchVRMStatistics()
+            );
+
+        }
+
+    }, [
+        dispatch,
+        installation,
+        dashboard
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh Dashboard + Statistics
+    |--------------------------------------------------------------------------
+    |
+    | Refresh intentionally excludes installation identity.
+    |
+    | Installation information is relatively static while dashboard and
+    | statistics represent the live/historical telemetry layer.
     |
     */
 
@@ -147,38 +163,93 @@ export default function useVRM({
             async () => {
 
                 const results =
-                    await Promise.all([
-                        dispatch(
-                            fetchVRMInstallation()
-                        ),
+                    await Promise.allSettled([
 
                         dispatch(
                             fetchVRMDashboard()
-                        ),
+                        ).unwrap(),
 
                         dispatch(
-                            fetchVRMStatistics(
-                                statisticsParams
-                            )
-                        )
+                            fetchVRMStatistics()
+                        ).unwrap()
+
                     ]);
 
-                return results;
+                const rejected =
+                    results.find(
+                        result =>
+                            result.status ===
+                            "rejected"
+                    );
+
+                if (rejected) {
+
+                    throw rejected.reason;
+
+                }
+
+                return results.map(
+                    result =>
+                        result.value
+                );
 
             },
-            [
-                dispatch,
-                statisticsParams
-            ]
+            [dispatch]
         );
 
     /*
     |--------------------------------------------------------------------------
-    | Clear Error
+    | Reload Installation
+    |--------------------------------------------------------------------------
+    |
+    | Explicitly reload installation identity/configuration.
+    |
+    */
+
+    const reloadInstallation =
+        useCallback(
+            async () => {
+
+                return dispatch(
+                    fetchVRMInstallation()
+                ).unwrap();
+
+            },
+            [dispatch]
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Refresh Statistics
+    |--------------------------------------------------------------------------
+    |
+    | Allows statistics to be requested independently.
+    |
+    */
+
+    const refreshStatistics =
+        useCallback(
+            async (
+                params = {}
+            ) => {
+
+                return dispatch(
+                    fetchVRMStatistics(
+                        params
+                    )
+                ).unwrap();
+
+            },
+            [dispatch]
+        );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear VRM Error
     |--------------------------------------------------------------------------
     */
 
-    const dismissError =
+    const clearError =
         useCallback(
             () => {
 
@@ -192,80 +263,72 @@ export default function useVRM({
 
     /*
     |--------------------------------------------------------------------------
-    | Initial Load
+    | Derived State
     |--------------------------------------------------------------------------
     */
 
-    useEffect(
-        () => {
+    const hasInstallation =
+        Boolean(
+            installation
+        );
 
-            if (!autoLoad) {
+    const hasDashboard =
+        Boolean(
+            dashboard
+        );
 
-                return;
+    const hasStatistics =
+        Boolean(
+            statistics
+        );
 
-            }
-
-            /*
-            |--------------------------------------------------------------
-            | Do not reload continuously.
-            |--------------------------------------------------------------
-            |
-            | The hook loads the configured VRM installation once.
-            | Manual refresh is available through refresh().
-            |
-            */
-
-            loadInstallation();
-
-            loadDashboard();
-
-            loadStatistics(
-                statisticsParams
-            );
-
-        },
-        [
-            autoLoad,
-            loadInstallation,
-            loadDashboard,
-            loadStatistics,
-            statisticsParams
-        ]
-    );
+    const hasData =
+        hasInstallation ||
+        hasDashboard ||
+        hasStatistics;
 
     /*
     |--------------------------------------------------------------------------
-    | Public API
+    | Hook Contract
     |--------------------------------------------------------------------------
+    |
+    | This is the only interface the VRM page needs.
+    |
     */
 
     return {
 
         /*
         |--------------------------------------------------------------------------
-        | Data
+        | Normalized VRM Data
         |--------------------------------------------------------------------------
         */
 
         installation,
-
         dashboard,
-
         statistics,
 
         /*
         |--------------------------------------------------------------------------
-        | Status
+        | Request State
         |--------------------------------------------------------------------------
         */
 
         loading,
-
         refreshing,
-
         error,
-
         lastUpdated,
+
+        /*
+        |--------------------------------------------------------------------------
+        | Derived State
+        |--------------------------------------------------------------------------
+        */
+
+        hasInstallation,
+        hasDashboard,
+        hasStatistics,
+        hasData,
 
         /*
         |--------------------------------------------------------------------------
@@ -273,15 +336,10 @@ export default function useVRM({
         |--------------------------------------------------------------------------
         */
 
-        loadInstallation,
-
-        loadDashboard,
-
-        loadStatistics,
-
         refresh,
-
-        dismissError
+        reloadInstallation,
+        refreshStatistics,
+        clearError
 
     };
 

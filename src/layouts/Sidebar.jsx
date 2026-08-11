@@ -18,7 +18,8 @@ import {
     Settings,
     People,
     Tune,
-    Timeline
+    Timeline,
+    CloudSync
 } from "@mui/icons-material";
 
 import { NavLink } from "react-router-dom";
@@ -26,7 +27,6 @@ import { NavLink } from "react-router-dom";
 const drawerWidth = 260;
 
 const menu = [
-
     {
         title: "Dashboard",
         icon: <Dashboard />,
@@ -70,6 +70,12 @@ const menu = [
     },
 
     {
+        title: "VRM",
+        icon: <CloudSync />,
+        path: "/vrm"
+    },
+
+    {
         title: "Alarms",
         icon: <Warning />,
         path: "/alarms"
@@ -90,29 +96,25 @@ const menu = [
 ];
 
 export default function Sidebar() {
-
     return (
-
         <Drawer
             variant="permanent"
             sx={{
                 width: drawerWidth,
                 flexShrink: 0,
+
                 "& .MuiDrawer-paper": {
                     width: drawerWidth,
                     boxSizing: "border-box"
                 }
             }}
         >
-
             <Toolbar />
 
             <Divider />
 
             <List>
-
                 {menu.map((item) => (
-
                     <ListItemButton
                         key={item.path}
                         component={NavLink}
@@ -128,25 +130,16 @@ export default function Sidebar() {
                             }
                         }}
                     >
-
                         <ListItemIcon>
-
                             {item.icon}
-
                         </ListItemIcon>
 
                         <ListItemText
                             primary={item.title}
                         />
-
                     </ListItemButton>
-
                 ))}
-
             </List>
-
         </Drawer>
-
     );
-
 }
